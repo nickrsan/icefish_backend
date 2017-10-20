@@ -27,8 +27,30 @@ import datetime
 import os
 import re
 import logging
+import six
 
 import serial
+
+class SBE37(object):
+	def set_datetime(self):
+		dt = datetime.datetime.now()
+		return ["DATETIME={}".format(dt.strftime("%m%d%Y%H%M%S"))]
+
+	def sample_interval(self, interval):
+		return "SAMPLEINTERVAL={}".format(interval)
+
+class SBE39(object):
+	def set_datetime(self):
+		dt = datetime.datetime.now()
+		return ["MMDDYY={}".format(dt.strftime("%m%d%y")), "HHMMSS={}".format(dt.strftime("%H%M%S"))]
+
+	def sample_interval(self, interval):
+		return "INTERVAL={}".format(interval)
+
+supported_ctds = {
+	b"SBE 37": "SBE37",
+	b"SBE 39": "SBE39"
+}  # name the instrument will report, then class name. could also do this with 2-tuples.
 
 class CTDConnectionError(BaseException):
 	pass
@@ -54,7 +76,7 @@ class Element(object):
 		pass
 
 class CTD(object):
-	def __init__(self, COM_port=None, baud=9600, timeout=8, setup_delay=2, date_format=""):
+	def __init__(self, COM_port=None, baud=9600, timeout=5, setup_delay=2, date_format=""):
 		"""
 		If COM_port is not provided, checks for an environment variable named SEABIRD_CTD_PORT. Otherwise raises
 		CTDConnectionError
@@ -66,14 +88,33 @@ class CTD(object):
 				raise CTDConnectionError("SEABIRD_CTD_PORT environment variable is not defined. Don't know what COM port"
 										 "to connect to for CTD data. Can't collect CTD data.")
 
+		self.last_sample = None
+
 		self.ctd = serial.Serial(COM_port, baud, timeout=timeout)
 		time.sleep(setup_delay)  # give it time to init
-		self.ctd.write(b"")  # sometimes needs a write and a read to fully connect
-		junk = self.ctd.read(100)  # should hit timeout waiting for the read, but then be ready to do work
-			# TODO: Is this always junk? What if this is starting up after setting the CTD to autosample, then the server crashes and is reconnecting
+
+		self.command_object = None
+		self.determine_ctd_model()
+
+	def determine_ctd_model(self):
+		ctd_info = self.wake()  # TODO: Is the data returned from wake always junk? What if this is starting up after setting the CTD to autosample, then the server crashes and is reconnecting
+
+		for line in ctd_info:  # it should write out the model when you connect
+			if line in supported_ctds.keys():
+				logging.log(1, line)
+				self.command_object = globals()[supported_ctds[line]]()  # get the object that has the command info for this CTD
+				self.model = line
+
+		if not self.command_object:  # if we didn't get it from startup, issue a DS to determine it and peel it off the first part
+			self.model = self._send_command("DS")[1][:6]  # it'll be the first 6 characters of the
+			self.command_object = globals()[supported_ctds[self.model]]()
+
+		if not self.command_object:
+			raise CTDConnectionError(
+				"Unable to wake CTD or determine its type. There could be a connection error or this is currently plugged into an unsupported model")
 
 	def _send_command(self, command, get_response=True, length_to_read=1000):
-		self.ctd.write(serial.to_bytes('{}\r\n'.format(command)))  # doesn't seem to work unless we pass it a windows line ending. Sends command, but no results
+		self.ctd.write(six.b('{}\r\n'.format(command)))  # doesn't seem to work unless we pass it a windows line ending. Sends command, but no results
 
 		if get_response:
 			if length_to_read == "LINE":
@@ -81,15 +122,50 @@ class CTD(object):
 			else:
 				data = self.ctd.read(length_to_read)
 
-		return data.split("\r\n")  # first element of list should now be the command, but we'll let the caller filter that
+			return six.u(data.split(b"\r\n"))  # first element of list should now be the command, but we'll let the caller filter that
 
 	def set_datetime(self):
-		dt = datetime.datetime.now()
-		self._send_command("DATETIME={}".format(dt.strftime("%m%d%Y%H%M%S")),get_response=False)
+		datetime_commands = self.command_object.set_datetime()
+		for command in datetime_commands:
+			logging.log(1, "Setting datetime: {}".format(command))
+			self._send_command(command, get_response=False)
 
 	def take_sample(self):
-		data = self._send_command("TS")
-
+		self.last_sample = self._send_command("TS")
+		return self.last_sample
 
 	def _filter_samples_to_data(self,):
 		pass
+
+	def sleep(self):
+		self._send_command("QS", get_response=False)
+
+	def wake(self):
+		return self._send_command(" ", get_response=True)  # Send a single character to wake the device, get the response so that we clear the buffer
+
+	def status(self):
+		return self._send_command("DS")
+
+	def start_autosample(self, interval):
+		"""
+			This should set the sampling interval, then turn on autosampling, then just keep reading the line every interval.
+			Before reading the line, it should also check for new commands in a command queue, so it can see if it's
+			should be doing something else instead.
+		:param interval:
+		:return:
+		"""
+		self._send_command(self.command_object.sample_interval(interval))
+
+
+
+	def stop_autosample(self):
+		self._send_command("STOP")
+
+	def __del__(self):
+		self.sleep()
+		self.ctd.close()
+
+
+if __name__ == "__main__":
+	ctd = CTD("COM6", 9600, timeout=5)
+	ctd.set_datetime()
