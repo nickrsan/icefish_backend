@@ -31,6 +31,8 @@ import six
 
 import serial
 
+from seabird_ctd import tasks
+
 class SBE37(object):
 	def set_datetime(self):
 		dt = datetime.datetime.now()
@@ -151,12 +153,15 @@ class CTD(object):
 			This should set the sampling interval, then turn on autosampling, then just keep reading the line every interval.
 			Before reading the line, it should also check for new commands in a command queue, so it can see if it's
 			should be doing something else instead.
+
+			We should do this as an event loop, where we create a celery task to check the line. That way, control can flow
+			from here and django can do other work in the meantime. Otherwise, we can have a separate script that does
+			the standalone django setup so it can access the models and the DB, or we can just do our own inserts since
+			it's relatively simple code here.
 		:param interval:
 		:return:
 		"""
-		self._send_command(self.command_object.sample_interval(interval))
-
-
+		self._send_command(self.command_object.sample_interval(interval))  # set the interval to sample at
 
 	def stop_autosample(self):
 		self._send_command("STOP")
