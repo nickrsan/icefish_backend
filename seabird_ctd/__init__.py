@@ -34,6 +34,9 @@ import serial
 from seabird_ctd import tasks
 
 class SBE37(object):
+	def __init__(self):
+		self.max_samples = 3655394  # needs verification. This is just a guess based on SBE39
+
 	def set_datetime(self):
 		dt = datetime.datetime.now()
 		return ["DATETIME={}".format(dt.strftime("%m%d%Y%H%M%S"))]
@@ -41,13 +44,27 @@ class SBE37(object):
 	def sample_interval(self, interval):
 		return "SAMPLEINTERVAL={}".format(interval)
 
+	def retrieve_samples(self, start, end):
+		return [
+			"OUTPUTFORMAT=1",
+			"GetSamples:{},{}".format(start,end)
+		]
+
 class SBE39(object):
+	def __init__(self):
+		self.max_samples = 3655394
+
 	def set_datetime(self):
 		dt = datetime.datetime.now()
 		return ["MMDDYY={}".format(dt.strftime("%m%d%y")), "HHMMSS={}".format(dt.strftime("%H%M%S"))]
 
 	def sample_interval(self, interval):
 		return "INTERVAL={}".format(interval)
+
+	def retrieve_samples(self, start, end):
+		return [
+			"DD{},{}".format(start, end)
+		]
 
 supported_ctds = {
 	b"SBE 37": "SBE37",
@@ -97,6 +114,7 @@ class CTD(object):
 
 		self.command_object = None
 		self.determine_ctd_model()
+		self.status()  # will fill some fields in so we know what sample it's on, etc
 
 	def determine_ctd_model(self):
 		ctd_info = self.wake()  # TODO: Is the data returned from wake always junk? What if this is starting up after setting the CTD to autosample, then the server crashes and is reconnecting
@@ -112,41 +130,55 @@ class CTD(object):
 			self.command_object = globals()[supported_ctds[self.model]]()
 
 		if not self.command_object:
-			raise CTDConnectionError(
-				"Unable to wake CTD or determine its type. There could be a connection error or this is currently plugged into an unsupported model")
+			raise CTDConnectionError("Unable to wake CTD or determine its type. There could be a connection error or this is currently plugged into an unsupported model")
 
-	def _send_command(self, command, get_response=True, length_to_read=1000):
+	def _send_command(self, command, length_to_read="ALL"):
 		self.ctd.write(six.b('{}\r\n'.format(command)))  # doesn't seem to work unless we pass it a windows line ending. Sends command, but no results
 
-		if get_response:
-			if length_to_read == "LINE":
-				data = self.ctd.readline()
-			else:
-				data = self.ctd.read(length_to_read)
+		# reads after sending by default so that we can determine if there was a timeout
+		if length_to_read == "ALL":
+			data = b""
+			new_data = "start"
+			while new_data not in (b"", None):
+				new_data = self.ctd.read(1000)  # if we're expecting quite a lot, then keep reading until we get nothing
+				data += new_data
+		else:
+			data = self.ctd.read(length_to_read)
 
-			return six.u(data.split(b"\r\n"))  # first element of list should now be the command, but we'll let the caller filter that
+		response = six.u(data.split(b"\r\n"))  # first element of list should now be the command, but we'll let the caller filter that
+
+		if b"timeout" in response:  # if we got a timeout the first time, then we should be reconnected. Rerun this function and return the results
+			return self._send_command(command, length_to_read)
+		else:
+			return response
 
 	def set_datetime(self):
 		datetime_commands = self.command_object.set_datetime()
 		for command in datetime_commands:
 			logging.log(1, "Setting datetime: {}".format(command))
-			self._send_command(command, get_response=False)
+			self._send_command(command)
 
 	def take_sample(self):
-		self.last_sample = self._send_command("TS")
+		self.last_sample = self._send_command("TS", length_to_read=1000)
 		return self.last_sample
 
 	def _filter_samples_to_data(self,):
 		pass
 
 	def sleep(self):
-		self._send_command("QS", get_response=False)
+		self._send_command("QS")
 
 	def wake(self):
-		return self._send_command(" ", get_response=True)  # Send a single character to wake the device, get the response so that we clear the buffer
+		return self._send_command(" ", length_to_read=100)  # Send a single character to wake the device, get the response so that we clear the buffer
 
 	def status(self):
-		return self._send_command("DS")
+		status = self._send_command("DS")
+		self.full_model = status[1].split("   ")[0]
+		self.serial_number = status[1].split("   ")[1]
+		self.battery_voltage = status[2].split(" = ")[1]
+		self.sample_number = status[5].split(", ")[0].split(" = ")[1]
+
+		return status
 
 	def start_autosample(self, interval):
 		"""
@@ -162,15 +194,48 @@ class CTD(object):
 		:return:
 		"""
 		self._send_command(self.command_object.sample_interval(interval))  # set the interval to sample at
+		self._send_command("STARTNOW")  # start sampling
 
 	def stop_autosample(self):
 		self._send_command("STOP")
 
+	def catch_up(self):
+		"""
+			Meant to pull in any records that are missing on startup of this script - if the autosampler runs in the
+			background, then while the script is offline, new data is being stored in flash on the device. This should
+			pull in those records.
+
+			NOTE - this command STOPS autosampling if it's running - it must be restarted on its own.
+		:return:
+		"""
+		self.stop_autosample()
+
+		commands = self.command_object.retrieve_samples(0, self.sample_number)
+		for command in commands:
+			results = self._send_command(command)  # if we have multiple commands, only the later one will have data
+
+		# we now have all the samples and can parse them so that we can insert them.
+
+	def parse_results(self):
+		pass
+
 	def __del__(self):
+		"""
+			Put the CTD to sleep and close the connection
+		:return:
+		"""
 		self.sleep()
 		self.ctd.close()
 
 
 if __name__ == "__main__":
+
 	ctd = CTD("COM6", 9600, timeout=5)
+
+	# Stop CTD, check for and load old records
+	# ctd.catch_up()
+
+	# Set Datetime
 	ctd.set_datetime()
+
+	# Start CTD and begin check/load loops
