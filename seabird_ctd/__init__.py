@@ -33,9 +33,16 @@ import serial
 
 from seabird_ctd import tasks
 
+import icefish_backend.settings
+os.environ["DJANGO_SETTINGS_MODULE"] = "icefish_backend.settings"
+import django
+django.setup()  # so that we can insert data using models
+from icefish import models
+
 class SBE37(object):
 	def __init__(self):
 		self.max_samples = 3655394  # needs verification. This is just a guess based on SBE39
+		self.keys = ("temperature", "pressure", "datetime")
 
 	def set_datetime(self):
 		dt = datetime.datetime.now()
@@ -53,6 +60,7 @@ class SBE37(object):
 class SBE39(object):
 	def __init__(self):
 		self.max_samples = 3655394
+		self.keys = ("temperature", "pressure", "datetime")
 
 	def set_datetime(self):
 		dt = datetime.datetime.now()
@@ -66,10 +74,17 @@ class SBE39(object):
 			"DD{},{}".format(start, end)
 		]
 
+	def record_regex(self):
+		self.regex = "(?P<temperature>-?\d+\.\d+),\s+(?P<pressure>-?\d+\.\d+),\s+(?P<datetime>\d+\s\w+\s\d{4},\s\d{2}:\d{2}:\d{2})"
+		return self.regex
+
 supported_ctds = {
-	b"SBE 37": "SBE37",
-	b"SBE 39": "SBE39"
+	"SBE 37": "SBE37",
+	"SBE 39": "SBE39"
 }  # name the instrument will report, then class name. could also do this with 2-tuples.
+
+class CTDOperationError(BaseException):
+	pass
 
 class CTDConnectionError(BaseException):
 	pass
@@ -95,7 +110,7 @@ class Element(object):
 		pass
 
 class CTD(object):
-	def __init__(self, COM_port=None, baud=9600, timeout=5, setup_delay=2, date_format=""):
+	def __init__(self, COM_port=None, baud=4800, timeout=5, setup_delay=2, date_format=""):
 		"""
 		If COM_port is not provided, checks for an environment variable named SEABIRD_CTD_PORT. Otherwise raises
 		CTDConnectionError
@@ -145,12 +160,15 @@ class CTD(object):
 		else:
 			data = self.ctd.read(length_to_read)
 
-		response = six.u(data.split(b"\r\n"))  # first element of list should now be the command, but we'll let the caller filter that
+		response = self._clean(data)
 
-		if b"timeout" in response:  # if we got a timeout the first time, then we should be reconnected. Rerun this function and return the results
+		if "timeout" in response:  # if we got a timeout the first time, then we should be reconnected. Rerun this function and return the results
 			return self._send_command(command, length_to_read)
 		else:
 			return response
+
+	def _clean(self, response):
+		return response.decode("utf-8").split("\r\n")  # first element of list should now be the command, but we'll let the caller filter that
 
 	def set_datetime(self):
 		datetime_commands = self.command_object.set_datetime()
@@ -177,10 +195,18 @@ class CTD(object):
 		self.serial_number = status[1].split("   ")[1]
 		self.battery_voltage = status[2].split(" = ")[1]
 		self.sample_number = status[5].split(", ")[0].split(" = ")[1]
+		self.is_sampling = True if status[3] == "logging data" else False
 
 		return status
 
-	def start_autosample(self, interval):
+	def check_interrupt(self):
+		"""
+			Should return True if we're supposed to stop listening or False if we shouldn't
+		:return:
+		"""
+		return False  # for now, we don't have a way to interrupt it, so we'll just return false
+
+	def start_autosample(self, interval=60, realtime="Y"):
 		"""
 			This should set the sampling interval, then turn on autosampling, then just keep reading the line every interval.
 			Before reading the line, it should also check for new commands in a command queue, so it can see if it's
@@ -193,11 +219,57 @@ class CTD(object):
 		:param interval:
 		:return:
 		"""
+		if self.is_sampling:
+			self.stop_autosample()  # stop it so we can set the parameters
+
 		self._send_command(self.command_object.sample_interval(interval))  # set the interval to sample at
+		self._send_command("TXREALTIME={}".format(realtime))  # set the interval to sample at
 		self._send_command("STARTNOW")  # start sampling
+
+		if realtime == "Y":
+			self.listen(interval)
+
+	def listen(self, interval=60):
+		"""
+			Continuously polls for new data on the line at interval. Used when autosampling with realtime transmission to
+			receive records.
+		:return:
+		"""
+
+		while self.check_interrupt() is False:
+
+			data = self.ctd.read(500)
+			self.find_and_insert_records(self._clean(data))
+
+			time.sleep(interval)
+
+	def find_and_insert_records(self, data):
+		for element in data:
+			matches = re.search(self.command_object.record_regex(), element)
+			if matches is None:
+				continue
+			new_model = models.CTD()
+			if "temperature" in self.command_object.keys:
+				new_model.temp = matches.group("temperature")
+
+			if "pressure" in self.command_object.keys:
+				new_model.pressure = matches.group("pressure")
+
+			if "conductivity" in self.command_object.keys:
+				new_model.conductivity = matches.group("conductivity")
+
+			if "datetime" in self.command_object.keys:
+				dt_object = datetime.datetime.strptime(str(matches.group("datetime")), "%d %b %Y, %H:%M:%S")
+				new_model.datetime = dt_object
+
+			new_model.save()
 
 	def stop_autosample(self):
 		self._send_command("STOP")
+		self.status()
+
+		if self.is_sampling is not False:
+			raise CTDOperationError("Unable to stop autosampling. If you are starting autosampling, parameters may not be updated")
 
 	def catch_up(self):
 		"""
@@ -230,12 +302,14 @@ class CTD(object):
 
 if __name__ == "__main__":
 
-	ctd = CTD("COM6", 9600, timeout=5)
+	ctd = CTD()
 
 	# Stop CTD, check for and load old records
 	# ctd.catch_up()
 
 	# Set Datetime
 	ctd.set_datetime()
+
+	ctd.start_autosample(10)
 
 	# Start CTD and begin check/load loops
