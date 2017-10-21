@@ -7,3 +7,13 @@ def insert_CTD_records(records):
 	:param records:
 	:return:
 	"""
+
+	try:
+
+		pass
+
+
+	finally:
+		#schedule next run of the task, unless we can make it recur when we set it up.
+
+		pass
