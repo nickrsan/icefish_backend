@@ -10,3 +10,4 @@ class CTD(models.Model):
 	pressure = models.FloatField()
 	conductivity = models.FloatField(blank=True, null=True)
 	datetime = models.DateTimeField()
+	measured = models.BooleanField(default=True)  # used as a flag if we interpolate any values. If measured == True, then it's direct off the CTD
