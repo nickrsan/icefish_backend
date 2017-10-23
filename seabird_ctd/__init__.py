@@ -1,26 +1,12 @@
 """
 	SeaBird CTD is meant to handle reading data from a stationary CTD logger. Many packages exist for profile loggers,
-	but no options structured for use on a stationary logger or reading
+	but no options structured for use on a stationary logger or reading. This package is designed to remain directly connected
+	to a CTD while it's logging and can be extended to support communication with different versions of the Seabird CTD
+	loggers with different capabilities and command descriptions.
 """
 
 __author__ = "nickrsan"
 import seabird_ctd.version as __version__
-
-"""
-	Plan is to have this return either a pandas dataframe or a Python dictionary with the new records. Should filter
-	out any noise in the serial transmission (commands, status information, etc).
-	
-	I believe the CTD will be constantly outputting a file that we'll be reading via USB/serial. Not sure how often we
-	can clear/rotate the file, but we should assume:
-		1. The file will be open for writing while we read it
-		2. It will have duplicate records in it that we'll need to avoid (DB integrity will help, but would be good
-			to filter out most, if not all, so that we don't have a bunch of failed inserts
-		3. Some records won't be records because they'll be commands, errors, or status messages. We'll want to do data
-			cleaning to confirm the record is what we think it is (RegEx, probably - CSV parsing might not work if we're
-			trying to read only specific lines - we could potentially dump the lines we know we want to a new file for
-			CSV reading, but that seems silly because we would already need to know what's new to do that. File offset
-			reading? Parsing the whole file, loading the dates and jumping to the record with the correct dates?
-"""
 
 import time
 import datetime
@@ -30,8 +16,6 @@ import logging
 import six
 
 import serial
-
-from seabird_ctd import tasks
 
 class SBE37(object):
 	def __init__(self):
@@ -50,6 +34,15 @@ class SBE37(object):
 			"OUTPUTFORMAT=1",
 			"GetSamples:{},{}".format(start,end)
 		]
+
+	def parse_status(self, status_message):
+		return_dict = {}
+		return_dict["full_model"] = status_message[1].split("   ")[0]
+		return_dict["serial_number"] = status_message[1].split("   ")[4]
+		return_dict["battery_voltage"] = status_message[2].split(" = ")[1]
+		return_dict["sample_number"] = status_message[3].split(", ")[0].split(" = ")[1]
+		return_dict["is_sampling"] = True if status_message[4] == "logging data" else False
+		return return_dict
 
 class SBE39(object):
 	def __init__(self):
@@ -71,6 +64,15 @@ class SBE39(object):
 	def record_regex(self):
 		self.regex = "(?P<temperature>-?\d+\.\d+),\s+(?P<pressure>-?\d+\.\d+),\s+(?P<datetime>\d+\s\w+\s\d{4},\s\d{2}:\d{2}:\d{2})"
 		return self.regex
+
+	def parse_status(self, status_message):
+		return_dict = {}
+		return_dict["full_model"] = status_message[1].split("   ")[0]
+		return_dict["serial_number"] = status_message[1].split("   ")[1]
+		return_dict["battery_voltage"] = status_message[2].split(" = ")[1]
+		return_dict["sample_number"] = status_message[5].split(", ")[0].split(" = ")[1]
+		return_dict["is_sampling"] = True if status_message[3] == "logging data" else False
+		return return_dict
 
 supported_ctds = {
 	"SBE 37": "SBE37",
@@ -168,11 +170,9 @@ class CTD(object):
 
 	def status(self):
 		status = self._send_command("DS")
-		self.full_model = status[1].split("   ")[0]
-		self.serial_number = status[1].split("   ")[1]
-		self.battery_voltage = status[2].split(" = ")[1]
-		self.sample_number = status[5].split(", ")[0].split(" = ")[1]
-		self.is_sampling = True if status[3] == "logging data" else False
+		status_parts = self.command_object.parse_status(status)
+		for key in status_parts:  # the command object parses the status message for the specific model. Returns a dict that we'll set as values on the object here
+			self.__dict__[key] = status_parts[key]  # set each returned value as an attribute on this object
 
 		return status
 
