@@ -4,7 +4,7 @@
 """
 
 __author__ = "nickrsan"
-
+import seabird_ctd.version as __version__
 
 """
 	Plan is to have this return either a pandas dataframe or a Python dictionary with the new records. Should filter
