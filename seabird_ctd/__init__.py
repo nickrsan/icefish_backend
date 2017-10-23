@@ -33,12 +33,6 @@ import serial
 
 from seabird_ctd import tasks
 
-import icefish_backend.settings
-os.environ["DJANGO_SETTINGS_MODULE"] = "icefish_backend.settings"
-import django
-django.setup()  # so that we can insert data using models
-from icefish import models
-
 class SBE37(object):
 	def __init__(self):
 		self.max_samples = 3655394  # needs verification. This is just a guess based on SBE39
@@ -83,34 +77,17 @@ supported_ctds = {
 	"SBE 39": "SBE39"
 }  # name the instrument will report, then class name. could also do this with 2-tuples.
 
+class CTDConfigurationError(BaseException):
+	pass
+
 class CTDOperationError(BaseException):
 	pass
 
 class CTDConnectionError(BaseException):
 	pass
 
-class Element(object):
-	def __init__(self, name, value, db_field, regex=None,):
-		"""
-
-		:param name:
-		:param regex:
-		:param db_field: matching field on the django postgres object
-		"""
-		self.name = name
-		self.value = value
-		self.db_field = db_field
-
-	def filter_values(self):
-		"""
-			Runs the regex on the value and stores the new value
-		:return:
-		"""
-
-		pass
-
 class CTD(object):
-	def __init__(self, COM_port=None, baud=4800, timeout=5, setup_delay=2, date_format=""):
+	def __init__(self, COM_port=None, baud=9600, timeout=5, setup_delay=2):
 		"""
 		If COM_port is not provided, checks for an environment variable named SEABIRD_CTD_PORT. Otherwise raises
 		CTDConnectionError
@@ -206,7 +183,7 @@ class CTD(object):
 		"""
 		return False  # for now, we don't have a way to interrupt it, so we'll just return false
 
-	def start_autosample(self, interval=60, realtime="Y"):
+	def start_autosample(self, interval=60, realtime="Y", handler=None, no_stop=False):
 		"""
 			This should set the sampling interval, then turn on autosampling, then just keep reading the line every interval.
 			Before reading the line, it should also check for new commands in a command queue, so it can see if it's
@@ -216,53 +193,87 @@ class CTD(object):
 			from here and django can do other work in the meantime. Otherwise, we can have a separate script that does
 			the standalone django setup so it can access the models and the DB, or we can just do our own inserts since
 			it's relatively simple code here.
-		:param interval:
+
+		:param interval:  How long, in seconds, should the CTD wait between samples
+		:param realtime: Two possible values "Y" and "N" indicating whether the CTD should return results as soon as it collects them
+		:param handler: This should be a Python function (the actual object, not the name) that takes a list of dicts as its input.
+		 				Each dict represents a sample and has keys for "temperature", "pressure", "conductivity",
+		 				and "datetime", as appropriate for the CTD model. It'll skip parameters the CTD doesn't collect.
+		 				The handler function will be called whenever new results are available and can do things like database input, etc.
+		 				If realtime == "Y" then you must provide a handler function.
+		:param no_stop: Allows you to tell it to ignore settings if it's already sampling. If no_stop is True, will just
+						start listening to new records coming in (if realtime == "Y"). That way, the CTD won't stop sampling
+						for any length of time, but will retain prior settings (ignoring the new interval).
 		:return:
 		"""
-		if self.is_sampling:
+		if self.is_sampling and not no_stop:
 			self.stop_autosample()  # stop it so we can set the parameters
 
-		self._send_command(self.command_object.sample_interval(interval))  # set the interval to sample at
-		self._send_command("TXREALTIME={}".format(realtime))  # set the interval to sample at
-		self._send_command("STARTNOW")  # start sampling
+		if not self.is_sampling:  # will be updated if we successfully stop sampling
+			self._send_command(self.command_object.sample_interval(interval))  # set the interval to sample at
+			self._send_command("TXREALTIME={}".format(realtime))  # set the interval to sample at
+			self._send_command("STARTNOW")  # start sampling
 
 		if realtime == "Y":
-			self.listen(interval)
+			if not handler:  # if they specified realtime data transmission, but didn't provide a handler, abort.
+				raise CTDConfigurationError("When transmitting data in realtime, you must provide a handler function that accepts a list of dicts as its argument. See documentation for start_autosample.")
 
-	def listen(self, interval=60):
+			self.listen(handler, interval)
+
+	def listen(self, handler, interval=60):
 		"""
 			Continuously polls for new data on the line at interval. Used when autosampling with realtime transmission to
 			receive records.
+
+			See documentation for start_autosample for full documentation of these parameters. This function remains
+			part of the public API so you can listen on existing sampling if the autosampler is already configured.
+
+			:param handler: (See start_autosample documentation). A functiion to process new records as they are available.
+			:param interval: The sampling interval, in seconds.
 		:return:
 		"""
 
 		while self.check_interrupt() is False:
 
 			data = self.ctd.read(500)
-			self.find_and_insert_records(self._clean(data))
+			records = self.find_and_insert_records(self._clean(data))
+
+			handler(records)  # Call the provided handler function to do whatever the caller wants to do with the data
 
 			time.sleep(interval)
 
 	def find_and_insert_records(self, data):
+		records = []
 		for element in data:
 			matches = re.search(self.command_object.record_regex(), element)
 			if matches is None:
 				continue
-			new_model = models.CTD()
+
+			new_model = {}
 			if "temperature" in self.command_object.keys:
-				new_model.temp = matches.group("temperature")
+				new_model["temperature"] = matches.group("temperature")
+			else:
+				new_model["temperature"] = None
 
 			if "pressure" in self.command_object.keys:
-				new_model.pressure = matches.group("pressure")
+				new_model["pressure"] = matches.group("pressure")
+			else:
+				new_model["pressure"] = None
 
 			if "conductivity" in self.command_object.keys:
-				new_model.conductivity = matches.group("conductivity")
+				new_model["conductivity"] = matches.group("conductivity")
+			else:
+				new_model["conductivity"] = None
 
 			if "datetime" in self.command_object.keys:
 				dt_object = datetime.datetime.strptime(str(matches.group("datetime")), "%d %b %Y, %H:%M:%S")
-				new_model.datetime = dt_object
+				new_model["datetime"] = dt_object
+			else:
+				new_model["datetime"] = None
 
-			new_model.save()
+			records.append(new_model)
+
+		return records
 
 	def stop_autosample(self):
 		self._send_command("STOP")
@@ -309,7 +320,5 @@ if __name__ == "__main__":
 
 	# Set Datetime
 	ctd.set_datetime()
-
-	ctd.start_autosample(10)
 
 	# Start CTD and begin check/load loops
