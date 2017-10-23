@@ -17,6 +17,8 @@ import six
 
 import serial
 
+log = logging.getLogger("seabird_ctd")
+
 class SBE37(object):
 	def __init__(self):
 		self.max_samples = 3655394  # needs verification. This is just a guess based on SBE39
@@ -37,10 +39,14 @@ class SBE37(object):
 
 	def parse_status(self, status_message):
 		return_dict = {}
-		return_dict["full_model"] = status_message[1].split("   ")[0]
-		return_dict["serial_number"] = status_message[1].split("   ")[4]
-		return_dict["battery_voltage"] = status_message[2].split(" = ")[1]
-		return_dict["sample_number"] = status_message[3].split(", ")[0].split(" = ")[1]
+		return_dict["full_model"] = status_message[1].split(" ")[0]
+		return_dict["serial_number"] = status_message[1].split(" ")[4]
+
+		voltages = re.match("vMain\s+=\s+(\d+\.\d+),\s+vLith\s+=\s+(\d+\.\d+)", status_message[2])
+		return_dict["battery_voltage"] = voltages.group(0)
+		return_dict["lithium_voltage"] = voltages.group(1)
+
+		return_dict["sample_number"] = status_message[3].split(", ")[0].split(" = ")[1].replace(" ", "")
 		return_dict["is_sampling"] = True if status_message[4] == "logging data" else False
 		return return_dict
 
@@ -115,7 +121,7 @@ class CTD(object):
 
 		for line in ctd_info:  # it should write out the model when you connect
 			if line in supported_ctds.keys():
-				logging.log(1, line)
+				log.info("Model Found: {}".format(line))
 				self.command_object = globals()[supported_ctds[line]]()  # get the object that has the command info for this CTD
 				self.model = line
 
@@ -152,7 +158,7 @@ class CTD(object):
 	def set_datetime(self):
 		datetime_commands = self.command_object.set_datetime()
 		for command in datetime_commands:
-			logging.log(1, "Setting datetime: {}".format(command))
+			log.info("Setting datetime: {}".format(command))
 			self._send_command(command)
 
 	def take_sample(self):
@@ -233,6 +239,7 @@ class CTD(object):
 		:return:
 		"""
 
+		log.info("Starting listening loop for CTD data")
 		while self.check_interrupt() is False:
 
 			data = self.ctd.read(500)
