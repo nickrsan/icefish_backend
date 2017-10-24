@@ -1,7 +1,7 @@
 import logging
-import datetime
 
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
 from icefish.models import CTD
 from icefish_backend import local_settings
 
@@ -46,8 +46,8 @@ class Command(BaseCommand):
 		else:
 			log.info("CTD already logging. Listening in")
 
-		#log.debug("Setting up interrupt handler")
-		#ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, "moo")  # set it up to receive commands from rabbitmq once autosampling starts
+		log.debug("Setting up interrupt handler")
+		ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, "moo")  # set it up to receive commands from rabbitmq once autosampling starts
 		log.info("Starting automatic logger")
 		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=True)
 
@@ -60,7 +60,7 @@ def handle_records(records):
 		new_model.conductivity = record["conductivity"]
 		new_model.pressure = record["pressure"]
 		new_model.datetime = record["datetime"]
-		new_model.server_datetime = datetime.datetime.now()
+		new_model.server_datetime = timezone.now()
 
 		new_model.save()
 		log.debug("Record saved")
