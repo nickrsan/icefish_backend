@@ -1,6 +1,9 @@
 ## SETUP
 
+
 ### CTD
+See setup information in [seabird_ctd package directory](./seabird_ctd)
+
 Need to install packages in requirements.txt and plug in CTD to computer.
 
 Requires an environment variable to be set, named *SEABIRD_CTD_PORT*
