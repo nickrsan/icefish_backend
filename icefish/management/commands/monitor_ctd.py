@@ -43,9 +43,11 @@ class Command(BaseCommand):
 		ctd = seabird_ctd.CTD(port, baud=baud, timeout=5,)
 		if not ctd.is_sampling:  # if it's not sampling, set the datetime, otherwise, we can't
 			ctd.set_datetime()
+		else:
+			log.info("CTD already logging. Listening in")
 
-		log.debug("Setting up interrupt handler")
-		ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, "moo")  # set it up to receive commands from rabbitmq once autosampling starts
+		#log.debug("Setting up interrupt handler")
+		#ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, "moo")  # set it up to receive commands from rabbitmq once autosampling starts
 		log.info("Starting automatic logger")
 		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=True)
 
