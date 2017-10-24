@@ -9,6 +9,8 @@ __author__ = "nickrsan"
 import seabird_ctd.version as __version__
 
 import time
+from datetime import timezone
+import pytz
 import datetime
 import os
 import re
@@ -34,7 +36,7 @@ class SBE37(object):
 		self.keys = ("temperature", "pressure", "datetime")
 
 	def set_datetime(self):
-		dt = datetime.datetime.now()
+		dt = datetime.datetime.now(timezone.utc)
 		return ["DATETIME={}".format(dt.strftime("%m%d%Y%H%M%S"))]
 
 	def sample_interval(self, interval):
@@ -65,7 +67,7 @@ class SBE39(object):
 		self.keys = ("temperature", "pressure", "datetime")
 
 	def set_datetime(self):
-		dt = datetime.datetime.now()
+		dt = datetime.datetime.now(timezone.utc)
 		return ["MMDDYY={}".format(dt.strftime("%m%d%y")), "HHMMSS={}".format(dt.strftime("%H%M%S"))]
 
 	def sample_interval(self, interval):
@@ -210,7 +212,7 @@ class CTD(object):
 		for key in status_parts:  # the command object parses the status message for the specific model. Returns a dict that we'll set as values on the object here
 			self.__dict__[key] = status_parts[key]  # set each returned value as an attribute on this object
 
-		self.last_status = datetime.datetime.now()
+		self.last_status = datetime.datetime.now(timezone.utc)
 
 		log.info(status)
 
@@ -384,7 +386,7 @@ class CTD(object):
 		log.debug(data)
 		self.check_data_for_records(data)
 
-		if (datetime.datetime.now() - self.last_status).total_seconds() > 3600:  # if it's been more than an hour since we checked the status, refresh it so we get new battery stats
+		if (datetime.datetime.now(timezone.utc) - self.last_status).total_seconds() > 3600:  # if it's been more than an hour since we checked the status, refresh it so we get new battery stats
 			self.status()  # this can be run while the device is logging
 
 	def check_data_for_records(self, data):
@@ -416,7 +418,8 @@ class CTD(object):
 
 			if "datetime" in self.command_object.keys:
 				dt_object = datetime.datetime.strptime(str(matches.group("datetime")), "%d %b %Y, %H:%M:%S")
-				new_model["datetime"] = dt_object
+				dt_aware = pytz.utc.localize(dt_object)
+				new_model["datetime"] = dt_aware
 			else:
 				new_model["datetime"] = None
 
