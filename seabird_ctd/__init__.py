@@ -17,11 +17,15 @@ import six
 
 import serial
 
+logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("seabird_ctd")
 
 try:
 	import pika
+	from seabird_ctd import interrupt
+	from multiprocessing import Process
 except ImportError:
+	interrupt = None
 	log.debug("pika not available, can't use RabbitMQ to check for messages")
 
 class SBE37(object):
@@ -113,6 +117,8 @@ class CTD(object):
 										 "to connect to for CTD data. Can't collect CTD data.")
 
 		self.last_sample = None
+		self.is_sampling = None  # starts at None, will be set when DS is run.
+		self.sample_number = None  # will be set by DS command
 		self.com_port = COM_port
 
 		self.ctd = serial.Serial(COM_port, baud, timeout=timeout)
@@ -123,6 +129,9 @@ class CTD(object):
 		self.last_status = None  # will be set each time status is run
 		self.status()  # will fill some fields in so we know what sample it's on, etc
 
+		self.handler = None  # will be set if self.listen is called
+
+		# INTERNAL FLAGS AND INFO
 		self.rabbitmq_server = None
 		self._stop_monitoring = False  # a flag that will be monitored to determine if we should stop checking for commands
 		self._close_connection = False  # same as previous
@@ -143,8 +152,9 @@ class CTD(object):
 		if not self.command_object:
 			raise CTDConnectionError("Unable to wake CTD or determine its type. There could be a connection error or this is currently plugged into an unsupported model")
 
-	def _send_command(self, command, length_to_read="ALL"):
-		self.ctd.write(six.b('{}\r\n'.format(command)))  # doesn't seem to work unless we pass it a windows line ending. Sends command, but no results
+	def _send_command(self, command=None, length_to_read="ALL"):
+		if command:
+			self.ctd.write(six.b('{}\r\n'.format(command)))  # doesn't seem to work unless we pass it a windows line ending. Sends command, but no results
 
 		# reads after sending by default so that we can determine if there was a timeout
 		if length_to_read == "ALL":
@@ -162,6 +172,9 @@ class CTD(object):
 			return self._send_command(command, length_to_read)
 		else:
 			return response
+
+	def _read_all(self):
+		return self._send_command(command=None, length_to_read="ALL")
 
 	def _clean(self, response):
 		return response.decode("utf-8").split("\r\n")  # first element of list should now be the command, but we'll let the caller filter that
@@ -193,20 +206,24 @@ class CTD(object):
 
 		self.last_status = datetime.datetime.now()
 
+		log.info(status)
+
 		return status
 
-	def setup_interrupt(self, rabbitmq_server, queue=None):
+	def setup_interrupt(self, rabbitmq_server, username, password, vhost, queue=None):
 
-		if not pika:
+		if not interrupt:
 			raise CTDConfigurationError("Can't set up interrupt unless Pika Python package is installed. Pika was not found")
 
 		if queue is None:
 			queue = self.com_port
 
 		self.rabbitmq_server = rabbitmq_server
-		self.listen_queue = pika.SelectConnection(pika.ConnectionParameters(rabbitmq_server))
-		self.listen_channel = self.listen_queue.channel()
-		self.listen_channel.queue_declare(queue=queue)  # open a queue for interrupts
+		self.interrupt_connection = interrupt.RabbitConsumer(self.rabbitmq_server)
+		self.interrupt_connection.username = username
+		self.interrupt_connection.password = password
+		self.interrupt_connection.vhost = vhost
+		self.interrupt_connection.QUEUE = queue
 
 	def check_interrupt(self):
 		"""
@@ -214,13 +231,13 @@ class CTD(object):
 		:return:
 		"""
 
-		if not pika or not self.rabbitmq_server:  # if pika isn't available, we can't check for messages, so there's always no interrupt
+		if not interrupt or not self.rabbitmq_server:  # if pika isn't available, we can't check for messages, so there's always no interrupt
 			return False  # these are silently returned False because it means that they didn't try to configure the interrupt
 
 		if self._stop_monitoring:
 			return True
 
-		return False  # for now, we don't have a way to interrupt it, so we'll just return false
+		return False  # default is no interrupt
 
 	def start_autosample(self, interval=60, realtime="Y", handler=None, no_stop=False):
 		"""
@@ -245,6 +262,8 @@ class CTD(object):
 						for any length of time, but will retain prior settings (ignoring the new interval).
 		:return:
 		"""
+		log.info("Initiating autosampling")
+
 		if self.is_sampling and not no_stop:
 			self.stop_autosample()  # stop it so we can set the parameters
 
@@ -256,10 +275,12 @@ class CTD(object):
 		if realtime == "Y":
 			if not handler:  # if they specified realtime data transmission, but didn't provide a handler, abort.
 				raise CTDConfigurationError("When transmitting data in realtime, you must provide a handler function that accepts a list of dicts as its argument. See documentation for start_autosample.")
+			else:
+				self.handler = handler  # make it available to anything else that finds records. Whenever we run any command we need to check for records because it's possible we'll get the output before something else
 
-			self.listen(handler, interval)
+			self.listen(interval)
 
-	def listen(self, handler, interval=60):
+	def listen(self, interval=60):
 		"""
 			Continuously polls for new data on the line at interval. Used when autosampling with realtime transmission to
 			receive records.
@@ -273,6 +294,8 @@ class CTD(object):
 		"""
 
 		log.info("Starting listening loop for CTD data")
+
+		self.check_interval = interval
 
 		def interrupt_handler(ch, method, properties, body):
 			"""
@@ -296,41 +319,71 @@ class CTD(object):
 			:param body:
 			:return:
 			"""
-			logging.info(" [x] Received %r" % body)
+			logging.info(" [x] Received Command via Queue %r" % body)
 
-			if body == "DS" or body == "STATUS":
-				log.info(self.status())
+			body = body.decode("utf-8")
+			if body == "READ_DATA":
+				if not self._stop_monitoring:
+					self.read_records()
+			elif body == "DS" or body == "STATUS":
+				status = self.status()
+				log.info(status)
+				self.check_data_for_records(status)  # since logging is running now, make sure we didn't accidentally pull in some data
 			elif body == "STOP_MONITORING":  # just stop monitoring - once monitoring is stopped, they can connect to the device to stop autosampling
 				log.info("Stopping monitoring of records")
 				self._stop_monitoring = True
-			elif body == "CLOSE":
+				self.interrupt_connection.stop()
+			elif body == "DISCONNECT":
 				log.info("Shutting down monitoring script and closing connection to CTD")
-				self._stop_monitoring = True
-				self._close_connection = True
+				self.interrupt_connection.stop()
+				self.close()  # puts CTD to sleep and closes connection
 			else:
-				log.info(self._send_command(body))
+				data = self._send_command(body)
+				log.info(data)
+				self.check_data_for_records(data)
 
-		self.listen_channel.basic_consume(interrupt_handler, queue=self.listen_queue, no_ack=True)  # set the above function as the handler of interrupts
-		self.listen_channel.start_consuming()  # start waiting for commands
+			self.interrupt_connection.acknowledge_message(method.delivery_tag)
 
-		self._stop_monitoring = False  # reset the flags that are used to determine if we should stop
-		self._close_connection = False
+		if interrupt and self.rabbitmq_server:
+			log.debug("Starting interrupt listening loop")
 
-		while self.check_interrupt() is False:
+			self.interrupt_connection.handler = interrupt_handler
 
-			data = self.ctd.read(500)
-			records = self.find_and_insert_records(self._clean(data))
+			self._stop_monitoring = False  # reset the flags that are used to determine if we should stop
+			self._close_connection = False
 
-			handler(records)  # Call the provided handler function to do whatever the caller wants to do with the data
+			log.debug("Spinning up CTD read loop process")
+			self.p = Process(target=interrupt_checker, kwargs={"server": self.rabbitmq_server,
+							  "username": self.interrupt_connection.username,
+							  "password": self.interrupt_connection.password,
+							  "vhost": self.interrupt_connection.vhost,
+							  "queue": self.interrupt_connection.QUEUE,
+							  "interval": self.check_interval})
+			self.p.start()
+			log.info(self.p.join(5))  # give it 5 seconds of blocking to detect if the process exits
 
-			if (datetime.datetime.now() - self.last_status) > 3600:  # if it's been more than an hour since we checked the status, refresh it so we get new battery stats
-				self.status()  # this can be run while the device is logging
+			self.interrupt_connection.run()  # starts listening for commands
 
-			time.sleep(interval)
+		else:  # if no interrupt loop
+			while self.check_interrupt() is False:
+				self.read_records()
+				time.sleep(interval)
 
-		# this is only reached if STOP_MONITORING has been sent, so check now if we're supposed to close the connection
-		if self._close_connection:
-			self.close()  # puts CTD to sleep and closes connection
+	def read_records(self):
+
+		log.debug("Checking for CTD data")
+
+		data = self._read_all()
+		log.debug("Data received")
+		log.debug(data)
+		self.check_data_for_records(data)
+
+		if (datetime.datetime.now() - self.last_status).total_seconds() > 3600:  # if it's been more than an hour since we checked the status, refresh it so we get new battery stats
+			self.status()  # this can be run while the device is logging
+
+	def check_data_for_records(self, data):
+		records = self.find_and_insert_records(data)
+		self.handler(records)  # Call the provided handler function to do whatever the caller wants to do with the data
 
 	def find_and_insert_records(self, data):
 		records = []
@@ -400,3 +453,29 @@ class CTD(object):
 	def __del__(self):
 		self.close()
 
+def interrupt_checker(server, username, password, vhost, queue, interval):
+	"""
+		When using the interrupt method, this code handles the scheduling of the actual checking by connecting
+		to RabbitMQ and sending READ commands every interval
+	:param server:
+	:param username:
+	:param password:
+	:param vhost:
+	:param queue:
+	:param interval:
+	:return:
+	"""
+
+	connection = pika.BlockingConnection(pika.ConnectionParameters(host=server, virtual_host=vhost,
+																   credentials=pika.PlainCredentials(username, password)))
+	channel = connection.channel()
+
+	channel.queue_declare(queue=queue)
+
+	command = "READ_DATA"
+	while True:
+		channel.basic_publish(exchange='seabird',
+						  routing_key='seabird',
+						  body=command)
+
+		time.sleep(interval)
