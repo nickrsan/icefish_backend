@@ -19,6 +19,11 @@ import serial
 
 log = logging.getLogger("seabird_ctd")
 
+try:
+	import pika
+except ImportError:
+	log.debug("pika not available, can't use RabbitMQ to check for messages")
+
 class SBE37(object):
 	def __init__(self):
 		self.max_samples = 3655394  # needs verification. This is just a guess based on SBE39
@@ -108,13 +113,19 @@ class CTD(object):
 										 "to connect to for CTD data. Can't collect CTD data.")
 
 		self.last_sample = None
+		self.com_port = COM_port
 
 		self.ctd = serial.Serial(COM_port, baud, timeout=timeout)
 		time.sleep(setup_delay)  # give it time to init
 
 		self.command_object = None
 		self.determine_ctd_model()
+		self.last_status = None  # will be set each time status is run
 		self.status()  # will fill some fields in so we know what sample it's on, etc
+
+		self.rabbitmq_server = None
+		self._stop_monitoring = False  # a flag that will be monitored to determine if we should stop checking for commands
+		self._close_connection = False  # same as previous
 
 	def determine_ctd_model(self):
 		ctd_info = self.wake()  # TODO: Is the data returned from wake always junk? What if this is starting up after setting the CTD to autosample, then the server crashes and is reconnecting
@@ -180,13 +191,35 @@ class CTD(object):
 		for key in status_parts:  # the command object parses the status message for the specific model. Returns a dict that we'll set as values on the object here
 			self.__dict__[key] = status_parts[key]  # set each returned value as an attribute on this object
 
+		self.last_status = datetime.datetime.now()
+
 		return status
+
+	def setup_interrupt(self, rabbitmq_server, queue=None):
+
+		if not pika:
+			raise CTDConfigurationError("Can't set up interrupt unless Pika Python package is installed. Pika was not found")
+
+		if queue is None:
+			queue = self.com_port
+
+		self.rabbitmq_server = rabbitmq_server
+		self.listen_queue = pika.SelectConnection(pika.ConnectionParameters(rabbitmq_server))
+		self.listen_channel = self.listen_queue.channel()
+		self.listen_channel.queue_declare(queue=queue)  # open a queue for interrupts
 
 	def check_interrupt(self):
 		"""
 			Should return True if we're supposed to stop listening or False if we shouldn't
 		:return:
 		"""
+
+		if not pika or not self.rabbitmq_server:  # if pika isn't available, we can't check for messages, so there's always no interrupt
+			return False  # these are silently returned False because it means that they didn't try to configure the interrupt
+
+		if self._stop_monitoring:
+			return True
+
 		return False  # for now, we don't have a way to interrupt it, so we'll just return false
 
 	def start_autosample(self, interval=60, realtime="Y", handler=None, no_stop=False):
@@ -240,6 +273,49 @@ class CTD(object):
 		"""
 
 		log.info("Starting listening loop for CTD data")
+
+		def interrupt_handler(ch, method, properties, body):
+			"""
+				This function is done as a closure because we want it to be able to access attributes of the class instance
+				namely, the open pipe to the serial port, as well as knowing which COM port we're on so that it can load
+				a RabbitMQ queue with the same name.
+
+				For stopping and closing the connection, this function sets flags on the object that are then responded
+				to next time the listen loop wakes up to check the CTD. Flags will be handled before reading the CTD.
+				Commands sent to the device will be sent immediately.
+
+				Commands that can be sent to this program are STOP_MONITORING and DISCONNECT. STOP_MONITORING will just
+				stop listening to the CTD, but will leave the CTD in its current autosample configuration.
+				If you want stop the CTD from logging, send a Stop command that's appropriate for the CTD model you're
+				using (usually STOP) then send a STOP command through the messaging to this program so it will stop checking
+				the CTD for new data. DISCONNECT is equivalent to STOP_MONITORING, but also puts the CTD to sleep and
+				closes the connection to the CTD.
+			:param ch:
+			:param method:
+			:param properties:
+			:param body:
+			:return:
+			"""
+			logging.info(" [x] Received %r" % body)
+
+			if body == "DS" or body == "STATUS":
+				log.info(self.status())
+			elif body == "STOP_MONITORING":  # just stop monitoring - once monitoring is stopped, they can connect to the device to stop autosampling
+				log.info("Stopping monitoring of records")
+				self._stop_monitoring = True
+			elif body == "CLOSE":
+				log.info("Shutting down monitoring script and closing connection to CTD")
+				self._stop_monitoring = True
+				self._close_connection = True
+			else:
+				log.info(self._send_command(body))
+
+		self.listen_channel.basic_consume(interrupt_handler, queue=self.listen_queue, no_ack=True)  # set the above function as the handler of interrupts
+		self.listen_channel.start_consuming()  # start waiting for commands
+
+		self._stop_monitoring = False  # reset the flags that are used to determine if we should stop
+		self._close_connection = False
+
 		while self.check_interrupt() is False:
 
 			data = self.ctd.read(500)
@@ -247,7 +323,14 @@ class CTD(object):
 
 			handler(records)  # Call the provided handler function to do whatever the caller wants to do with the data
 
+			if (datetime.datetime.now() - self.last_status) > 3600:  # if it's been more than an hour since we checked the status, refresh it so we get new battery stats
+				self.status()  # this can be run while the device is logging
+
 			time.sleep(interval)
+
+		# this is only reached if STOP_MONITORING has been sent, so check now if we're supposed to close the connection
+		if self._close_connection:
+			self.close()  # puts CTD to sleep and closes connection
 
 	def find_and_insert_records(self, data):
 		records = []
@@ -306,10 +389,7 @@ class CTD(object):
 
 		# we now have all the samples and can parse them so that we can insert them.
 
-	def parse_results(self):
-		pass
-
-	def __del__(self):
+	def close(self):
 		"""
 			Put the CTD to sleep and close the connection
 		:return:
@@ -317,15 +397,6 @@ class CTD(object):
 		self.sleep()
 		self.ctd.close()
 
+	def __del__(self):
+		self.close()
 
-if __name__ == "__main__":
-
-	ctd = CTD()
-
-	# Stop CTD, check for and load old records
-	# ctd.catch_up()
-
-	# Set Datetime
-	ctd.set_datetime()
-
-	# Start CTD and begin check/load loops
