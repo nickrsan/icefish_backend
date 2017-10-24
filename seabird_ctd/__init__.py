@@ -137,7 +137,10 @@ class CTD(object):
 		self._close_connection = False  # same as previous
 
 	def determine_ctd_model(self):
-		ctd_info = self.wake()  # TODO: Is the data returned from wake always junk? What if this is starting up after setting the CTD to autosample, then the server crashes and is reconnecting
+		try:
+			ctd_info = self.wake()  # TODO: Is the data returned from wake always junk? What if this is starting up after setting the CTD to autosample, then the server crashes and is reconnecting
+		except UnicodeDecodeError:
+			raise CTDConfigurationError("Unable to decode response from CTD. Try a different baud setting and ensure it matches the CTD's internal configuration")
 
 		for line in ctd_info:  # it should write out the model when you connect
 			if line in supported_ctds.keys():
@@ -168,6 +171,9 @@ class CTD(object):
 
 		response = self._clean(data)
 
+		if self.is_sampling:  # any time we read data, if we're sampling, we should check it for records
+			self.check_data_for_records(response)
+
 		if "timeout" in response:  # if we got a timeout the first time, then we should be reconnected. Rerun this function and return the results
 			return self._send_command(command, length_to_read)
 		else:
@@ -196,7 +202,7 @@ class CTD(object):
 		self._send_command("QS")
 
 	def wake(self):
-		return self._send_command(" ", length_to_read=100)  # Send a single character to wake the device, get the response so that we clear the buffer
+		return self._send_command(" ", length_to_read="ALL")  # Send a single character to wake the device, get the response so that we clear the buffer
 
 	def status(self):
 		status = self._send_command("DS")
@@ -451,7 +457,8 @@ class CTD(object):
 		self.ctd.close()
 
 	def __del__(self):
-		self.close()
+		#self.close()
+		pass
 
 def interrupt_checker(server, username, password, vhost, queue, interval):
 	"""
