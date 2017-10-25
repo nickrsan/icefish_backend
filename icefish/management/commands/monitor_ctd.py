@@ -24,21 +24,24 @@ class Command(BaseCommand):
 		port = None
 		if options['com_port']:
 			port = options['com_port'][0]
+		elif hasattr(local_settings, "CTD_DEFAULT_COM_PORT"):  # if the COM port is defined in settings
+			port = local_settings.CTD_DEFAULT_COM_PORT
+			# if not defined here, the seabird code pulls it from the environment variable SEABIRD_CTD_PORT
 
 		if options['interval']:
 			interval = options['interval'][0]
 		else:
-			interval = 60
+			interval = local_settings.CTD_LOGGING_INTERVAL
 
 		if options['baud']:
 			baud = options['baud'][0]
 		else:
-			baud = 4800
+			baud = local_settings.CTD_BAUD_RATE  # we're using 4800 baud because the cable is very long
 
 		if options['rabbitmq']:
 			server = options['rabbitmq'][0]
 		else:
-			server = "192.168.0.2"
+			server = local_settings.RABBITMQ_BASE_URL
 
 		ctd = seabird_ctd.CTD(port, baud=baud, timeout=5,)
 		if not ctd.is_sampling:  # if it's not sampling, set the datetime, otherwise, we can't
@@ -47,7 +50,7 @@ class Command(BaseCommand):
 			log.info("CTD already logging. Listening in")
 
 		log.debug("Setting up interrupt handler")
-		ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, "moo")  # set it up to receive commands from rabbitmq once autosampling starts
+		ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, local_settings.RABBITMQ_VHOST)  # set it up to receive commands from rabbitmq once autosampling starts
 		log.info("Starting automatic logger")
 		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=True)
 

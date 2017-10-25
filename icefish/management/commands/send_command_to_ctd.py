@@ -29,11 +29,13 @@ class Command(BaseCommand):
 		if options['server']:
 			server = options['server'][0]
 		else:
-			server = "192.168.0.2"
+			server = local_settings.RABBITMQ_BASE_URL
 
 		command = options['command'][0]
 
-		connection = pika.BlockingConnection(pika.ConnectionParameters(host=server, virtual_host="moo", credentials=PlainCredentials(local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD)))
+		connection = pika.BlockingConnection(pika.ConnectionParameters(host=server,
+																	   virtual_host=local_settings.RABBITMQ_VHOST,
+																	   credentials=PlainCredentials(local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD)))
 		channel = connection.channel()
 
 		channel.queue_declare(queue=queue)
@@ -41,5 +43,5 @@ class Command(BaseCommand):
 		channel.basic_publish(exchange='seabird',
 							  routing_key='seabird',
 							  body=command)
-		print(" [x] Sent {}".format(command))
+		print("Sent {}".format(command))
 		connection.close()

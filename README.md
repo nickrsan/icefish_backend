@@ -20,3 +20,13 @@ python manage.py monitor_ctd
 
 The console window that runs this will remain in an infinite loop monitoring
 until the computer shuts down or it is closed.
+
+To send a command to the CTD while it's running, use;
+```python
+python manage.py send_command_to_ctd {command}
+```
+For example, to get the status output printed in the data reader's console
+
+```python
+python manage.py send_command_to_ctd DS
+```
