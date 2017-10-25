@@ -315,7 +315,7 @@ class CTD(object):
 				to next time the listen loop wakes up to check the CTD. Flags will be handled before reading the CTD.
 				Commands sent to the device will be sent immediately.
 
-				Commands that can be sent to this program are STOP_MONITORING and DISCONNECT. STOP_MONITORING will just
+				Commands that can be sent to this program are READ_DATA, STOP_MONITORING and DISCONNECT. STOP_MONITORING will just
 				stop listening to the CTD, but will leave the CTD in its current autosample configuration.
 				If you want stop the CTD from logging, send a Stop command that's appropriate for the CTD model you're
 				using (usually STOP) then send a STOP command through the messaging to this program so it will stop checking

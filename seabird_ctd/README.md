@@ -133,3 +133,17 @@ class Command(BaseCommand):
 		print(" [x] Sent {}".format(command))
 		connection.close()
 ```
+
+You can send any command that the CTD supports executing while autosampling.
+See the manual for your CTD for more information on that. You can also send
+three special commands. READ_DATA initiates an immediate read of the data
+and sends it to the configured handler. STOP_MONITORING leaves the CTD
+recording data, but stops the Python code from checking for data.
+DISCONNECT is closely related to stop monitoring, but also sends a sleep
+command to the device and closes the serial connection.
+
+## Extending the code to a new CTD
+CTDs have slightly different command styles and syntaxes. Until further documentation
+is written, the best way to see how this is handled is to take a look at
+the objects for each CTD in the code. They define specific parsing information
+and command syntaxes for the CTDs.
