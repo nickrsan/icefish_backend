@@ -127,16 +127,40 @@ class CTD(object):
 		time.sleep(setup_delay)  # give it time to init
 
 		self.command_object = None
-		self.determine_ctd_model()
-		self.last_status = None  # will be set each time status is run
-		self.status()  # will fill some fields in so we know what sample it's on, etc
-
 		self.handler = None  # will be set if self.listen is called
+
+		# STATUS INFO TO BE SET BY .status()
+		self.full_model = None
+		self.serial_number = None
+		self._battery_voltage = None  # actual battery voltage is function so we can keep track of changes
+		self._original_voltage = None
+		self.lithium_voltage = None
+		self.sample_number = None
+		self.is_sampling = None
 
 		# INTERNAL FLAGS AND INFO
 		self.rabbitmq_server = None
 		self._stop_monitoring = False  # a flag that will be monitored to determine if we should stop checking for commands
 		self._close_connection = False  # same as previous
+
+		self.determine_ctd_model()
+		self.last_status = None  # will be set each time status is run
+		self.status()  # will fill some fields in so we know what sample it's on, etc
+
+	@property
+	def battery_voltage(self):
+		return self._battery_voltage
+
+	@battery_voltage.setter
+	def battery_voltage(self, new_value):
+		if self._battery_voltage is None:
+			self._original_voltage = new_value
+
+		self._battery_voltage = new_value
+
+	@property
+	def battery_change(self):
+		return (self._battery_voltage - self._original_voltage) / self._original_voltage
 
 	def determine_ctd_model(self):
 		try:
@@ -210,7 +234,10 @@ class CTD(object):
 		status = self._send_command("DS")
 		status_parts = self.command_object.parse_status(status)
 		for key in status_parts:  # the command object parses the status message for the specific model. Returns a dict that we'll set as values on the object here
-			self.__dict__[key] = status_parts[key]  # set each returned value as an attribute on this object
+			if key == "battery_voltage":
+				self.battery_voltage(status_parts[key])
+			else:
+				self.__dict__[key] = status_parts[key]  # set each returned value as an attribute on this object
 
 		self.last_status = datetime.datetime.now(timezone.utc)
 
@@ -460,7 +487,7 @@ class CTD(object):
 		self.ctd.close()
 
 	def __del__(self):
-		#self.close()
+		self.close()
 		pass
 
 def interrupt_checker(server, username, password, vhost, queue, interval):
