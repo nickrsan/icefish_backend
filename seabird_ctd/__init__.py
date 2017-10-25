@@ -154,9 +154,9 @@ class CTD(object):
 	@battery_voltage.setter
 	def battery_voltage(self, new_value):
 		if self._battery_voltage is None:
-			self._original_voltage = new_value
+			self._original_voltage = float(new_value)
 
-		self._battery_voltage = new_value
+		self._battery_voltage = float(new_value)
 
 	@property
 	def battery_change(self):
@@ -234,10 +234,7 @@ class CTD(object):
 		status = self._send_command("DS")
 		status_parts = self.command_object.parse_status(status)
 		for key in status_parts:  # the command object parses the status message for the specific model. Returns a dict that we'll set as values on the object here
-			if key == "battery_voltage":
-				self.battery_voltage(status_parts[key])
-			else:
-				self.__dict__[key] = status_parts[key]  # set each returned value as an attribute on this object
+			setattr(self, key, status_parts[key])  # set each returned value as an attribute on this object
 
 		self.last_status = datetime.datetime.now(timezone.utc)
 
