@@ -8,7 +8,7 @@ import pika
 from pika import PlainCredentials
 
 class Command(BaseCommand):
-	help = 'Listens for new data on the CTD and inserts into the database'
+	help = 'Sends commands to the CTD while autosampling'
 
 	def add_arguments(self, parser):
 		parser.add_argument('--server', nargs='+', type=str, dest="server", default=False,)
