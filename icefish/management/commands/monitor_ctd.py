@@ -67,3 +67,5 @@ def handle_records(records):
 
 		new_model.save()
 		log.debug("Record saved")
+
+	log.error("Test")
