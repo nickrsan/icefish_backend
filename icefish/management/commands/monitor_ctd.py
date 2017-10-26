@@ -50,7 +50,7 @@ class Command(BaseCommand):
 			log.info("CTD already logging. Listening in")
 
 		log.debug("Setting up interrupt handler")
-		ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, local_settings.RABBITMQ_VHOST)  # set it up to receive commands from rabbitmq once autosampling starts
+		# ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, local_settings.RABBITMQ_VHOST)  # set it up to receive commands from rabbitmq once autosampling starts
 		log.info("Starting automatic logger")
 		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=True)
 
