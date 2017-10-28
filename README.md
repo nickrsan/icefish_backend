@@ -1,3 +1,10 @@
+Note that the home for all of the code related to this project is in a
+[B-195-M Organization on BitBucket](https://bitbucket.org/b195m/).
+This code base is modular and contains subcomponents, some of which will
+have their own installation steps. The installers for this
+code base will handle most of it automatically, but will link you to
+installation documents in those repositories when appropriate.
+
 ## Setup
 As an introduction, all of the items in this installation are targeted
 toward Windows, but everything is developed to be cross-platform in the
@@ -22,7 +29,7 @@ In that command prompt, navigate to the directory that this code is stored,
 the same folder this README file is located inside of, and type:
 
 ```
-python -m pip install -R requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 That command will download and install all the necessary code for this
@@ -50,12 +57,12 @@ in documentation.
 to the server, you need to have allowed that server to connect in a text
 configuration file. This even applies to connecting to the local database.
 Set up host-based authentication to allow the server this code is running
-on to connect to your database server. See their documentation for more
-details.
+on to connect to your database server. [See their documentation for more
+details](https://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html).
 2. Create your user account for this project. In the installation, you'll
 have created the root user account for managing all of the database. *DO
-NOT USE THIS USER ACCOUNT IN THIS CODE*. Instead, create a new user account
-in PGAdmin and remember the username and password - you'll plug them into
+NOT USE THIS USER ACCOUNT IN THIS CODE*. Instead, log into PGAdmin with that
+root user account and create a new user account - remember the username and password - you'll plug them into
 a configuration file later.
 3. Create a new database in PGAdmin. This is relatively straightforward.
 Name it whatever you like, but remember that name.
@@ -63,15 +70,27 @@ Name it whatever you like, but remember that name.
  for the database you just created. This can be done from the properties
  pane available via right click on the database in the tree.
 
+### Setting up the application
+Now that you have the core dependencies installed, it's time to fill in
+the configuration, as it applies to your local environment. Most
+configuration is already filled out in settings.py in the folder
+icefish_backend, but you should:
+
+1. Make a copy of the file `local_settings_template.py` in the same folder
+it's in and rename it to `local_settings.py`*
+2. Edit that file with a text editor and fill in the values on each line.
+Each line has a Python comment, following the pound/hash sign that indicates
+what should be filled in there.
+
+### Install Apache Web Server
+Fill in
 
 Clone/download the code
-Install Postgres
-Configure database settings - set up user, database, allowed ip connections
 Copy local settings and fill in the values
 gunicorn and nginx?
 
 ### CTD
-See setup information in [seabird_ctd package directory](./seabird_ctd)
+See setup information in [seabird_ctd repository](https://bitbucket.org/b195m/seabird_ctd)
 
 Need to install packages in requirements.txt and plug in CTD to computer.
 
