@@ -7,6 +7,11 @@ from icefish_backend import local_settings
 
 import seabird_ctd
 
+try:
+	import pika
+except ImportError:
+	pika = None
+
 log = logging.getLogger("icefish_ctd")
 
 class Command(BaseCommand):
@@ -43,16 +48,17 @@ class Command(BaseCommand):
 		else:
 			server = local_settings.RABBITMQ_BASE_URL
 
-		ctd = seabird_ctd.CTD(port, baud=baud, timeout=5,)
+		ctd = seabird_ctd.CTD(port, baud=baud)
 		if not ctd.is_sampling:  # if it's not sampling, set the datetime, otherwise, we can't
 			ctd.set_datetime()
 		else:
 			log.info("CTD already logging. Listening in")
 
-		log.debug("Setting up interrupt handler")
-		# ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, local_settings.RABBITMQ_VHOST)  # set it up to receive commands from rabbitmq once autosampling starts
+		if pika:  # if pika isn't installed, run anyway, just, do the normal loop
+			log.debug("Setting up interrupt handler")
+			# ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, local_settings.RABBITMQ_VHOST)  # set it up to receive commands from rabbitmq once autosampling starts
 		log.info("Starting automatic logger")
-		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=True)
+		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=False)
 
 
 def handle_records(records):
@@ -68,4 +74,4 @@ def handle_records(records):
 		new_model.save()
 		log.debug("Record saved")
 
-	log.error("Test")
+

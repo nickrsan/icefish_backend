@@ -44,4 +44,5 @@ class Command(BaseCommand):
 							  routing_key='seabird',
 							  body=command)
 		print("Sent {}".format(command))
+		print("For results of the command, if any, see the console of the CTD reader script.")
 		connection.close()
