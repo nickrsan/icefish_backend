@@ -8,7 +8,9 @@ installation documents in those repositories when appropriate.
 ## Setup
 As an introduction, all of the items in this installation are targeted
 toward Windows, but everything is developed to be cross-platform in the
-event that you should desire running on a Unix-based server.
+event that you should desire running on a Unix-based server. You should
+start with a full copy (clone) of this repository in a folder on the
+computer you want to serve it from.
 
 ### Install Python
 This code base relies heavily on Python, so the first step is to download
