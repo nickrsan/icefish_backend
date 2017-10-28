@@ -14,15 +14,8 @@ import os
 
 from icefish_backend.local_settings import *  # import all the variables local to this device
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -54,7 +47,7 @@ ROOT_URLCONF = 'icefish_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR,  'templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,14 +65,6 @@ WSGI_APPLICATION = 'icefish_backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -119,8 +104,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-TEMPLATE_DIRS = (os.path.join(BASE_DIR,  'templates'),)
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -136,6 +119,7 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
+            'level': 'DEBUG',
         },
         'file': {
             'level': 'DEBUG',
@@ -143,14 +127,26 @@ LOGGING = {
             'filename': os.path.join(BASE_DIR, 'debug.log'),
             'formatter': 'verbose'
         },
+        'email_warn': {
+            'level': "WARNING",
+            'class': "django.utils.log.AdminEmailHandler",
+        },
+        'email_error': {
+            'level': "ERROR",
+            'class': "django.utils.log.AdminEmailHandler"
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'file', 'email_error', 'email_warn'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
         },
         'seabird_ctd': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'file', 'email_error', 'email_warn'],
+            'level': 'DEBUG'
+        },
+        'icefish_ctd': {
+            'handlers': ['console', 'file', 'email_error', 'email_warn'],
             'level': 'DEBUG'
         }
     },
