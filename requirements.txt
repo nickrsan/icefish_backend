@@ -1,4 +1,4 @@
 Django
-seabird_ctd
+seabird-ctd
 six
 pika
