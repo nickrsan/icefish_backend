@@ -23,10 +23,46 @@ You can [download Python installers from the Python.org website](https://python.
 While it doesn't matter for this project, the 64-bit version is the recommended
 distribution.
 
-### Install Python-based dependencies
-After installing Python, open a *new* command prompt so we can install
-Python-based dependencies. The command prompt must be new after the install
+### Make a virtual environment for Python
+In order to better isolate the python packages we use, we'll make what's
+called a virtual environment - this allows different versions of Python
+packages to coexist for different projects on the same machine. It also
+allows us to control package installation without admin privileges. To
+set this up, open a command prompt, and navigate to where you want to
+keep the virtual environment. I recommend something like the following:
+
+```
+C:
+|- Windows
+|- Program Files
+|- ...
+|- Code
+     |- virtualenvs
+          |- server_virtualenv
+     |- icefish_backend
+```
+
+In the above tree, you have a Code folder on the C drive that stores code
+for the project and has a separate folder for any virtual environments you
+create. In that example, it has a virtual environment named `server_virtualenv`.
+Each package of code lives in its own folder in the main Code folder.
+
+We'll use the name `server_virtualenv` for our environment here, though
+you can choose another name if you prefer.
+
+1. Open a *new* command prompt so we can install Python-based dependencies. The command prompt must be new after the install
 so that environment variables updated during the installation are loaded.
+2. Navigate to the folder you want to store your virtualenvs in. For example
+    `cd C:\Code`
+3. Type `python -m venv ./server_virtualenv` to create a virtual
+    environment named `server_virtualenv in the current folder.
+4. We'll want to use this virtual environment, so type
+    `./server_virtualenv/Scripts/activate.bat` and hit enter to run it.
+    That command makes the Python interpreter in the virtual environment
+    our default for this command line session.
+
+### Install Python-based dependencies
+After setting up the virtual environment, we need to install packages.
 In that command prompt, navigate to the directory that this code is stored,
 the same folder this README file is located inside of, and type:
 
