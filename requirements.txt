@@ -1,4 +1,5 @@
 Django
+psycopg2
 seabird-ctd
 six
 pika
