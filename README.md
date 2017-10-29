@@ -61,6 +61,8 @@ so that environment variables updated during the installation are loaded.
     That command makes the Python interpreter in the virtual environment
     our default for this command line session.
 
+[More documentation on venv can be found here](https://docs.python.org/3/library/venv.html) if needed.
+
 ### Install Python-based dependencies
 After setting up the virtual environment, we need to install packages.
 In that command prompt, navigate to the directory that this code is stored,
