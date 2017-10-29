@@ -5,14 +5,19 @@ DEBUG = False
 
 #Paths and databases
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # leave this line alone
+DB_NAME = "icefishdb"  # replace with the name of your database on the server.
+DB_SCHEMA = "icefish_backend"  # replace with the name of the schema you created, if using postgres
 DATABASES = {
 	'default': {  # these database settings assume you're connecting to a Postgres database. If you'll use something else, consult the Django documentation
 		'ENGINE': 'django.db.backends.postgresql',  # this is for Postgres - if you'll use something else like MySQL, consult Django documentation
 		'HOST': '127.0.0.1',  # the IP address or publicly accessible base URL of the database. If you're running the database server on the same computer as the web server, this value is correct already
 		'PORT': '5432',  # the port the database runs on. This value is the default for Postgres
-		'NAME': 'mydatabase',  # replace with the name of your database on the server. If it's a schema within a database, do Database.Schema
+		'NAME': DB_NAME,  # no need to change, defined above
 		'USER': 'mydatabaseuser',  # replace with the username for your database
 		'PASSWORD': 'mypassword',  # replace with the password for your database
+		'OPTIONS': {  # you don't need to modify this line or the next one *if* you're using PostgreSQL
+			'options': '-c search_path={}'.format(DB_SCHEMA)
+		},
 	}
 }
 
