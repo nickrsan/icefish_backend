@@ -73,7 +73,7 @@ python -m pip install -r requirements.txt
 That command will download and install all the necessary code for this
 project to run.
 
-## Install PostgreSQL
+### Install PostgreSQL
 PostgreSQL is the intended database for this codebase. Though the project
 uses [Django](https://djangoproject.com), which allows for any SQL-based database
 to be the backend, this code has only been tested with PostgreSQL and SQLite,
@@ -81,9 +81,11 @@ and SQLite should *not* be used in production environments.
 
 Download and install the [latest 64-bit version of PostgreSQL for Windows](https://www.postgresql.org/).
 Most any version of the database should work, but we tested against 10.0,
-so using that version or newer is safest.
+so using that version or newer is safest. You should be able to accept the
+defaults while installing, making sure to take note of the username and
+password you create during the installation.
 
-Postges requires a fair amount of setup. Fortunately, this code will do
+Postgres requires a fair amount of setup. Fortunately, this code will do
 a lot of it (filling out the empty database with required tables), but you
 will still need to do the following. Everything besides the first step below
 can be done relatively easily in PGAdmin, an application that installs
@@ -91,34 +93,101 @@ alongside PostgreSQL and can be used for administrative tasks. If you
 prefer, you can also use command line utilities, which are often referenced
 in documentation.
 
-1. Postgres requires host-based authentication. If you want to connect
-to the server, you need to have allowed that server to connect in a text
-configuration file. This even applies to connecting to the local database.
-Set up host-based authentication to allow the server this code is running
+1. If you installed Postgres on a separate server, one of the gotchas is
+that Postgres requires host-based authentication (in addition to any required
+firewall configuration on each machine). If you want to connect the server with
+Postgres to the web server, you need to have allowed the Postgres server to connect in a text
+configuration file. You can set up this "host-based authentication" to allow the server this code is running
 on to connect to your database server. [See their documentation for more
 details](https://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html).
+This file can most easily be edited by navigating to `C:\Program Files\PostgreSQL\10\data\`
+and right clicking on `pg_hba.conf` and selecting `Edit with Notepad++` if
+you have installed Notepad++.
 2. Create your user account for this project. In the installation, you'll
 have created the root user account for managing all of the database. *DO
 NOT USE THIS USER ACCOUNT IN THIS CODE*. Instead, log into PGAdmin with that
 root user account and create a new user account - remember the username and password - you'll plug them into
-a configuration file later.
+a configuration file later. You can create a new user account by right clicking
+on `Login/Group Roles` and selecting `Create`.
+    * On the "`General` tab, create a username in the `Name` box. We named it `icefish` in the initial install.
+    * On the `Definition` tab, set a password.
+    * On the `Privileges` tab, change `Can login?` to Yes. Leave the rest
+        at their defaults.
 3. Create a new database in PGAdmin. This is relatively straightforward.
-Name it whatever you like, but remember that name.
-4. Assign the user account you created full privileges (including ALTER)
- for the database you just created. This can be done from the properties
- pane available via right click on the database in the tree.
+Name it whatever you like, but remember that name. To do this, right
+click on `Databases` in the tree and again, select `Create`.
+    * On the `General` tab, give it a name - we called it `icefishdb` in
+     the initial install. Leave the Owner as the root user
+    (named `postgres` by default). We'll give the new user account the ability
+    to operate the database below, but we'll leave ownership with a user
+    that's unconnected to the web server so that in the event of a web
+    security issue, the data is safer.
+    * On the `Security` tab, click the plus sign in the `Privileges` heading.
+    Select the new user you just created as the `Grantee`, check the box
+    next to `Connect` that pops into the `Privileges` column, but leave
+    "With Grant Option` unchecked, and leave `Grantor` as your root user
+    account.
+    * Click `Save` to create the database.
+4. Now connect to the new database by double clicking on it in the tree.
+    We need to create a new `Schema` or tablespace, by right clicking
+    on the `Schemas` portion of the tree and going to create.
+    * Give the schema a name on the `General` tab, again leaving postgres
+    as the owner. We've named it `icefish_backend` in the initial install.
+    * On the `Security` tab, again add a record and select your new user
+    account as the `Grantee`. Give it `ALL` privileges by checking that box,
+    but again, do not check `With Grant Option`*
+    * On the `Default Privileges` tab, we'll configure the settings for
+    new tables that will be created by our application using the new user
+    account. This is where we finally give that account the ability to do
+    things.
+        * On the `Tables` subtab, add a row, select your new user account
+        as the Grantee, and again select the `All` option without selecting
+        `With Grant Option`. Then, *uncheck* the `Truncate` option.
+        Together, these will give the new user the ability to create, modify,
+        and delete data - only within this schema.
+        * On the `Sequences` tab, again give `All` privileges to your new
+        user - no grant option
+        * On both the `Functions` and `Types` tabs, give the new user
+        the only privilege available for each of those. Once again, do not
+        select the `With Grant Option` boxes.
+    * Click Save to create the schema and assign the privileges.
+5. Now, go back to the properties for your new user account, and we'll
+    set up some parameters. Switch to the `Parameters` tab and we'll add
+    three new rows:
+    ```
+    +-------------------------------+----------------+---------------+
+    | Name                          | Value          | Database      |
+    +-------------------------------+----------------+---------------+
+    | client_encoding               | UTF8           | icefishdb     |
+    +-------------------------------+----------------+---------------+
+    | default_transaction_isolation | read_committed | icefishdb     |
+    +-------------------------------+----------------+---------------+
+    | timezone                      | UTC            | icefishdb     |
+    +-------------------------------+----------------+---------------+
+    ```
+
+    Replace icefishdb with whatever you named your database.
 
 ### Setting up the application
 Now that you have the core dependencies installed, it's time to fill in
 the configuration, as it applies to your local environment. Most
 configuration is already filled out in settings.py in the folder
-icefish_backend, but you should:
+subfolder `icefish_backend` of the main `icefish_backend` folder, but you should:
 
 1. Make a copy of the file `local_settings_template.py` in the same folder
 it's in and rename it to `local_settings.py`*
 2. Edit that file with a text editor and fill in the values on each line.
 Each line has a Python comment, following the pound/hash sign that indicates
 what should be filled in there.
+
+### Set up the data tables
+Now that you've configured the local settings, you can have the application
+set up the database. To do this, open a command prompt (if you don't
+have the previous one open still) and activate the virtual environment
+as you did previously. Then, navigate into the main folder `icefish_backend`
+and run the command `python manage.py migrate` - follow any prompts it
+gives you. This action will create all of the data tables for the
+application and do any additional setup.
 
 ### Install Apache Web Server
 Fill in
@@ -127,6 +196,7 @@ Clone/download the code
 Copy local settings and fill in the values
 gunicorn and nginx?
 
+## Running and Using the Application
 ### CTD
 See setup information in [seabird_ctd repository](https://bitbucket.org/b195m/seabird_ctd)
 
@@ -137,7 +207,7 @@ that indicates which COM port the CTD is connected on (eg COM6).
 
 (Maybe) Need to set up and install Erlang and RabbitMQ server and configure ports. As of 10/23/2017 not required, but might be.
 
-## Running CTD Monitoring
+#### Running CTD Monitoring
 To run the script to monitor for CTD data, after setup is complete, simply run
 ```python
 python manage.py monitor_ctd

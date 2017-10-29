@@ -10,7 +10,7 @@ DATABASES = {
 		'ENGINE': 'django.db.backends.postgresql',  # this is for Postgres - if you'll use something else like MySQL, consult Django documentation
 		'HOST': '127.0.0.1',  # the IP address or publicly accessible base URL of the database. If you're running the database server on the same computer as the web server, this value is correct already
 		'PORT': '5432',  # the port the database runs on. This value is the default for Postgres
-		'NAME': 'mydatabase',  # replace with the name of your database on the server
+		'NAME': 'mydatabase',  # replace with the name of your database on the server. If it's a schema within a database, do Database.Schema
 		'USER': 'mydatabaseuser',  # replace with the username for your database
 		'PASSWORD': 'mypassword',  # replace with the password for your database
 	}
