@@ -20,6 +20,11 @@ from icefish_backend.local_settings import *  # import all the variables local t
 ALLOWED_HOSTS = []
 
 
+# CORE APPLICATION SETTINGS
+FLAC_COMPRESSION_LEVEL = "-5"
+FLAC_STORAGE_FOLDER = r"H:\flac"
+
+
 # Application definition
 
 INSTALLED_APPS = [

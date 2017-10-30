@@ -113,7 +113,7 @@ a configuration file later. You can create a new user account by right clicking
 on `Login/Group Roles` and selecting `Create`.
     * On the "`General` tab, create a username in the `Name` box. We named it `icefish` in the initial install.
     * On the `Definition` tab, set a password.
-    * On the `Privileges` tab, change `Can login?` to Yes. Leave the rest
+    * On the `Privileges` tab, change `Can login?` to `Yes`. Leave the rest
         at their defaults.
 3. Create a new database in PGAdmin. This is relatively straightforward.
 Name it whatever you like, but remember that name. To do this, right
@@ -127,7 +127,7 @@ click on `Databases` in the tree and again, select `Create`.
     * On the `Security` tab, click the plus sign in the `Privileges` heading.
     Select the new user you just created as the `Grantee`, check the box
     next to `Connect` that pops into the `Privileges` column, but leave
-    "With Grant Option` unchecked, and leave `Grantor` as your root user
+    `With Grant Option` unchecked, and leave `Grantor` as your root user
     account.
     * Click `Save` to create the database.
 4. Now connect to the new database by double clicking on it in the tree.
@@ -193,10 +193,11 @@ application and do any additional setup.
 
 ### Install Apache Web Server
 Fill in
-
-Clone/download the code
-Copy local settings and fill in the values
-gunicorn and nginx?
+gunicorn and apache?
+Backup for Postgres?
+Django superuser?
+Configure CTD COM Port
+Connect to Synology
 
 ## Running and Using the Application
 ### CTD
