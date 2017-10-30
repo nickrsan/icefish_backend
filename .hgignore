@@ -188,3 +188,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+icefish_extras/test_data.xlsx
+icefish_extras/test_data.csv
+db.sqlite3
