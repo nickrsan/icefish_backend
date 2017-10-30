@@ -17,13 +17,16 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 
-		# figure out which com port to listen on. If it's passed in as an argument, use that, otherwise use the one in the defined environment variable (CTD code will handle that).
-
+		# Figure out what COM port the CTD runs on - it'll be the name of the queue in RabbitMQ
 		queue = None
 		if options['queue']:
 			queue = options['queue'][0]
-		else:
+		elif hasattr(local_settings, "CTD_DEFAULT_COM_PORT") and local_settings.CTD_DEFAULT_COM_PORT not in (None, ""):  # if the COM port is defined in settings, use that
+			queue = local_settings.CTD_DEFAULT_COM_PORT  # often times, it's defined as blank in the template, so we'll exclude that in the conditional above. Only use this if it's truly defined
+		elif 'SEABIRD_CTD_PORT' in os.environ:  # otherwise, try the environment variable
 			queue = os.environ['SEABIRD_CTD_PORT']
+		else:
+			raise ValueError("Can't find COM port for CTD. It should be passed either for the --queue variable here, be defined in local_settings.py, or set as an environment variable")
 
 		server = None
 		if options['server']:
