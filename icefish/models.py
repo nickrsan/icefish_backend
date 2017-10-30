@@ -11,6 +11,7 @@ class CTD(models.Model):
 	temp = models.FloatField(db_index=True)
 	pressure = models.FloatField(db_index=True)
 	conductivity = models.FloatField(blank=True, null=True, db_index=True)
+	salinity = models.FloatField(blank=True, null=True, db_index=True)
 	datetime = models.DateTimeField(db_index=True)
 	server_datetime = models.DateTimeField()  # the server reading the data's timestamp
 	measured = models.BooleanField(default=True)  # used as a flag if we interpolate any values. If measured == True, then it's direct off the CTD
@@ -21,7 +22,7 @@ class HydrophoneAudio(models.Model):
 	start_time = models.DateTimeField(db_index=True)
 	length = models.PositiveIntegerField()
 	spectrograph = models.FilePathField(null=True, blank=True)  # where is
-	flags = models.CharField(blank=True)  # we don't have a scheme for flags yet, but we might want to create a set of characters to mean things
+	flags = models.CharField(blank=True, max_length=255)  # we don't have a scheme for flags yet, but we might want to create a set of characters to mean things
 
 	@property
 	def end_time(self):
