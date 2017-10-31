@@ -58,7 +58,7 @@ class Command(BaseCommand):
 			log.debug("Setting up interrupt handler")
 			# ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, local_settings.RABBITMQ_VHOST)  # set it up to receive commands from rabbitmq once autosampling starts
 		log.info("Starting automatic logger")
-		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=False)
+		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=True)
 
 
 def handle_records(records):
@@ -68,6 +68,8 @@ def handle_records(records):
 		new_model.temp = record["temperature"]
 		new_model.conductivity = record["conductivity"]
 		new_model.pressure = record["pressure"]
+		if "salinity" in record:
+			new_model.salinity = record["salinity"]
 		new_model.datetime = record["datetime"]
 		new_model.server_datetime = timezone.now()
 
