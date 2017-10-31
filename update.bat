@@ -3,4 +3,5 @@ echo "It's also a good idea to make sure that your mercurial credentials are set
 
 hg pull
 hg update
+%ICEFISH_INTERPRETER% -m pip install -r requirements.txt
 %ICEFISH_INTERPRETER% manage.py migrate
