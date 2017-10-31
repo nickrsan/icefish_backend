@@ -23,7 +23,8 @@ DATABASES = {
 
 # FLAC
 FLAC_STORAGE_FOLDER = r"H:\flac"  # what is the full path to the place we should convert flac files into?
-FLAC_EXECUTABLE_PATH = r""  # Where is the flac utlity executable located (full path)
+FLAC_BINARY = ""  # path to flac.exe for converting files
+WAV_STORAGE_FOLDER = r"H:\incoming"
 
 # SECRETS
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -46,9 +47,6 @@ ADMINS = ERROR_EMAILS
 CTD_LOGGING_INTERVAL = 90  # how often should the CTD take a sample and have the script monitor it - in seconds
 CTD_BAUD_RATE = 4800  # The baud rate of the CTD cable. We're running a long cable, so we need to operate at 4800 baud
 CTD_DEFAULT_COM_PORT = "COM6"  # What COM port is the CTD running on when it's plugged in?
-
-# FLAC settings
-FLAC_BINARY = ""  # path to flac.exe for converting files
 
 # RABBITMQ Settings
 # if you're using the advanced version of the CTD logger that lets you send commands while it's autologging, fill these out
