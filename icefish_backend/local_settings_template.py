@@ -21,6 +21,10 @@ DATABASES = {
 	}
 }
 
+# FLAC
+FLAC_STORAGE_FOLDER = r"H:\flac"  # what is the full path to the place we should convert flac files into?
+FLAC_EXECUTABLE_PATH = r""  # Where is the flac utlity executable located (full path)
+
 # SECRETS
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = ''  # make a long string of letters, punctuation, and numbers between the quoteslike asehp987#ohd^yuinOFIUHBSA*(IUsgdshFMSA)IU
