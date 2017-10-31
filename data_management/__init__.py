@@ -25,7 +25,9 @@ def hydrophone_pipeline(inbound_folder=settings.WAV_STORAGE_FOLDER, outbound_fol
 		full_output = os.path.join(outbound_folder, "{}.flac".format(base_name))
 
 		audio = HydrophoneAudio()
-		result = subprocess.check_call([settings.FLAC_BINARY, settings.FLAC_COMPRESSION_LEVEL, "--totally_silent", full_input, full_output])
+		flac_params = [settings.FLAC_BINARY, settings.FLAC_COMPRESSION_LEVEL, "--totally-silent", full_input, "--output-name={}".format(full_output)]
+		log.debug(flac_params)
+		result = subprocess.check_call(flac_params)
 
 		audio.wav = full_input
 		audio.flac = full_output
