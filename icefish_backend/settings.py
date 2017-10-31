@@ -22,8 +22,6 @@ ALLOWED_HOSTS = []
 
 # CORE APPLICATION SETTINGS
 FLAC_COMPRESSION_LEVEL = "-5"
-FLAC_STORAGE_FOLDER = r"H:\flac"
-
 
 # Application definition
 
