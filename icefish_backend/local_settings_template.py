@@ -23,8 +23,9 @@ DATABASES = {
 
 # FLAC
 FLAC_STORAGE_FOLDER = r"H:\flac"  # what is the full path to the place we should convert flac files into?
-FLAC_BINARY = ""  # path to flac.exe for converting files
+SPECTROGRAPH_STORAGE_FOLDER = r"H:\spectrographs"  # where should spectrograph images be stored?
 WAV_STORAGE_FOLDER = r"H:\incoming"
+FLAC_BINARY = ""  # path to flac.exe for converting files
 
 # SECRETS
 # SECURITY WARNING: keep the secret key used in production secret!

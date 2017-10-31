@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import datetime
+import arrow  # similar to datetime
 
 from django.db import models
 
@@ -36,7 +37,8 @@ class HydrophoneAudio(models.Model):
 
 	@property
 	def end_time(self):
-		return datetime.datetime((self.start_time + self.length).total_seconds())  # should test this - not sure if it casts that value to seconds or not - I think it does
+		start_time = arrow.get(self.start_time)
+		return start_time.shift(seconds=+self.length).datetime  # use arrow, but return a datetime object
 
 	def time_window_overlaps(self, time_start, time_end):
 		"""

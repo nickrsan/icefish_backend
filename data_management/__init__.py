@@ -1,7 +1,11 @@
 import os
+import platform
 import subprocess
 import wave
 import contextlib
+import datetime
+
+import arrow
 
 from icefish_backend import settings
 from icefish.models import HydrophoneAudio
@@ -26,20 +30,40 @@ def hydrophone_pipeline(inbound_folder=settings.WAV_STORAGE_FOLDER, outbound_fol
 		audio.wav = full_input
 		audio.flac = full_output
 		audio.length = get_wave_length(full_input)
-
+		audio.start_time = get_start_time(full_input, audio.length)
 		audio.save()
 
-
 	# pass it through whatever generates spectrographs
-	# send each file to flac,
 	# delete original
-	#
-
-	# create HydrophoneAudio object for each
-	# end by saving it
-	pass
-
 
 def get_wave_length(path):
+	"""
+		Gets the length in seconds of a WAV file. Adapted from https://stackoverflow.com/questions/7833807/get-wav-file-length-or-duration#7833963
+	:param path: the fully qualified path to a wav file
+	:return: time in seconds of duration that the wav file lasts
+	"""
 	with contextlib.closing(wave.open(path,'r')) as wav:
 		return wav.getnframes() / float(wav.getframerate())  # length = frames / rate
+
+
+def get_start_time(path_to_file, file_length):
+	"""
+	Try to get the date that a file was created, falling back to when it was
+	last modified if that isn't possible. Modification by Nick subtracts out file length to find its start time
+	See http://stackoverflow.com/a/39501288/1709587 for explanation.
+	:param path_to_file: Fully qualified path to file
+	:param file_length: The length of the audio file, in seconds. Only used on unix systems to determine start time from end time
+	:return: datetime object representing creation datetime
+	"""
+	if platform.system() == 'Windows':
+		return datetime.datetime.fromtimestamp(os.path.getctime(path_to_file))
+	else:
+		stat = os.stat(path_to_file)  # Mac
+		try:
+			return datetime.datetime.fromtimestamp(stat.st_birthtime)
+		except AttributeError:
+			# We're probably on Linux. No easy way to get creation dates here, so we'll take the last modified date
+			# and subtract the file length, which should be sufficient
+			end_time = arrow.get(stat.st_mtime)
+			return end_time.shift(seconds=-file_length).datetime  # shift the end time by subtracting the length of the file to get start time as a datetime
+
