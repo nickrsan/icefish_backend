@@ -12,7 +12,7 @@ try:
 except ImportError:
 	pika = None
 
-log = logging.getLogger("icefish_ctd")
+log = logging.getLogger("icefish.ctd")
 
 class Command(BaseCommand):
 	help = 'Listens for new data on the CTD and inserts into the database'

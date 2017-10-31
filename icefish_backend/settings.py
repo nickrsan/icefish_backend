@@ -124,7 +124,7 @@ LOGGING = {
             'formatter': 'simple',
             'level': 'DEBUG',
         },
-        'file': {
+        'file_debug': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'debug.log'),
@@ -141,15 +141,15 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file', 'email_error', 'email_warn'],
+            'handlers': ['console', 'file_debug', 'email_error', 'email_warn'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
         },
         'seabird_ctd': {
-            'handlers': ['console', 'file', 'email_error', 'email_warn'],
+            'handlers': ['console', 'file_debug', 'email_error', 'email_warn'],
             'level': 'DEBUG'
         },
-        'icefish_ctd': {
-            'handlers': ['console', 'file', 'email_error', 'email_warn'],
+        'icefish': {
+            'handlers': ['console', 'file_debug', 'email_error', 'email_warn'],
             'level': 'DEBUG'
         }
     },
