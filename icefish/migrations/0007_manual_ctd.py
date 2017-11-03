@@ -7,15 +7,22 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 from icefish_backend import local_settings
-
+from django.db import migrations, models
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('icefish', '0005_auto_20171031_2029'),
+        ('icefish', '0006_auto_20171103_1341'),
     ]
 
     operations = [
         migrations.RunSQL("INSERT INTO icefish_ctdinstrument ('deployment_start') VALUES ({});".format("clock_timestamp()" if 'postgres' in local_settings.DATABASES["default"]["ENGINE"] else "DATETIME('now')"))
+        migrations.AddField(
+            model_name='ctd',
+            name='instrument',
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='icefish.CTDInstrument'),
+            preserve_default=False,
+        ),
     ]
