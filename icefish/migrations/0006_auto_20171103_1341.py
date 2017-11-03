@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('icefish', '0005_auto_20171031_2029'),
-        ('icefish', '0007_manual_ctd.py'),
     ]
 
     operations = [
@@ -31,11 +30,5 @@ class Migration(migrations.Migration):
             model_name='hydrophoneaudio',
             old_name='spectrograph',
             new_name='spectrogram',
-        ),
-        migrations.AddField(
-            model_name='ctd',
-            name='instrument',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='icefish.CTDInstrument'),
-            preserve_default=False,
         ),
     ]
