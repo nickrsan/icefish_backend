@@ -191,12 +191,27 @@ and run the command `python manage.py migrate` - follow any prompts it
 gives you. This action will create all of the data tables for the
 application and do any additional setup.
 
+## Set up FLAC and SOX
+FLAC is the audio codec we use to losslessly compress the audio files
+while they are at rest, in storage. To run the conversion, we'll use
+the flac executable. Download the latest zip replease for windows from:
+https://ftp.osuosl.org/pub/xiph/releases/flac/ (the original version of the
+site uses [flac-1.3.2-win.zip](https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.2-win.zip)
+Extract the zipfile somewhere it can live (such as the Code directory)
+and fill in the full path to the flac.exe executable in your copy of
+local_settings.py (if you have already begun filling that out)
+
+For SoX, simply go to [its website](http://sox.sourceforge.net/) and
+download the latest zip version. Again, extract the zip file to somewhere
+it can remain, and configure the path to sox.exe in your local_settings.py
+
 ### Install Apache Web Server
 Fill in
 gunicorn and apache?
 Backup for Postgres?
 Django superuser?
 Configure CTD COM Port
+SoX?
 Connect to Synology
 
 ## Running and Using the Application

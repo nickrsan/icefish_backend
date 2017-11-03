@@ -1,8 +1,8 @@
 import logging
 
-from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone
-import data_management
+from django.core.management.base import BaseCommand
+
+from icefish import data_management
 from icefish_backend import local_settings
 
 log = logging.getLogger("icefish.audio")

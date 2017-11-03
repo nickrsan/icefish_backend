@@ -21,11 +21,13 @@ DATABASES = {
 	}
 }
 
-# FLAC
+# AUDIO PROCESSING
 FLAC_STORAGE_FOLDER = r"H:\flac"  # what is the full path to the place we should convert flac files into?
-SPECTROGRAPH_STORAGE_FOLDER = r"H:\spectrographs"  # where should spectrograph images be stored?
+TEMPORARY_AUDIO_FOLDER = r""  # folder to dump temporary conversion products in - they'll be deleted. May not be used in some cases (if SOX is used)
+SPECTROGRAM_STORAGE_FOLDER = r"H:\spectrographs"  # where should spectrograph images be stored?
 WAV_STORAGE_FOLDER = r"H:\incoming"
 FLAC_BINARY = ""  # path to flac.exe for converting files
+SOX_BINARY = r""  # path to sox.exe for creating spectrograms for retroactive data visualization
 
 # SECRETS
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -47,7 +49,7 @@ ADMINS = ERROR_EMAILS
 # CTD Settings
 CTD_LOGGING_INTERVAL = 90  # how often should the CTD take a sample and have the script monitor it - in seconds
 CTD_BAUD_RATE = 4800  # The baud rate of the CTD cable. We're running a long cable, so we need to operate at 4800 baud
-CTD_DEFAULT_COM_PORT = "COM6"  # What COM port is the CTD running on when it's plugged in?
+CTD_DEFAULT_COM_PORT = "COM3"  # What COM port is the CTD running on when it's plugged in?
 
 # RABBITMQ Settings
 # if you're using the advanced version of the CTD logger that lets you send commands while it's autologging, fill these out
