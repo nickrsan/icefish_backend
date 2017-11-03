@@ -13,7 +13,7 @@ from icefish_backend import local_settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('icefish', '0006_auto_20171103_1341'),
+        ('icefish', '0005_auto_20171031_2029'),
     ]
 
     operations = [

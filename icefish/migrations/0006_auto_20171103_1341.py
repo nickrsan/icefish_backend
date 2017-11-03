@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('icefish', '0005_auto_20171031_2029'),
+        ('icefish', '0007_manual_ctd.py'),
     ]
 
     operations = [
