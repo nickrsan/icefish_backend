@@ -10,7 +10,6 @@ import arrow
 
 from icefish.models import HydrophoneAudio
 from icefish_backend import settings
-from icefish.data_management import spectrogram
 
 log = logging.getLogger("icefish.audio")
 

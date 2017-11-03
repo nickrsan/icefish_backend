@@ -26,7 +26,7 @@ FLAC_STORAGE_FOLDER = r"H:\flac"  # what is the full path to the place we should
 TEMPORARY_AUDIO_FOLDER = r""  # folder to dump temporary conversion products in - they'll be deleted. May not be used in some cases (if SOX is used)
 SPECTROGRAM_STORAGE_FOLDER = r"H:\spectrographs"  # where should spectrograph images be stored?
 WAV_STORAGE_FOLDER = r"H:\incoming"
-FLAC_BINARY = ""  # path to flac.exe for converting files
+FLAC_BINARY = r""  # path to flac.exe for converting files
 SOX_BINARY = r""  # path to sox.exe for creating spectrograms for retroactive data visualization
 
 # SECRETS
