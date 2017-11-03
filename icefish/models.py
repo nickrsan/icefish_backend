@@ -32,10 +32,57 @@ class CTD(models.Model):
 	pressure = models.FloatField(db_index=True)
 	conductivity = models.FloatField(blank=True, null=True, db_index=True)
 	salinity = models.FloatField(blank=True, null=True, db_index=True)
-	datetime = models.DateTimeField(db_index=True)
-	server_datetime = models.DateTimeField()  # the server reading the data's timestamp
+	dt = models.DateTimeField(db_index=True)  # datetime
+	server_dt = models.DateTimeField()  # the server reading the data's timestamp
 	measured = models.BooleanField(default=True)  # used as a flag if we interpolate any values. If measured == True, then it's direct off the CTD
 	instrument = models.ForeignKey(CTDInstrument)
+
+	def _window_avg(self, var, window=7):
+		window_date = arrow.get(self.dt)
+		beginning_date = window_date.shift(days=-(window/2)).datetime
+		end_date = window_date.shift(seconds=+(window/2)).datetime
+		data = CTD.objects.filter(dt__gt=beginning_date).filter(dt__lt=end_date).all()
+
+		values = [getattr(record, var) for record in data]
+		return sum(values)/len(values)
+
+	def avg_temp(self, window=7):
+		return self._window_avg("temp", window)
+
+	def avg_pressure(self, window=7):
+		return self._window_avg("pressure", window)
+
+	def avg_conductivity(self, window=7):
+		return self._window_avg("conductivity", window)
+
+	def avg_salinity(self, window=7):
+		return self._window_avg("salinity", window)
+
+	@property
+	def freezing_point(self):
+		"""
+			This equation is defined in fofonoff et al 1983 for ITS 78 temperatures, but according to Paul, that is still
+			the most current paper on the topic
+		:return:
+		"""
+		if not self.salinity or self.salinity is None:
+			return ValueError("Can't calculate - no salinity measurement for this record")
+
+		return -0.0575*self.salinity + 0.001710523*(self.salinity**1.5) - 0.0002154996*(self.salinity**2) - 0.000753*self.pressure
+
+	@property
+	def is_supercooled(self):
+		if self.temp < self.freezing_point:
+			return True
+		else:
+			return False
+
+	@property
+	def supercooling_amount(self):
+		if self.is_supercooled:
+			return self.temp - self.freezing_point
+		else:
+			return 0
 
 class HydrophoneAudio(models.Model):
 	wav = models.FilePathField(null=True, blank=True)  # just the original wav location, but if we ever back it out to a wav from flac, could use this - not guaranteed to exist
