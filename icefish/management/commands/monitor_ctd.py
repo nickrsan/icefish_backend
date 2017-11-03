@@ -70,8 +70,8 @@ def handle_records(records):
 		new_model.pressure = record["pressure"]
 		if "salinity" in record:
 			new_model.salinity = record["salinity"]
-		new_model.datetime = record["datetime"]
-		new_model.server_datetime = timezone.now()
+		new_model.dt = record["datetime"]
+		new_model.server_dt = timezone.now()
 
 		new_model.save()
 		log.debug("Record saved")
