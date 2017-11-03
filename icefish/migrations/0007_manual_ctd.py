@@ -18,7 +18,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL("INSERT INTO icefish_ctdinstrument ('deployment_start') VALUES ({});".format("clock_timestamp()" if 'postgres' in local_settings.DATABASES["default"]["ENGINE"] else "DATETIME('now')"))
+        migrations.RunSQL("INSERT INTO {}icefish_ctdinstrument (deployment_start) VALUES ({});".format(
+            "icefish_backend." if 'postgres' in local_settings.DATABASES["default"]["ENGINE"] else "",
+            "clock_timestamp()" if 'postgres' in local_settings.DATABASES["default"]["ENGINE"] else "DATETIME('now')")),
+
         migrations.AddField(
             model_name='ctd',
             name='instrument',
