@@ -4,6 +4,4 @@ seabird-ctd>=0.2.21
 six
 pika
 arrow
-numpy
-matplotlib
 soundfile
