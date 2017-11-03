@@ -1,0 +1,1 @@
+start /low %ICEFISH_INTERPRETER% manage.py
