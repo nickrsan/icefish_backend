@@ -18,6 +18,9 @@ log = logging.getLogger("icefish.models")
 
 # Create your models here.
 
+class FLACIntegrityError(BaseException):
+	pass
+
 class CTDInstrument(models.Model):
 	deployment_start = models.DateTimeField()
 	deployment_end = models.DateTimeField(null=True, blank=True)
@@ -28,10 +31,10 @@ class CTDInstrument(models.Model):
 	coord_y = models.FloatField(null=True, blank=True)
 
 class CTD(models.Model):
-	temp = models.FloatField(db_index=True)
-	pressure = models.FloatField(db_index=True)
+	temp = models.FloatField(db_index=True)  # ITS 90, celsius
+	pressure = models.FloatField(db_index=True)  # decibars
 	conductivity = models.FloatField(blank=True, null=True, db_index=True)
-	salinity = models.FloatField(blank=True, null=True, db_index=True)
+	salinity = models.FloatField(blank=True, null=True, db_index=True)  # practical salinity units
 	dt = models.DateTimeField(db_index=True)  # datetime
 	server_dt = models.DateTimeField()  # the server reading the data's timestamp
 	measured = models.BooleanField(default=True)  # used as a flag if we interpolate any values. If measured == True, then it's direct off the CTD
@@ -47,22 +50,46 @@ class CTD(models.Model):
 		return sum(values)/len(values)
 
 	def avg_temp(self, window=7):
+		"""
+			Gives the average temperature for a window (in days) centered on this observation.
+		:param window: number of days the window represents. This observation is the centering point, so a window of
+						size 7, the default, will be 3.5 days before and after this measurement.
+		:return: float value of average temperature in ITS 90 degrees celsius
+		"""
 		return self._window_avg("temp", window)
 
 	def avg_pressure(self, window=7):
+		"""
+			Gives the average pressure for a window (in days) centered on this observation.
+			:param window: number of days the window represents. This observation is the centering point, so a window of
+							size 7, the default, will be 3.5 days before and after this measurement.
+			:return: float value of average pressure in decibars
+		"""
 		return self._window_avg("pressure", window)
 
 	def avg_conductivity(self, window=7):
+		"""
+			Gives the average conductivity for a window (in days) centered on this observation.
+			:param window: number of days the window represents. This observation is the centering point, so a window of
+							size 7, the default, will be 3.5 days before and after this measurement.
+			:return: float value of average conductivity
+		"""
 		return self._window_avg("conductivity", window)
 
 	def avg_salinity(self, window=7):
+		"""
+			Gives the average salinity for a window (in days) centered on this observation.
+			:param window: number of days the window represents. This observation is the centering point, so a window of
+							size 7, the default, will be 3.5 days before and after this measurement.
+			:return: float value of average salinity in practical salinity units
+		"""
 		return self._window_avg("salinity", window)
 
 	@property
 	def freezing_point(self):
 		"""
-			This equation is defined in fofonoff et al 1983 for ITS 78 temperatures, but according to Paul, that is still
-			the most current paper on the topic
+			This equation is defined in Fofonoff et al 1983 for ITS 78 temperatures, but according to Paul, that is still
+			the most current paper on the topic.
 		:return:
 		"""
 		if not self.salinity or self.salinity is None:
@@ -79,14 +106,19 @@ class CTD(models.Model):
 
 	@property
 	def supercooling_amount(self):
+		"""
+			How much supercooling is occuring at any given moment. If it's supercooled, it returns the number of degrees
+			Celsius that the water is supercooled. Otherwise returns 0.
+		:return:
+		"""
 		if self.is_supercooled:
 			return self.temp - self.freezing_point
 		else:
 			return 0
 
 class HydrophoneAudio(models.Model):
-	wav = models.FilePathField(null=True, blank=True)  # just the original wav location, but if we ever back it out to a wav from flac, could use this - not guaranteed to exist
-	flac = models.FilePathField()  # converted flac file
+	wav = models.FilePathField(null=True, blank=True, unique=True)  # just the original wav location, but if we ever back it out to a wav from flac, could use this - not guaranteed to exist
+	flac = models.FilePathField(unique=True)  # converted flac file
 	start_time = models.DateTimeField(db_index=True)
 	length = models.PositiveIntegerField()
 	spectrogram = models.FilePathField(null=True, blank=True)  # where is
@@ -116,7 +148,7 @@ class HydrophoneAudio(models.Model):
 				log.warning("FLAC file already exists and overwrite is on, creating new file")
 				os.unlink(output_path)  # remove current version so it can be recreated
 			else:
-				raise FileExistsError("FLAC file already exists!")
+				raise FileExistsError("FLAC file {} already exists!".format(output_path))
 
 		# Make FLAC file
 		flac_params = [settings.FLAC_BINARY, settings.FLAC_COMPRESSION_LEVEL, "--totally-silent", self.wav, "--output-name={}".format(output_path)]
@@ -171,3 +203,28 @@ class HydrophoneAudio(models.Model):
 		log.debug(spectrogram_params)
 		result = subprocess.check_call(spectrogram_params)
 		self.spectrogram = output_path
+
+	def remove_wav(self):
+		"""
+			Confirms that the flac file exists and is intact (with flac test), then deletes the wav file if FLAC looks good.
+		:return:
+		"""
+		if self.flac is not None and self.flac != "" and os.path.exists(self.flac):  # check the basics first
+			if not self.flac_verifies():
+				raise FLACIntegrityError("FLAC file for {} is not valid - it should be regenerated from original WAV. Abandoning WAV deletion".format(self.wav))
+
+			log.debug("Removing wav file at {}".format(self.wav))
+			os.unlink(self.wav)  # now remove the wav file
+
+	def flac_verifies(self):
+		"""
+			Checks that the flac file is a valid flac file - we don't want to delete the wav if it's not (maybe an error
+			or a power outage during transcoding, etc).
+		:return: True if file is valid, False otherwise
+		"""
+		try:
+			subprocess.check_call([settings.FLAC_BINARY, "-t", self.flac, "--totally-silent"])
+		except subprocess.CalledProcessError:
+			return False
+
+		return True
