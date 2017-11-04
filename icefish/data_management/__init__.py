@@ -1,12 +1,7 @@
-import contextlib
-import datetime
+
 import logging
 import os
-import platform
-import subprocess
 import wave
-
-import arrow
 
 from icefish.models import HydrophoneAudio, FLACIntegrityError
 from icefish_backend import settings
@@ -39,7 +34,11 @@ def hydrophone_pipeline(inbound_folder=settings.WAV_STORAGE_FOLDER, outbound_fol
 		audio.wav = full_input
 		full_output = os.path.join(outbound_folder, "{}.flac".format(base_name))
 
-		audio.get_wave_length()
+		try:
+			audio.get_wave_length()
+		except wave.Error:
+			log.warning("Unable to get metadata about wave file {} - skipping".format(full_input))
+			continue
 		audio.get_start_time()
 
 		try:
