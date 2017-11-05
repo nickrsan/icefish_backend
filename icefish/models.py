@@ -23,8 +23,9 @@ class FLACIntegrityError(BaseException):
 
 class Weather(models.Model):
 	"""
-		Data loaded
+		Data loaded from NCDC's McMurdo weather station here
 	"""
+	pass
 
 class CTDInstrument(models.Model):
 	deployment_start = models.DateTimeField()
