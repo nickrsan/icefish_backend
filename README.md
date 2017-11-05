@@ -211,8 +211,17 @@ gunicorn and apache?
 Backup for Postgres?
 Django superuser?
 Configure CTD COM Port
-SoX?
+Set entry in hosts file for array
 Connect to Synology
+Secure Wowza - make it run as a named user instead of as local system
+* Create user account for wowza - make it an admin (some things break without it)
+* Give it full control permissions over the wowza install folder
+* Set the wowza services to run as that new user
+* log in as wowza and map drives Z, V, and H for it
+* Open port 1935 in router to wowza
+* Create application on wowza for video on demand. Enter a path, but it
+doesn't need to be valid. Edit *that application's* config file
+and set the directory to be the UNC path to the share.
 
 ## Running and Using the Application
 ### CTD

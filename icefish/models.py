@@ -21,6 +21,11 @@ log = logging.getLogger("icefish.models")
 class FLACIntegrityError(BaseException):
 	pass
 
+class Weather(models.Model):
+	"""
+		Data loaded
+	"""
+
 class CTDInstrument(models.Model):
 	deployment_start = models.DateTimeField()
 	deployment_end = models.DateTimeField(null=True, blank=True)
