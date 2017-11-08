@@ -36,6 +36,8 @@ class Weather(models.Model):
 	sea_level_pressure = models.IntegerField()  # unless we have at least a datetime value and a sea level pressure value, we won't store the record. Everything else is optional
 	sea_level_pressure_flag = models.SmallIntegerField(blank=True, null=True)
 	ncdc_id_value = models.SmallIntegerField(blank=True, null=True)
+	valid_from = models.DateTimeField(db_index=True, null=True, blank=True)
+	valid_to = models.DateTimeField(db_index=True, null=True, blank=True)
 
 class CTDInstrument(models.Model):
 	deployment_start = models.DateTimeField()
@@ -55,6 +57,16 @@ class CTD(models.Model):
 	server_dt = models.DateTimeField()  # the server reading the data's timestamp
 	measured = models.BooleanField(default=True)  # used as a flag if we interpolate any values. If measured == True, then it's direct off the CTD
 	instrument = models.ForeignKey(CTDInstrument)
+	weather = models.ForeignKey(Weather, null=True, blank=True)
+
+	def find_weather(self):
+		"""
+			Since there's no key, we'll find which weather record to use - this may get run multiple times - the best
+			strategy is likely to run the whole year after each update of weather data for a year, that way if any
+			holes get filled in, items that found joins too far away will find a closer value
+		:return:
+		"""
+		self.weather = Weather.objects.get(valid_from__lt=self.dt, valid_to__gte=self.dt)
 
 	def _window_avg(self, var, window=7):
 		window_date = arrow.get(self.dt)

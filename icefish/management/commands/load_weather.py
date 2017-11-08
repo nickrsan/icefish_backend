@@ -15,7 +15,6 @@ class Command(BaseCommand):
 		pass
 
 	def handle(self, *args, **options):
-		year = datetime.datetime.utcnow().year
-		weather = ncdc.NCDCWeather(year)
-		log.info("Loading Weather data for {}".format(year))
-		weather.load_data()
+		log.info("Loading Weather data")
+		ncdc.update_weather_data()
+
