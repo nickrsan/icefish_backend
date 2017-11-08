@@ -28,12 +28,14 @@ class Weather(models.Model):
 	"""
 	dt = models.DateTimeField(unique=True, db_index=True)
 	wind_speed = models.IntegerField(blank=True, null=True)
-	wind_speed_flag = models.IntegerField(blank=True, null=True)
+	wind_speed_flag = models.SmallIntegerField(blank=True, null=True)
 	wind_direction = models.IntegerField(blank=True, null=True)
+	wind_direction_flag = models.SmallIntegerField(blank=True, null=True)
 	air_temp = models.IntegerField(blank=True, null=True)
-	air_temp_flag = models.IntegerField(blank=True, null=True)
+	air_temp_flag = models.SmallIntegerField(blank=True, null=True)
 	sea_level_pressure = models.IntegerField()  # unless we have at least a datetime value and a sea level pressure value, we won't store the record. Everything else is optional
-	sea_level_pressure_flag = models.IntegerField(blank=True, null=True)
+	sea_level_pressure_flag = models.SmallIntegerField(blank=True, null=True)
+	ncdc_id_value = models.SmallIntegerField(blank=True, null=True)
 
 class CTDInstrument(models.Model):
 	deployment_start = models.DateTimeField()

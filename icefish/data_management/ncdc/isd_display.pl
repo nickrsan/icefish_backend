@@ -8,7 +8,7 @@
 #---- Author's perl packages directory exported externally in environment
 #     variable "$FPATH" (technique removes need for hard-coded lib path names
 #     in perl script):
-use lib qw(C:/Users/dsx/Downloads);
+use lib $ENV{'ISD_FOLDER'};
 
 #---- Note:  Set the directory pathname that contains your perl packages
 #     (or where you placed the accompanying perl package "Cl_args.pm" OR
@@ -207,7 +207,7 @@ $hdr=1;					# turn on record header print
              $_=substr($_,$w);               # remove illegal field
              if($k){$w=$k;} else {last ADD;}
             }
-          PRINT(m/(^...)/, m/(^.{$w})/);     # display current element
+          PRINT(m/(^...)/, m/(^.\{$w\})/);     # display current element
           $_=substr($_,$w);                  # remove  current element
           last if ! length;
          }

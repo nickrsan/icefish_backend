@@ -222,6 +222,8 @@ Secure Wowza - make it run as a named user instead of as local system
 * Create application on wowza for video on demand. Enter a path, but it
 doesn't need to be valid. Edit *that application's* config file
 and set the directory to be the UNC path to the share.
+scheduled tasks
+Perl/NCDC setup
 
 ## Running and Using the Application
 ### CTD
