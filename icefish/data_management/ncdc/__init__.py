@@ -12,8 +12,9 @@ import traceback
 from six.moves.urllib import request
 
 import arrow
+from django.db.utils import IntegrityError
 
-from icefish.models import Weather
+from icefish.models import Weather, CTD
 from icefish_backend import local_settings
 
 log = logging.getLogger("icefish.ncdc")
@@ -40,7 +41,7 @@ class NCDCWeather(object):
 		dec_31 = datetime.datetime(last_year, 12, 31, 0, 0, 0, tzinfo=datetime.timezone.utc)
 		jan_1 = datetime.datetime(self.year, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
 
-		if len(Weather.objects.filter(dt__gte=dec_31).filter(dt__lte=jan_1)) > 0:
+		if Weather.objects.filter(dt__gte=dec_31).filter(dt__lt=jan_1).exists():  # exists is a cheap way to check that there's at least one record
 			return True
 		else:
 			return False
@@ -64,7 +65,10 @@ class NCDCWeather(object):
 			except:
 				log.warning("Failed to download file. Retrying. Error given was: {}".format(traceback.format_exc()))
 				attempts += 1
-				time.sleep(local_settings.RETRY_WAIT_TIME)
+				if attempts > local_settings.MAX_DOWNLOAD_RETRIES:
+					raise
+				else:
+					time.sleep(local_settings.RETRY_WAIT_TIME)
 
 		# now, extract the gzipped text data straight into a text file
 		self.text_path = tempfile.mktemp(prefix="mcmurdo_text", suffix="_{}-{}-{}.txt".format(MCMURDO_USAF_ID,
@@ -158,23 +162,91 @@ class NCDCWeather(object):
 					if match.group("variable_name") in variable_mapping:
 						setattr(weather_record, variable_mapping[match.group("variable_name")], int(match.group("value")))  # set the attribute on the Django model, coercing it to int
 
-			# figure out the datetime of this record
-			weather_record.dt = datetime.datetime.strptime("{} {}".format(datetime_parts["date"], datetime_parts["gmt"]), "%Y%m%d %H%M")
-			if len(Weather.objects.filter(dt__exact=weather_record.dt).filter(ncdc_id_value__exact=weather_record.ncdc_id_value)) > 0:
-				continue  # we already loaded this a previous time, skip
+			self._check_values(weather_record)
+			if weather_record.sea_level_pressure is None:  # if sea level pressure was nulled out, don't bother inserting it. We need it and would rather our CTD records attach to a different value
+				continue
 
-			weather_record.save()
+			# figure out the datetime of this record
+			weather_record.dt = datetime.datetime.strptime("{} {}".format(datetime_parts["date"], datetime_parts["gmt"]), "%Y%m%d %H%M").replace(tzinfo=datetime.timezone.utc)
+			if Weather.objects.filter(dt__exact=weather_record.dt).filter(ncdc_id_value__exact=weather_record.ncdc_id_value).exists():
+				continue  # we already loaded this a previous time, skip - if we need to optimize, we should check if this is faster than just letting the unique constraint fail
+			try:
+				weather_record.save()
+			except IntegrityError:  # it could fail on duplicate datetimes, or if we didn't have the check about for sea_level_pressure being defined
+				log.warning("Failed to insert record with NCDC ID {} and datetime {}".format(weather_record.ncdc_id_value, weather_record.dt))
+
+	def _check_values(self, weather_record):
+		"""
+			Checks the flags for anything indicating that a value should be Null and changes appropriate values to Null.
+			Wondering if this code is surprisingly slow for how simple it is.
+		:param weather_record:
+		:return:
+		"""
+		check_attrs = ("wind_speed", "wind_direction", "air_temp", "sea_level_pressure")
+
+		for attr in check_attrs:
+			if getattr(weather_record, "{}_flag".format(attr)) == 9:  # if the flag value is 9, then it means the real value is null
+				setattr(weather_record, attr, None)
+
+
+	def get_valid_times(self):
+		"""
+			Figure out the range of time that each weather record is most relevant for
+		:return:
+		"""
+
+		log.info("Determining time ranges for weather records")
+		year_data = Weather.objects.filter(dt__year=self.year).order_by("dt")
+
+		for index, record in enumerate(year_data):
+			if index == 0:
+				record.valid_from = datetime.datetime(self.year, 1, 1, 0, 0, 0).replace(tzinfo=datetime.timezone.utc)  # we'll assign it the first of January
+			else:
+				record.valid_from = year_data[index-1].valid_to
+
+			if index == len(year_data) - 1:  # if it's the last one
+				record.valid_to = datetime.datetime(self.year, 12, 31, 23, 59, 59).replace(tzinfo=datetime.timezone.utc)
+			else:  # here's where the real calculation is - set it to halfway between this one and the next one
+				base_datetime = arrow.get(record.dt)
+				future_datetime = arrow.get(year_data[index+1].dt)
+				margin = (future_datetime - base_datetime) / 2
+
+				record.valid_to = (base_datetime + margin).datetime
+
+			record.save()
+
+	def update_ctd_records(self):
+		"""
+			Once we have updated weather data, we need to reassign CTD records to the weather since the ranges have changed.
+			Loop through the whole year's CTD data and update. This operation is slower than I would expect - it might
+			be worth us optimizing it - only updating the records that don't yet have weather data. The issue would be if
+			there are holes in the weather data, making sure to track which records are new so we know which CTD data to update.
+			It might be a nonissue, and we may have plenty of processing power to work with to handle this.
+		:return:
+		"""
+
+		log.info("Updating CTD records with new weather data")
+
+		ctd_data = CTD.objects.filter(dt__year=self.year)
+		for record in ctd_data:
+			record.find_weather()
+			record.save()
+
 
 	def load_data(self):
 		"""
 			Main point of entry - handles the rest of the code
 		:return:
 		"""
+
+		log.info("Loading weather data for {}".format(self.year))
 		try:
 			self._download_weather_data_for_year()
 			self._sanitize_weather_file()
 			self._convert_weather_file()
 			self._transform_and_load_corrected_weather_file()
+			self.get_valid_times()
+			self.update_ctd_records()
 
 		finally:
 			if not local_settings.DEBUG:
@@ -189,7 +261,6 @@ class NCDCWeather(object):
 			if os.path.exists(path):
 				os.unlink(path)
 
-
 def update_weather_data():
 	# check to see if weather data for last year is complete
 	# if not, download last years, and go through pipeline
@@ -200,5 +271,6 @@ def update_weather_data():
 	if not weather._last_year_complete():  # check if last year is complete - if it's not, then load it. Don't go earlier than 2017
 		last_year = NCDCWeather(year - 1)
 		last_year.load_data()
+	weather.load_data()  # now load this year
 
 
