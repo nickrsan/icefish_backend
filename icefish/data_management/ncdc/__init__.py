@@ -41,7 +41,7 @@ class NCDCWeather(object):
 		dec_31 = datetime.datetime(last_year, 12, 31, 0, 0, 0, tzinfo=datetime.timezone.utc)
 		jan_1 = datetime.datetime(self.year, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
 
-		if Weather.objects.filter(dt__gte=dec_31).filter(dt__lt=jan_1).exists():  # exists is a cheap way to check that there's at least one record
+		if Weather.objects.filter(dt__gte=dec_31).filter(dt__lt=jan_1).filter(valid_to__isnull=False).exists():  # exists is a cheap way to check that there's at least one record, Make sure that the validity dates are checked too since that happens after data loading
 			return True
 		else:
 			return False
