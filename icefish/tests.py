@@ -21,8 +21,8 @@ class NCDCTest(TestCase):
 
 		year = datetime.datetime.utcnow().year
 		weather_loader = ncdc.NCDCWeather(year)
-		self.assertFalse(weather_loader._last_year_complete())
+		self.assertFalse(weather_loader.last_year_complete())
 
 		Weather.objects.create(dt=datetime.datetime(year-1, 12, 31, 0, 1, 0, tzinfo=datetime.timezone.utc), sea_level_pressure=810)
 
-		self.assertTrue(weather_loader._last_year_complete())
+		self.assertTrue(weather_loader.last_year_complete())
