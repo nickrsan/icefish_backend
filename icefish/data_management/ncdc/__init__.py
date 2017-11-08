@@ -31,7 +31,7 @@ class NCDCWeather(object):
 		self.sanitized_path = None
 		self.converted_path = None
 
-	def _last_year_complete(self):
+	def last_year_complete(self):
 		"""
 			Checks for data covering last year to see if it's complete. If we have data for Dec 31st, then it stops
 			checking for last year.
@@ -188,7 +188,6 @@ class NCDCWeather(object):
 			if getattr(weather_record, "{}_flag".format(attr)) == 9:  # if the flag value is 9, then it means the real value is null
 				setattr(weather_record, attr, None)
 
-
 	def get_valid_times(self):
 		"""
 			Figure out the range of time that each weather record is most relevant for
@@ -221,7 +220,8 @@ class NCDCWeather(object):
 			Loop through the whole year's CTD data and update. This operation is slower than I would expect - it might
 			be worth us optimizing it - only updating the records that don't yet have weather data. The issue would be if
 			there are holes in the weather data, making sure to track which records are new so we know which CTD data to update.
-			It might be a nonissue, and we may have plenty of processing power to work with to handle this.
+			It might be a nonissue, and we may have plenty of processing power to work with to handle this. It's not hitting
+			CPU, RAM, or Disk too hard though, so maybe it doesn't matter.
 		:return:
 		"""
 
@@ -231,7 +231,6 @@ class NCDCWeather(object):
 		for record in ctd_data:
 			record.find_weather()
 			record.save()
-
 
 	def load_data(self):
 		"""
@@ -261,6 +260,7 @@ class NCDCWeather(object):
 			if os.path.exists(path):
 				os.unlink(path)
 
+
 def update_weather_data():
 	# check to see if weather data for last year is complete
 	# if not, download last years, and go through pipeline
@@ -268,7 +268,7 @@ def update_weather_data():
 
 	year = datetime.datetime.utcnow().year
 	weather = NCDCWeather(year)
-	if not weather._last_year_complete():  # check if last year is complete - if it's not, then load it. Don't go earlier than 2017
+	if not weather.last_year_complete():  # check if last year is complete - if it's not, then load it. Don't go earlier than 2017
 		last_year = NCDCWeather(year - 1)
 		last_year.load_data()
 	weather.load_data()  # now load this year
