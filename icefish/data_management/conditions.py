@@ -45,4 +45,4 @@ def is_fish_melting(start_date, base_temperature=-1.00, max_start_deviation=0.5)
 	:param max_start_deviation: How far away, in days, can the first observation found be - if it can't find a record within this time range, raises icefish.models.DataQuantityError
 	:return: bool. Returns True if the window indicates summer conditions or False if it doesn't
 	"""
-	return _check_temperature_in_window((start_date, base_temperature, max_start_deviation)
+	return _check_temperature_in_window(start_date, base_temperature, max_start_deviation)
