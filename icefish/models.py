@@ -21,6 +21,12 @@ log = logging.getLogger("icefish.models")
 class FLACIntegrityError(BaseException):
 	pass
 
+class DataQuantityError(BaseException):
+	"""
+		Used to indicate we don't have enough data
+	"""
+	pass
+
 class Weather(models.Model):
 	"""
 		Data loaded from NCDC's McMurdo weather station here. We mostly just need the pressure data, but to get that,
@@ -68,50 +74,123 @@ class CTD(models.Model):
 		"""
 		self.weather = Weather.objects.get(valid_from__lt=self.dt, valid_to__gte=self.dt)
 
-	def _window_avg(self, var, window=7):
+	def _window_avg(self, var, window=7, min_records="DEFAULT", window_centering="CENTER"):
+		"""
+			Function used by other variable-specific functions to retrieve an average value across a time window
+		:param var: str variable (attribute name) should be retrieved and averaged across the window
+		:param window: number of days the window represents. By default, this observation is the centering point, so a window of
+						size 7, the default, will be 3.5 days before and after this measurement.
+		:param min_records: int. How many records there need to be over that time period for the window to be valid.
+						When this parameter is specified as "DEFAULT" it uses the number of seconds in the time window
+						divided by (CTD Logging Inteval*2), so that the minimum
+						number of records must be half of the records that should have been collected in this time window.
+						Records with null values are excluded from the count, so it must have this many records with valid
+						data to proceed
+		:param window_centering: Possible values are "CENTER", "BEFORE", and "AFTER" - controls whether the window should
+						be centered around this data point, or should use the `window` number of days before or after
+						this data point. Centered is the default.
+		:return: Average for variable defined in var
+		"""
 		window_date = arrow.get(self.dt)
-		beginning_date = window_date.shift(days=-(window/2)).datetime
-		end_date = window_date.shift(seconds=+(window/2)).datetime
+
+		# determine how to shift the datetime to get the bounds of the window
+		if window_centering == "CENTER":
+			beginning_shift = -window/2
+			end_shift = window/2
+		elif window_centering == "BEFORE":
+			beginning_shift = -window
+			end_shift = 0
+		elif window_centering == "AFTER":
+			beginning_shift = 0
+			end_shift = window
+		else:
+			raise ValueError("window_centering parameter can be one of the following: CENTER, BEFORE, AFTER. You provided \"{}\"".format(window_centering))
+
+		beginning_date = window_date.shift(days=beginning_shift).datetime
+		end_date = window_date.shift(days=end_shift).datetime
 		data = CTD.objects.filter(dt__gt=beginning_date).filter(dt__lt=end_date).all()
+
+		num_records = len([record for record in data if getattr(record, var) is not None])  # count the number of records with non-Null values
+		if min_records == "DEFAULT":
+			min_records = (window * 86400) / settings.CTD_LOGGING_INTERVAL / 2  # make sure we have at least half the records for the time window
+
+		if num_records < min_records:
+			raise DataQuantityError("Too few records in the time window to create a reliable average")
 
 		values = [getattr(record, var) for record in data]
 		return sum(values)/len(values)
 
-	def avg_temp(self, window=7):
+	def avg_temp(self, window=7, min_records="DEFAULT", window_centering="CENTER"):
 		"""
 			Gives the average temperature for a window (in days) centered on this observation.
-		:param window: number of days the window represents. This observation is the centering point, so a window of
+		:param window: number of days the window represents. By default, this observation is the centering point, so a window of
 						size 7, the default, will be 3.5 days before and after this measurement.
+		:param min_records: int. How many records there need to be over that time period for the window to be valid.
+						When this parameter is specified as "DEFAULT" it uses the number of seconds in the time window
+						divided by (CTD Logging Inteval*2), so that the minimum
+						number of records must be half of the records that should have been collected in this time window.
+						Records with null values are excluded from the count, so it must have this many records with valid
+						data to proceed
+		:param window_centering: Possible values are "CENTER", "BEFORE", and "AFTER" - controls whether the window should
+						be centered around this data point, or should use the `window` number of days before or after
+						this data point. Centered is the default.
 		:return: float value of average temperature in ITS 90 degrees celsius
 		"""
-		return self._window_avg("temp", window)
+		return self._window_avg("temp", window, min_records, window_centering)
 
-	def avg_pressure(self, window=7):
+	def avg_pressure(self, window=7, min_records="DEFAULT", window_centering="CENTER"):
 		"""
 			Gives the average pressure for a window (in days) centered on this observation.
-			:param window: number of days the window represents. This observation is the centering point, so a window of
+			:param window: number of days the window represents. By default, this observation is the centering point, so a window of
 							size 7, the default, will be 3.5 days before and after this measurement.
+			:param min_records: int. How many records there need to be over that time period for the window to be valid.
+							When this parameter is specified as "DEFAULT" it uses the number of seconds in the time window
+							divided by (CTD Logging Inteval*2), so that the minimum
+							number of records must be half of the records that should have been collected in this time window.
+							Records with null values are excluded from the count, so it must have this many records with valid
+							data to proceed
+			:param window_centering: Possible values are "CENTER", "BEFORE", and "AFTER" - controls whether the window should
+							be centered around this data point, or should use the `window` number of days before or after
+							this data point. Centered is the default.
 			:return: float value of average pressure in decibars
 		"""
-		return self._window_avg("pressure", window)
+		return self._window_avg("pressure", window, min_records, window_centering)
 
-	def avg_conductivity(self, window=7):
+	def avg_conductivity(self, window=7, min_records="DEFAULT", window_centering="CENTER"):
 		"""
 			Gives the average conductivity for a window (in days) centered on this observation.
-			:param window: number of days the window represents. This observation is the centering point, so a window of
+			:param window: number of days the window represents. By default, this observation is the centering point, so a window of
 							size 7, the default, will be 3.5 days before and after this measurement.
+			:param min_records: int. How many records there need to be over that time period for the window to be valid.
+							When this parameter is specified as "DEFAULT" it uses the number of seconds in the time window
+							divided by (CTD Logging Inteval*2), so that the minimum
+							number of records must be half of the records that should have been collected in this time window.
+							Records with null values are excluded from the count, so it must have this many records with valid
+							data to proceed
+			:param window_centering: Possible values are "CENTER", "BEFORE", and "AFTER" - controls whether the window should
+							be centered around this data point, or should use the `window` number of days before or after
+							this data point. Centered is the default.
 			:return: float value of average conductivity
 		"""
-		return self._window_avg("conductivity", window)
+		return self._window_avg("conductivity", window, min_records, window_centering)
 
-	def avg_salinity(self, window=7):
+	def avg_salinity(self, window=7, min_records="DEFAULT", window_centering="CENTER"):
 		"""
 			Gives the average salinity for a window (in days) centered on this observation.
-			:param window: number of days the window represents. This observation is the centering point, so a window of
+			:param window: number of days the window represents. By default, this observation is the centering point, so a window of
 							size 7, the default, will be 3.5 days before and after this measurement.
+			:param min_records: int. How many records there need to be over that time period for the window to be valid.
+							When this parameter is specified as "DEFAULT" it uses the number of seconds in the time window
+							divided by (CTD Logging Inteval*2), so that the minimum
+							number of records must be half of the records that should have been collected in this time window.
+							Records with null values are excluded from the count, so it must have this many records with valid
+							data to proceed
+			:param window_centering: Possible values are "CENTER", "BEFORE", and "AFTER" - controls whether the window should
+							be centered around this data point, or should use the `window` number of days before or after
+							this data point. Centered is the default.
 			:return: float value of average salinity in practical salinity units
 		"""
-		return self._window_avg("salinity", window)
+		return self._window_avg("salinity", window, min_records, window_centering)
 
 	@property
 	def freezing_point(self):
@@ -179,7 +258,7 @@ class HydrophoneAudio(models.Model):
 				raise FileExistsError("FLAC file {} already exists!".format(output_path))
 
 		# Make FLAC file
-		flac_params = [settings.FLAC_BINARY, settings.FLAC_COMPRESSION_LEVEL, "--totally-silent", self.wav, "--output-name={}".format(output_path)]
+		flac_params = [settings.FLAC_BINARY, settings.FLAC_COMPRESSION_LEVEL, "--totally-silent", "--keep-foreign-metadata", self.wav, "--output-name={}".format(output_path)]
 		log.debug(flac_params)
 		result = subprocess.check_call(flac_params)
 		self.flac = output_path

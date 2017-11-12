@@ -182,11 +182,35 @@ class NCDCWeather(object):
 		:param weather_record:
 		:return:
 		"""
-		check_attrs = ("wind_speed", "wind_direction", "air_temp", "sea_level_pressure")
+		check_attrs = ({
+						   "name": "wind_speed",
+						   "flag": "wind_speed_flag",
+						   "bad_flag_values": (3,7),
+						   "null": 9999,
+					   },
+					   {
+						   "name": "wind_direction",
+						   "flag": "wind_direction_flag",
+						   "bad_flag_values": (3,7),
+						   "null": 999,
+					   },
+					   {
+						   "name": "air_temp",
+						   "flag": "air_temp_flag",
+						   "bad_flag_values": (9,),
+						   "null": 9999,
+					   },
+					   {
+						   "name": "sea_level_pressure",
+						   "flag": "sea_level_pressure_flag",
+						   "bad_flag_values": (3,7),
+						   "null": 99999,
+					   },
+					)
 
 		for attr in check_attrs:
-			if getattr(weather_record, "{}_flag".format(attr)) == 9:  # if the flag value is 9, then it means the real value is null
-				setattr(weather_record, attr, None)
+			if getattr(weather_record, attr["flag"]) in attr["bad_flag_values"] or getattr(weather_record, attr["name"]) == attr["null"]:  # if the flag value is 9, then it means the real value is null
+				setattr(weather_record, attr["name"], None)
 
 	def get_valid_times(self):
 		"""
