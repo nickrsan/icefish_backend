@@ -258,7 +258,7 @@ class HydrophoneAudio(models.Model):
 				raise FileExistsError("FLAC file {} already exists!".format(output_path))
 
 		# Make FLAC file
-		flac_params = [settings.FLAC_BINARY, settings.FLAC_COMPRESSION_LEVEL, "--totally-silent", self.wav, "--output-name={}".format(output_path)]
+		flac_params = [settings.FLAC_BINARY, settings.FLAC_COMPRESSION_LEVEL, "--totally-silent", "--keep-foreign-metadata", self.wav, "--output-name={}".format(output_path)]
 		log.debug(flac_params)
 		result = subprocess.check_call(flac_params)
 		self.flac = output_path
