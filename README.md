@@ -224,6 +224,8 @@ doesn't need to be valid. Edit *that application's* config file
 and set the directory to be the UNC path to the share.
 scheduled tasks
 Perl/NCDC setup
+Setting up user account for scheduled tasks
+setting up moni
 
 ## Running and Using the Application
 ### CTD
