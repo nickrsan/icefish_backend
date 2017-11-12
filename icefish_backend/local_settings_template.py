@@ -28,13 +28,14 @@ SPECTROGRAM_STORAGE_FOLDER = r"H:\spectrographs"  # where should spectrograph im
 WAV_STORAGE_FOLDER = r"H:\incoming"
 FLAC_BINARY = r""  # path to flac.exe for converting files
 SOX_BINARY = r""  # path to sox.exe for creating spectrograms for retroactive data visualization
+GENERATE_SPECTROGRAM = True  # set this flag to turn spectrogram generation on or off - meant for CPU scheduling
 
 # SECRETS
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = ''  # make a long string of letters, punctuation, and numbers between the quoteslike asehp987#ohd^yuinOFIUHBSA*(IUsgdshFMSA)IU
 
 # EMAIL AND ALERTS
-EMAIL_HOST = 'mail.google.com'  # the server to send email through - using gmail as a default, change it for other mail providers
+EMAIL_BACKEND = 'django_mailgun.MailgunBackend'
 EMAIL_PORT = 587  # the port email should be sent through
 EMAIL_HOST_USER = ''  # username for email sending login
 EMAIL_HOST_PASSWORD = ''  # the password for the account to send email through
