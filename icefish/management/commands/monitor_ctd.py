@@ -2,7 +2,7 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
-from icefish.models import CTD
+from icefish.models import CTD, CTDInstrument
 from icefish_backend import local_settings
 
 import seabird_ctd
@@ -13,6 +13,8 @@ except ImportError:
 	pika = None
 
 log = logging.getLogger("icefish.ctd")
+
+instrument = CTDInstrument.objects.first()  # right now, get the *only* object in this table - in the future, when a new instrument goes down, we'd need to update this
 
 class Command(BaseCommand):
 	help = 'Listens for new data on the CTD and inserts into the database'
@@ -58,7 +60,7 @@ class Command(BaseCommand):
 			log.debug("Setting up interrupt handler")
 			# ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, local_settings.RABBITMQ_VHOST)  # set it up to receive commands from rabbitmq once autosampling starts
 		log.info("Starting automatic logger")
-		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=True)
+		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=False)
 
 
 def handle_records(records):
@@ -72,6 +74,7 @@ def handle_records(records):
 			new_model.salinity = record["salinity"]
 		new_model.dt = record["datetime"]
 		new_model.server_dt = timezone.now()
+		new_model.instrument = instrument
 
 		new_model.save()
 		log.debug("Record saved")
