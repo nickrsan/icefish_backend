@@ -4,11 +4,10 @@
 <html lang="en"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<meta charset="UTF-8">
-	<title>icListen HF: Spectrum Charts</title>
+	<title>Spectrum Charts from icListen</title>
 	<link rel="stylesheet" href="{% static "icefish/css/spectrogram/style.css" %}">
 	<link rel="stylesheet" href="{% static "icefish/css/spectrogram/charts.css" %}">
 	<link rel="stylesheet" href="{% static "icefish/css/spectrogram/notes.css" %}">
-	<link rel="shortcut icon" type="image/x-icon" href="http://b195-moo-router.usap.gov:8071/favicon.ico">
 	<script src="{% static "icefish/js/common/jquery-1.js" %}"></script>
 	<script src="{% static "icefish/js/common/jquery_002.js" %}"></script>
 	<script src="{% static "icefish/js/common/jquery.js" %}"></script>
