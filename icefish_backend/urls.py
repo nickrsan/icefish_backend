@@ -16,6 +16,9 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+from icefish import views as icefish
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^spectrogram/', icefish.spectrogram_full)
 ]

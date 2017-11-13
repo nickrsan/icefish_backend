@@ -1,0 +1,14 @@
+@charset "utf-8";
+/* Copyright (c) 2017 Ocean Sonics. All rights reserved. */
+.pass{
+	color:#468847;
+}
+.warning{
+	color:#c09853;
+}
+.error{
+	color:#b94a48;
+}
+.info{
+	color:#3a87ad;
+}

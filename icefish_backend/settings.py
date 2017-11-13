@@ -17,7 +17,7 @@ from icefish_backend.local_settings import *  # import all the variables local t
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-ALLOWED_HOSTS = ["b195-moo-router.usap.gov"]
+ALLOWED_HOSTS = ["b195-moo-router.usap.gov", "localhost"]
 
 
 # CORE APPLICATION SETTINGS
@@ -56,7 +56,9 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.media',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.static',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
