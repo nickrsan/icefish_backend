@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Current CTD data</title>
 </head>
 <body>
 <div id="temperature" style="width:600px;height:350px;"></div>
