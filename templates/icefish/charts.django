@@ -7,9 +7,11 @@
     <title>Title</title>
 </head>
 <body>
-<div id="tester" style="width:600px;height:250px;"></div>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<div id="temperature" style="width:600px;height:350px;"></div>
+<div id="pressure" style="width:600px;height:350px;"></div>
+<div id="salinity" style="width:600px;height:350px;"></div>
+<script src="{% static "/icefish/js/common/jquery-3.2.1.min.js"%}"></script>
+<script src="{% static "/icefish/js/charts/plotly_1.31.2.min.js"%}"></script>
 <script type="text/javascript">
     function unpack(rows, key) {
       return rows.map(function(row) { return row[key]; });
@@ -21,17 +23,45 @@
                 url: "/api/ctd/",
                 success: function (data, status, xhr) {
                     console.log("In success, plotting");
-                    var TESTER = document.getElementById('tester');
-                    Plotly.plot(TESTER, [{
+                    var temperature = document.getElementById('temperature');
+                    var pressure = document.getElementById('pressure');
+                    var conductivity = document.getElementById('conductivity');
+                    Plotly.plot(temperature, [{
                             x: unpack(data, "dt"),
                             y: unpack(data, "temp"),
-                        }], {
+                        }, {x: unpack(data, "dt"),
+                            y: unpack(data, "freezing_point")}
+
+                        ], {
                             xaxis: {title: 'datetime'},
                             yaxis: {title: 'temperature', range:[-1.92, -1.905]},
                             margin: {t: 20},
                             hovermode: 'closest'
                         }
                     );
+                    Plotly.plot(pressure, [{
+                            x: unpack(data, "dt"),
+                            y: unpack(data, "pressure"),
+                        }], {
+                            xaxis: {title: 'datetime'},
+                            yaxis: {title: 'pressure', range:[18.7,19]},
+                            margin: {t: 20},
+                            hovermode: 'closest'
+                        }
+                    );
+                    Plotly.plot(salinity, [{
+                            x: unpack(data, "dt"),
+                            y: unpack(data, "salinity"),
+                            line: {color: "#FF6600"},
+                        }], {
+                            xaxis: {title: 'datetime'},
+                            yaxis: {title: 'salinity', range:[34.62,34.66]},
+                            margin: {t: 20},
+                            hovermode: 'closest'
+                        }
+                    );
+
+
                     console.log("Plotted!");
                 },
                 error: function(data, status, xhr){
