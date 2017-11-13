@@ -1,0 +1,50 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="tester" style="width:600px;height:250px;"></div>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script type="text/javascript">
+    function unpack(rows, key) {
+      return rows.map(function(row) { return row[key]; });
+    }
+
+    function get_initial_data() {
+        console.log("In function");
+        $.ajax({
+                url: "/api/ctd/",
+                success: function (data, status, xhr) {
+                    console.log("In success, plotting");
+                    var TESTER = document.getElementById('tester');
+                    Plotly.plot(TESTER, [{
+                            x: unpack(data, "dt"),
+                            y: unpack(data, "temp"),
+                        }], {
+                            xaxis: {title: 'datetime'},
+                            yaxis: {title: 'temperature', range:[-1.92, -1.905]},
+                            margin: {t: 20},
+                            hovermode: 'closest'
+                        }
+                    );
+                    console.log("Plotted!");
+                },
+                error: function(data, status, xhr){
+                    console.log("error " + status);
+                }
+            }
+        );
+        console.log("Function complete");
+    }
+
+    $( document ).ready(function() {
+          get_initial_data()
+    });
+</script>
+</body>
+</html>
