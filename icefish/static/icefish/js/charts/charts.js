@@ -1,40 +1,29 @@
-{% load staticfiles %}
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Current CTD data</title>
-</head>
-<body>
-<div id="temperature" style="width:600px;height:350px;"></div>
-<div id="pressure" style="width:600px;height:350px;"></div>
-<div id="salinity" style="width:600px;height:350px;"></div>
-<script src="{% static "/icefish/js/common/jquery-3.2.1.min.js"%}"></script>
-<script src="{% static "/icefish/js/charts/plotly_1.31.2.min.js"%}"></script>
-<script type="text/javascript">
-    function unpack(rows, key) {
-      return rows.map(function(row) { return row[key]; });
+function unpack(rows, key) {
+        return rows.map(function(row) { return row[key]; });
     }
 
-    function get_initial_data() {
+    function get_initial_data(divs) {
+        // divs should be a dictionary that has keys "temperature", "pressure", and "salinity, with values corresponding
+        // to the IDs of the elements to put those charts into
         console.log("In function");
         $.ajax({
                 url: "/api/ctd/",
                 success: function (data, status, xhr) {
                     console.log("In success, plotting");
-                    var temperature = document.getElementById('temperature');
-                    var pressure = document.getElementById('pressure');
-                    var conductivity = document.getElementById('conductivity');
+                    var temperature = document.getElementById(divs["temperature"]);
+                    var pressure = document.getElementById(divs["pressure"]);
+                    var salinity = document.getElementById(divs["salinity"]);
                     Plotly.plot(temperature, [{
                             x: unpack(data, "dt"),
                             y: unpack(data, "temp"),
+                            name: "Temperature (C)"
                         }, {x: unpack(data, "dt"),
-                            y: unpack(data, "freezing_point")}
+                            y: unpack(data, "freezing_point"),
+                            name: "Freezing Point"}
 
                         ], {
-                            xaxis: {title: 'datetime'},
-                            yaxis: {title: 'temperature', range:[-1.92, -1.905]},
+                            xaxis: {title: 'Time'},
+                            yaxis: {title: 'Temperature', range:[-1.92, -1.905]},
                             margin: {t: 20},
                             hovermode: 'closest'
                         }
@@ -43,8 +32,8 @@
                             x: unpack(data, "dt"),
                             y: unpack(data, "pressure"),
                         }], {
-                            xaxis: {title: 'datetime'},
-                            yaxis: {title: 'pressure', range:[18.7,19]},
+                            xaxis: {title: 'Time'},
+                            yaxis: {title: 'Pressure', range:[18.7,19]},
                             margin: {t: 20},
                             hovermode: 'closest'
                         }
@@ -54,8 +43,8 @@
                             y: unpack(data, "salinity"),
                             line: {color: "#FF6600"},
                         }], {
-                            xaxis: {title: 'datetime'},
-                            yaxis: {title: 'salinity', range:[34.62,34.66]},
+                            xaxis: {title: 'Time'},
+                            yaxis: {title: 'Salinity', range:[34.62,34.66]},
                             margin: {t: 20},
                             hovermode: 'closest'
                         }
@@ -71,10 +60,3 @@
         );
         console.log("Function complete");
     }
-
-    $( document ).ready(function() {
-          get_initial_data()
-    });
-</script>
-</body>
-</html>

@@ -20,7 +20,7 @@ class CTDViewSet(viewsets.ModelViewSet):
 
 
 def spectrogram_full(request):
-	return render_to_response("icefish/spectrogram.django")
+	return render_to_response("icefish/spectrogram.django.html")
 
 def chart_full(request):
-	return render_to_response("icefish/charts.django")
+	return render_to_response("icefish/data.django.html")

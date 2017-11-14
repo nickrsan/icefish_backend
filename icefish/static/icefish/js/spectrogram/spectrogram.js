@@ -10,6 +10,7 @@ REF_LIMIT=60;
 PORT=51675;
 START_BIN=8;//Start of min/max calc
 END_BIN=400;
+HYDROPHONE_BASE_URL = "b195-moo-router.usap.gov";
 
 // Controls
 var $SELECT_STEP=$("#step")
@@ -549,7 +550,7 @@ $(function()
 	var ws;
 
 	//establish connection
-	ws=new WebSocket("ws://b195-moo-router.usap.gov:"+PORT);
+	ws=new WebSocket("ws://"+HYDROPHONE_BASE_URL+":"+PORT);
 
 	//setup the websockets
 	ws.isConnected=false;//use to test if the socket is closed on error
@@ -560,7 +561,7 @@ $(function()
 		$INPUT_REF.val(dataSet.displayRef);
 
 		//setup graph
-		spectrumGraph=new FFTSpectrum($("#spectrum-graph > .chart"),dataSet);
+		//spectrumGraph=new FFTSpectrum($("#spectrum-graph > .chart"),dataSet);
 		waterfallDisplay=new FFTWaterfall($("#waterfall-display > .chart"),dataSet);
 
 		//mark connect state to connected
