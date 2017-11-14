@@ -27,5 +27,5 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^admin/', admin.site.urls),
     url(r'^spectrogram/', icefish.spectrogram_full),
-    url(r'^chart/', icefish.chart_full),
+    url(r'^charts/', icefish.chart_full),
 ]

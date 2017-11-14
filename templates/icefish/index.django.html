@@ -1,0 +1,32 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ pagetitle }}</title>
+    <link rel="stylesheet" href="{% static "icefish/css/common/pure-min.css" %}">
+    <link rel="stylesheet" href="{% static "icefish/css/common/grids-responsive.css" %}">
+    {% block header_css %}
+
+    {% endblock %}
+</head>
+<body class="pure-g">
+{% block nav %}
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}
+<script src="{% static "/icefish/js/common/jquery-3.2.1.min.js"%}"></script>
+<script src="{% static "/icefish/js/charts/plotly_1.31.2.min.js"%}"></script>
+<script src="{% static "/icefish/js/charts/charts.js"%}"></script>
+{% block footer_js %}
+
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+</body>
+</html>
