@@ -524,7 +524,7 @@ FFTWaterfall.prototype=
 // Global Variable
 // ===============
 dataSet=new FFTDataSet(FFT_CACHE_SIZE);
-spectrumGraph=null;
+//spectrumGraph=null;
 waterfallDisplay=null;
 firstSamp=1;
 
@@ -588,7 +588,7 @@ $(function()
 			dataSet.doAutoScale();
 			$(".chartmessage").text("").hide();
 		}
-		spectrumGraph.update();
+		//spectrumGraph.update();
 		waterfallDisplay.update();
 
 		$("[data-field=fftBandWidth]").text(sampRate);
@@ -703,7 +703,7 @@ function UpdateDisplaySetting()
 
 	dataSet.displayUpperBound=dataSet.displayRef+dataSet.displayTickSize*INTENSITY_DIVS;
 
-	spectrumGraph.update();
+	//spectrumGraph.update();
 	waterfallDisplay.replot();
 	waterfallDisplay.replot();
 }
