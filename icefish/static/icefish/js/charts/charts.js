@@ -23,7 +23,7 @@ function unpack(rows, key) {
 
                         ], {
                             xaxis: {title: 'Time'},
-                            yaxis: {title: 'Temperature', range:[-1.92, -1.905]},
+                            yaxis: {title: 'Temperature'}, //range:[-1.92, -1.905]},
                             margin: {t: 20},
                             hovermode: 'closest'
                         }
@@ -33,7 +33,7 @@ function unpack(rows, key) {
                             y: unpack(data, "pressure"),
                         }], {
                             xaxis: {title: 'Time'},
-                            yaxis: {title: 'Pressure', range:[18.7,19]},
+                            yaxis: {title: 'Pressure'}, // range:[18.7,19]},
                             margin: {t: 20},
                             hovermode: 'closest'
                         }
@@ -44,7 +44,7 @@ function unpack(rows, key) {
                             line: {color: "#FF6600"},
                         }], {
                             xaxis: {title: 'Time'},
-                            yaxis: {title: 'Salinity', range:[34.62,34.66]},
+                            yaxis: {title: 'Salinity'}, //range:[34.62,34.66]},
                             margin: {t: 20},
                             hovermode: 'closest'
                         }
