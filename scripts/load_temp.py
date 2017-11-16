@@ -7,7 +7,7 @@ django.setup()
 
 from icefish import models
 
-with open(r"C:\Users\dsx\Desktop\icefish_ctd.csv", 'r') as csvfile:
+with open(r"C:\Users\dsx\Desktop\icefish_ctd_clean.csv", 'r') as csvfile:
 	import_file = csv.DictReader(csvfile)
 	for row in import_file:
 		print("Loading")
