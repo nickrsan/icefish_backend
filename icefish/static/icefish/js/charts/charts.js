@@ -1,8 +1,8 @@
 ICEFISH_INIT = false;
 ICEFISH_GRAPH_SYNC=false;
-ICEFISH_UPDATE_INTERVAL = 90;  // how often to check for updates of data
+ICEFISH_UPDATE_INTERVAL = 5;  // how often to check for updates of data
 ICEFISH_QUERY_ROOT_URL = "/api/ctd/";
-
+ICEFISH_TESTING_ROOT_URL = "/api/ctd/?before=2017-11-14T00:30:24Z"
 icefish_charts = {};
 icefish_data_records = [];
 
@@ -54,7 +54,7 @@ function get_initial_data(divs) {
     // to the IDs of the elements to put those charts into
     console.log("In function");
     $.ajax({
-        url: ICEFISH_QUERY_ROOT_URL,
+        url: ICEFISH_TESTING_ROOT_URL,
         success: function (data, status, xhr) {
             console.log("In success, plotting");
             icefish_data_records = data;  // sorted desc, so keep track of it so we can request newer ones later
@@ -154,11 +154,16 @@ function get_initial_data(divs) {
                 extend_chart(data, icefish_charts.pressure, 0);
                 extend_chart(data, icefish_charts.salinity, 0);
 
+                if(icefish_charts.temperature.layout.xaxis.range[1] == icefish_data_records[0].dt) { // if they're currently viewing up through the newest record, then update their extent to include it
+                    var update = {'xaxis.range': [icefish_charts.temperature.layout.xaxis.range[0], data[0].dt]};
+                    Plotly.relayout(icefish_charts.temperature, update); // set the new range object and then update one of the charts - the other will follow because of events we've set up
+                }
+
                 icefish_data_records = data.concat(icefish_data_records);  // again, keep this data for the *next* time we run this
                                                                             // concat at the end so that if the above fails, it tries again later
             },
             error: function (data, status, xhr) {
-                oonsole.log("UPDATE ERROR");
+                console.log("UPDATE ERROR");
             },
         });
     }, ICEFISH_UPDATE_INTERVAL*1000); // schedule the update so it happens every interval seconds)

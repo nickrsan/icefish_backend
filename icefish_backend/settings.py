@@ -46,7 +46,7 @@ REST_FRAMEWORK = {
 		'rest_framework.authentication.SessionAuthentication',
 		'rest_framework.authentication.TokenAuthentication',
 	),
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 25,
 }
 
 MIDDLEWARE = [
@@ -171,3 +171,6 @@ LOGGING = {
     },
 
 }
+
+ICEFISH_API_MIN_DEFAULT_RECORDS = 25  # how many records should be accumulated before it stops going back to prior days
+ICEFISH_API_MAX_DEFAULT_DAYS = 30  # how many days back should it go before stopping attempts to find records?
