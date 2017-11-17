@@ -21,6 +21,13 @@ DATABASES = {
 	}
 }
 
+# NCDC Weather data
+NCDC_V2_API_KEY = ""  # probably not needed
+NCDC_LEGACY_API_KEY = ""  # probably not needed
+PERL_BINARY = r"C:\StrawberryPerl\perl\bin\perl.exe"
+MAX_DOWNLOAD_RETRIES = 10  # how many times should it retry the download if the first one fails
+RETRY_WAIT_TIME = 600  # seconds to wait between attempts to retry
+
 # AUDIO PROCESSING
 FLAC_STORAGE_FOLDER = r"H:\flac"  # what is the full path to the place we should convert flac files into?
 TEMPORARY_AUDIO_FOLDER = r""  # folder to dump temporary conversion products in - they'll be deleted. May not be used in some cases (if SOX is used)
