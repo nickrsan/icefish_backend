@@ -1,3 +1,7 @@
+"""
+	Loads data from database dumps from live code into the dev database
+"""
+
 import csv
 import os
 import django

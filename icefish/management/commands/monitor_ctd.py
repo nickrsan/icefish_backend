@@ -56,11 +56,11 @@ class Command(BaseCommand):
 		else:
 			log.info("CTD already logging. Listening in")
 
-		if pika:  # if pika isn't installed, run anyway, just, do the normal loop
+		if pika and local_settings.CTD_INTERRUPTABLE:  # if pika isn't installed, run anyway, just, do the normal loop
 			log.debug("Setting up interrupt handler")
-			# ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, local_settings.RABBITMQ_VHOST)  # set it up to receive commands from rabbitmq once autosampling starts
+			ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, local_settings.RABBITMQ_VHOST)  # set it up to receive commands from rabbitmq once autosampling starts
 		log.info("Starting automatic logger")
-		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=False)
+		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=not local_settings.CTD_FORCE_SETTINGS)
 
 
 def handle_records(records):
