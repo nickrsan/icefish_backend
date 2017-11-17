@@ -1,8 +1,8 @@
 ICEFISH_INIT = false;
 ICEFISH_GRAPH_SYNC=false;
-ICEFISH_UPDATE_INTERVAL = 5;  // how often to check for updates of data
+ICEFISH_UPDATE_INTERVAL = 15;  // how often to check for updates of data
 ICEFISH_QUERY_ROOT_URL = "/api/ctd/";
-ICEFISH_TESTING_ROOT_URL = "/api/ctd/?before=2017-11-14T00:30:24Z"
+ICEFISH_TESTING_ROOT_URL = "/api/ctd/?before=2017-11-15T12:00:24Z"
 icefish_charts = {};
 icefish_data_records = [];
 
@@ -27,6 +27,7 @@ function set_up_events(graphs_object){
             // graphs we're still *expecting* to be relaid out and sets ICEFISH_GRAPH_SYNC to false if we get to 0 graphs remaining.
             // That way, it can respond to any future relayout calls again.
 
+            console.log("Relayout triggered");
             if (ICEFISH_GRAPH_SYNC === true){ return } // if we're already syncing graphs, stop, or else we'll trigger a cascade
             ICEFISH_GRAPH_SYNC=true;
             var items_to_layout = Object.keys(icefish_charts).length-1; // we won't flag the current item for relayout - happens on its own
@@ -140,23 +141,27 @@ function get_initial_data(divs) {
         }
     });
 
-    check_for_updates = setInterval(function(){
+    //check_for_updates = setInterval(update_charts, ICEFISH_UPDATE_INTERVAL*1000); // schedule the update so it happens every interval seconds)
+    console.log("Function complete");
+}
+
+function update_charts(){
         console.log("Checking for update since " + icefish_data_records[0].dt );
         $.ajax({
             url: ICEFISH_QUERY_ROOT_URL + "?since=" + icefish_data_records[0].dt,
             success: function (data, status, xhr) {
                 if (data.length == 0){ return } // no update available
 
-                console.log("Retrieved update");
+                console.log("Retrieved update: " + data);
                 // Plotly.extendTraces(icefish_charts["temperature"], {x:unpack(data, "temp")});
                 extend_chart(data, icefish_charts.temperature, 0);
                 extend_chart(data, icefish_charts.temperature, 1, "freezing_point");
                 extend_chart(data, icefish_charts.pressure, 0);
                 extend_chart(data, icefish_charts.salinity, 0);
 
-                if(icefish_charts.temperature.layout.xaxis.range[1] == icefish_data_records[0].dt) { // if they're currently viewing up through the newest record, then update their extent to include it
+                if(icefish_charts.temperature.layout.xaxis.range[1] == icefish_data_records[0].dt.replace("T", " ").replace("Z", "")) { // if they're currently viewing up through the newest record, then update their extent to include new ones. Replace T and Z in stored time data because the graph won't have that in the values
                     var update = {'xaxis.range': [icefish_charts.temperature.layout.xaxis.range[0], data[0].dt]};
-                    Plotly.relayout(icefish_charts.temperature, update); // set the new range object and then update one of the charts - the other will follow because of events we've set up
+                    Plotly.relayout(icefish_charts.temperature.div, update); // set the new range object and then update one of the charts - the other will follow because of events we've set up
                 }
 
                 icefish_data_records = data.concat(icefish_data_records);  // again, keep this data for the *next* time we run this
@@ -166,17 +171,20 @@ function get_initial_data(divs) {
                 console.log("UPDATE ERROR");
             },
         });
-    }, ICEFISH_UPDATE_INTERVAL*1000); // schedule the update so it happens every interval seconds)
-    console.log("Function complete");
-}
+    }
 
 function extend_chart(new_records, variable, index, variable_name){
     if (variable_name === undefined){ // this lets us override it for multitrace charts like temperature
         variable_name = variable.variable_name
     }
+
+    console.log("Updating " + variable_name);
     var new_x = unpack(new_records, "dt").reverse();
+    console.log("new_x:" + new_x);
     var new_y = unpack(new_records, variable_name).reverse();  // we have to reverse it so it correctly attaches the graph items in order
+    console.log("new_y:" + new_y)
     for(var i=0;i<new_x.length;i++) {
+        console.log("extending div " + variable.div_name + " with " + new_x[i] + " and " + new_y[i])
         Plotly.extendTraces(variable.div_name, {x:[[new_x[i]]], y:[[new_y[i]]]}, [index]);
     }
 }
