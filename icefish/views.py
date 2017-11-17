@@ -34,7 +34,7 @@ class CTDViewSet(viewsets.ModelViewSet):
 			# it can still return no records if there aren't any in that many days. This could be simlified to just be a
 			# .order_by("-dt").limit(25) or something like that, but at least early on, it's nice if it includes at
 			# least a full day, but sometimes the CTD is down, so we need to go back further. This is a compromise.
-			
+
 			filter_dt = arrow.utcnow().shift(days=-1).datetime
 			filtered_queryset = queryset.filter(dt__gt=filter_dt)
 			num_days_back = 1
