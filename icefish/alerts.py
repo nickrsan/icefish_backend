@@ -19,10 +19,7 @@ def supercooling_alerts(ctd_record):
 	"""
 	global is_supercooled, last_supercooling_alert
 
-	if local_settings.SUPERCOOLING_DEBUG:
-		emails = [person[1] for person in local_settings.SUPERCOOLING_DEBUG_EMAILS]
-	else:
-		emails = [person[1] for person in local_settings.SUPERCOOLING_EMAILS]
+	emails = [person[1] for person in local_settings.SUPERCOOLING_EMAILS]
 
 	log.debug("Checking for relevant email alerts to send")
 
@@ -32,8 +29,8 @@ def supercooling_alerts(ctd_record):
 		if last_supercooling_alert is None or current_time > last_supercooling_alert.shift(minutes=local_settings.SUPERCOOLING_ALERT_INTERVAL):
 			log.debug("Emailing {} that supercooling has started".format(emails))
 			sent = send_mail('SUPERCOOLING STARTED: Jetty water is supercooled',
-					  'Jetty water is supercooled! Here is the information from the most'
-					  'recent measurement: \n\nTemperature: {}\nFreezing Point: {}\n'
+					  'Jetty water is supercooled! Here is the information from the most '
+					  'recent measurement: \n\nTemperature: {}\nFreezing Point: {}\nimp'
 					  'Pressure: {}\nConductivity: {}\nSalinity: {}\nTime Measured: {}'.format(
 						  ctd_record.temp, ctd_record.freezing_point, ctd_record.pressure,
 						  ctd_record.conductivity, ctd_record.salinity, ctd_record.dt
@@ -55,7 +52,7 @@ def supercooling_alerts(ctd_record):
 
 		log.debug("Emailing {} that supercooling has ended".format(emails))
 		sent = send_mail('SUPERCOOLING ENDED: Jetty water is no longer supercooled',
-				  'Jetty water is no longer supercooled. The most recent measurement was {}'
+				  'Jetty water is no longer supercooled. The most recent measurement was {} '
 				  'and the freezing temperature is {}.'.format(ctd_record.temp, ctd_record.freezing_point),
 				  local_settings.EMAIL_HOST_USER,
 				  emails,
