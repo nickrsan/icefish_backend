@@ -23,5 +23,5 @@ with open(r"C:\Users\dsx\Desktop\icefish_ctd_clean.csv", 'r') as csvfile:
 		ctd.dt = row["dt"]
 		ctd.server_dt = row["server_dt"]
 		ctd.instrument = models.CTDInstrument.objects.first()
-		ctd.measured = True
+		ctd.flags = True
 		ctd.save()

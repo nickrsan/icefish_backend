@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 from icefish.models import CTD, CTDInstrument
 from icefish_backend import local_settings
+from icefish import alerts
 
 import seabird_ctd
 
@@ -63,7 +64,13 @@ class Command(BaseCommand):
 		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=not local_settings.CTD_FORCE_SETTINGS)
 
 
-def handle_records(records):
+def handle_records(records, return_alerts=False):
+	"""
+
+	:param records:
+	:param return_alerts: a setting for testing - returns the status of the alerts so we can determine behavior
+	:return:
+	"""
 	log.info("Sample received. Inserting records.")
 	for record in records:
 		new_model = CTD()
@@ -79,4 +86,12 @@ def handle_records(records):
 		new_model.save()
 		log.debug("Record saved")
 
+	try:
+		new_model
+		actions = alerts.supercooling_alerts(new_model)  # only run this for the last record we insert so that it's current
+	except NameError:  # just making sure new_model is defined before use
+		pass
+
+	if return_alerts:
+		return actions
 

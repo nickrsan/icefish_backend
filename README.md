@@ -223,6 +223,7 @@ Secure Wowza - make it run as a named user instead of as local system
 doesn't need to be valid. Edit *that application's* config file
 and set the directory to be the UNC path to the share.
 scheduled tasks
+Startup task for
 Perl/NCDC setup
 Setting up user account for scheduled tasks
 setting up moni

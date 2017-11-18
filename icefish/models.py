@@ -61,7 +61,7 @@ class CTD(models.Model):
 	salinity = models.FloatField(blank=True, null=True, db_index=True)  # practical salinity units
 	dt = models.DateTimeField(db_index=True)  # datetime
 	server_dt = models.DateTimeField()  # the server reading the data's timestamp
-	measured = models.BooleanField(default=True)  # used as a flag if we interpolate any values. If measured == True, then it's direct off the CTD
+	flags = models.TextField(default="M")  # used as a flag if we interpolate any values. If measured == True, then it's direct off the CTD
 	instrument = models.ForeignKey(CTDInstrument)
 	weather = models.ForeignKey(Weather, null=True, blank=True)
 
