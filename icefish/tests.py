@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
+import datetime
 
 from django.test import TestCase
 from django.core import mail
 
-from icefish_backend import local_settings
-from icefish.models import Weather
+from icefish_backend import local_settings, settings
+from icefish.models import Weather, HydrophoneAudio
 from icefish.data_management import ncdc
 from icefish.management.commands import monitor_ctd
-import datetime
 # Create your tests here.
 
 local_settings.DEBUG = True  # for now, always set debug to true for tests
@@ -30,6 +31,25 @@ class NCDCTest(TestCase):
 		Weather.objects.create(dt=datetime.datetime(year-1, 12, 31, 0, 1, 0, tzinfo=datetime.timezone.utc), sea_level_pressure=810)
 
 		self.assertTrue(weather_loader.last_year_complete())
+
+
+class HydrophoneTest(TestCase):
+
+	def test_integrity_check(self):
+		new_audio = HydrophoneAudio()
+		new_audio.wav = os.path.join(settings.BASE_DIR, "icefish", "testdata", "short_success.wav")
+		new_audio.get_info()
+		new_audio.save()
+
+		new_audio.flac = os.path.join(settings.BASE_DIR, "icefish", "testdata", "short_success_24.flac")
+		self.assertTrue(new_audio.flac_verifies())
+
+		new_audio.flac = os.path.join(settings.BASE_DIR, "icefish", "testdata", "fail_incomplete.flac")
+		self.assertFalse(new_audio.flac_verifies())
+
+		new_audio.flac = os.path.join(settings.BASE_DIR, "icefish", "testdata", "fail_short_corrupt.flac")
+		self.assertFalse(new_audio.flac_verifies())
+
 
 class AlertsTest(TestCase):
 	def setUp(self):

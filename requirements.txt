@@ -1,6 +1,6 @@
 Django
 psycopg2
-seabird-ctd==0.2.3.1
+seabird-ctd>=0.2.4.0
 six
 pika
 arrow
