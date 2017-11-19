@@ -1,0 +1,25 @@
+{% extends "icefish/index.django.html" %}
+{% load staticfiles %}
+
+{% block content %}
+    <div class="pure-g">
+        {% for audio in audio_files %}
+            <div class="pure-u-1-2" style="border:1px solid #999">
+                <a href="/retrieve/audio/spectrogram/{{ audio.id }}"><img src="/retrieve/audio/spectrogram/{{ audio.id }}"></a>
+                <audio controls="controls" preload="none">
+                    <source src="/retrieve/audio/flac/{{ audio.id }}" />
+                </audio>
+                <ul>
+                    <li><a href="/retrieve/audio/flac/{{ audio.id }}">Download Audio</a></li>
+                    <li>Start Time: {{ audio.start_time }}</li>
+                    <li>Length: {{ audio.length }} seconds</li>
+                    <li>Flags: {{ audio.flags }}</li>
+                </ul>
+
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block main_js %}
+{% endblock %}

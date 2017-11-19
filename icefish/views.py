@@ -3,13 +3,17 @@ from __future__ import unicode_literals
 
 import os
 import datetime
+import mimetypes
+import logging
 
 import arrow
 
 from django.shortcuts import render, render_to_response
 from django.http import Http404, HttpResponse
+from django.utils.encoding import smart_str
 from django.template.loader import get_template
 from rest_framework import viewsets
+from wsgiref.util import FileWrapper
 
 # Create your views here.
 
@@ -17,6 +21,7 @@ from icefish.serializers import CTDSerializer
 from icefish import models
 from icefish_backend import settings
 
+log=logging.getLogger("icefish.views")
 
 class CTDViewSet(viewsets.ModelViewSet):
 	"""
@@ -61,29 +66,54 @@ def chart_full(request):
 	return render_to_response("icefish/data.django.html")
 
 
+def audio_archive(request):
+	audio_files = models.HydrophoneAudio.objects.all().order_by('-start_time')[:20]
+	log.debug("{} audio files".format(len(audio_files)))
+
+	return render_to_response("icefish/audio_archive.django.html", context={"audio_files": audio_files})
+
 def display_spectrogram(request, hydrophone_audio_id):
 	"""
-		Used to load hydrophone spectrograms and audio from storage without making them static files. Via:
-		http://blog.ekini.net/2010/12/28/django-reading-an-image-outside-the-public-accessible-directory-and-displaying-the-image-through-the-browser/
+
 	:param request:
 	:param image_id:
 	:return:
 	"""
 
+	return _hydrophone_attribute_stream(hydrophone_audio_id=hydrophone_audio_id, attribute="spectrogram")
+
+def send_flac(request, hydrophone_audio_id):
+	"""
+
+	:param request:
+	:param image_id:
+	:return:
+	"""
+
+	return _hydrophone_attribute_stream(hydrophone_audio_id=hydrophone_audio_id, attribute="flac")
+
+def _hydrophone_attribute_stream(hydrophone_audio_id, attribute):
+	"""
+	Used to load hydrophone spectrograms and audio from storage without making them static files. Not great for a high
+	volume server, but fine for us - don't want staticfiles moving them around. If we have a server that supports
+	X-SendFile, but Waitress doesn't support it, so we're doing this for now.
+
+	Via: http://blog.ekini.net/2010/10/15/file-streaming-in-django-sending-large-files-through-django/
+	:param hydrophone_audio_id:
+	:param attribute:
+	:return:
+	"""
 	try:
 		audio = models.HydrophoneAudio.objects.get(pk=hydrophone_audio_id)
 	except models.HydrophoneAudio.DoesNotExist:
 		raise Http404("Audio file with that ID does not exist in database. It may be incorrect, or may not have been loaded yet.")
-	file = image_id
-	filepath = os.path.join(path, file)
 
-	# Here, you put your code to check whether the user has access to this photo or not
+	filepath = getattr(audio, attribute)
+	if not os.path.exists(filepath):
+		raise Http404("Audio file is defined, but actual file was not found!")
 
-	response = HttpResponse(mimetype=mimetypes.guess_type(filepath))
-	response['Content-Disposition'] = 'filename="%s"' % smart_str(file)
-
-
-	response["X-Sendfile"] = filepath
-	response['Content-length'] = os.stat(filepath).st_size
-
+	wrapper = FileWrapper(open(filepath, 'rb'),)
+	response = HttpResponse(wrapper, content_type=mimetypes.guess_type(filepath))
+	response['Content-Length'] = os.path.getsize(filepath)
 	return response
+
