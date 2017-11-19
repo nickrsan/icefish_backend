@@ -28,4 +28,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^spectrogram/', icefish.spectrogram_full),
     url(r'^charts/', icefish.chart_full),
+    url(r'^archive/audio/', icefish.audio_archive),
+    url(r'^retrieve/audio/spectrogram/(?P<hydrophone_audio_id>\d+)/', icefish.display_spectrogram),
+    url(r'^retrieve/audio/flac/(?P<hydrophone_audio_id>\d+)/', icefish.send_flac)
 ]
