@@ -332,6 +332,12 @@ class HydrophoneAudio(models.Model):
 		"""
 			Checks that the flac file is a valid flac file - we don't want to delete the wav if it's not (maybe an error
 			or a power outage during transcoding, etc).
+
+			My ideal would be that this could check the actual number of samples in the files, but soundfile reads the
+			samples from the header, and experimentation shows that flac.exe writes that header and soundfile can read
+			it even before the file is finished encoding, so it's not a guarantee of completeness - trying to read the
+			file with soundfile will tell us if it's currently encoding, adn the check_output call will tell us if it
+			failed encoding (MD5 signature will be missing), or if it failed its actual integrity check.
 		:return: True if file is valid, False otherwise
 		"""
 		try:
