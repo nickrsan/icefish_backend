@@ -335,8 +335,8 @@ class HydrophoneAudio(models.Model):
 		:return: True if file is valid, False otherwise
 		"""
 		try:
-			with soundfile.read(self.flac) as f:  # this might be a CPU-expensive check that may not make a difference - trying to make sure a file isn't half encoded - the he
-				pass
+			f = soundfile.read(self.flac)  # this might be a CPU-expensive check that may not make a difference - trying to make sure a file isn't half encoded - the he
+			del f
 		except RuntimeError:  # issued if the file is still being copied - we don't want to delete the wav in this case!
 			return False
 
@@ -345,7 +345,8 @@ class HydrophoneAudio(models.Model):
 		except subprocess.CalledProcessError:
 			return False
 
-		if "WARNING, cannot check MD5 signature since it was unset in the STREAMINFO" in output:
+		if b"WARNING, cannot check MD5 signature since it was unset in the STREAMINFO" in output or \
+			"WARNING, cannot check MD5 signature since it was unset in the STREAMINFO" in output.decode('utf-8'):
 			return False
 
 		return True
