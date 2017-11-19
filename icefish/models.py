@@ -8,6 +8,7 @@ import datetime
 import contextlib
 import platform
 import wave
+import soundfile
 
 import arrow  # similar to datetime
 
@@ -267,6 +268,10 @@ class HydrophoneAudio(models.Model):
 		if not self.wav or not os.path.exists(self.wav):
 			raise ValueError("Can't get wave file information - wavefile doesn't exist - it may need to be created from the FLAC file")
 
+	def get_info(self):
+		self.get_wave_length()
+		self.get_start_time()
+
 	def get_wave_length(self):
 		"""
 			Gets the length in seconds of a WAV file. Adapted from https://stackoverflow.com/questions/7833807/get-wav-file-length-or-duration#7833963
@@ -330,8 +335,17 @@ class HydrophoneAudio(models.Model):
 		:return: True if file is valid, False otherwise
 		"""
 		try:
-			subprocess.check_call([settings.FLAC_BINARY, "-t", self.flac, "--totally-silent"])
+			with soundfile.read(self.flac) as f:  # this might be a CPU-expensive check that may not make a difference - trying to make sure a file isn't half encoded - the he
+				pass
+		except RuntimeError:  # issued if the file is still being copied - we don't want to delete the wav in this case!
+			return False
+
+		try:
+			output = subprocess.check_output([settings.FLAC_BINARY, "-t", self.flac, "--totally-silent"])
 		except subprocess.CalledProcessError:
+			return False
+
+		if "WARNING, cannot check MD5 signature since it was unset in the STREAMINFO" in output:
 			return False
 
 		return True
