@@ -7,4 +7,4 @@ from waitress import serve
 from icefish_backend.wsgi import application
 from icefish_backend.local_settings import SERVE_ADDRESS
 
-serve(application, SERVE_ADDRESS)  # serve the application! might not respond to termination signals
+serve(application, listen=SERVE_ADDRESS)  # serve the application! might not respond to termination signals
