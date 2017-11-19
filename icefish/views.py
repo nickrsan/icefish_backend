@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
 import datetime
+
 import arrow
 
 from django.shortcuts import render, render_to_response
+from django.http import Http404, HttpResponse
 from django.template.loader import get_template
+from rest_framework import viewsets
 
 # Create your views here.
 
-from rest_framework import viewsets
 from icefish.serializers import CTDSerializer
-from icefish.models import CTD
+from icefish import models
 from icefish_backend import settings
 
 
@@ -23,7 +26,7 @@ class CTDViewSet(viewsets.ModelViewSet):
 
 	def get_queryset(self):
 
-		queryset = CTD.objects.all().order_by('-dt')
+		queryset = models.CTD.objects.all().order_by('-dt')
 		beginning_dt = self.request.query_params.get('since', None)
 		end_dt = self.request.query_params.get('before', None)
 		if beginning_dt is not None:
@@ -56,3 +59,31 @@ def spectrogram_full(request):
 
 def chart_full(request):
 	return render_to_response("icefish/data.django.html")
+
+
+def display_spectrogram(request, hydrophone_audio_id):
+	"""
+		Used to load hydrophone spectrograms and audio from storage without making them static files. Via:
+		http://blog.ekini.net/2010/12/28/django-reading-an-image-outside-the-public-accessible-directory-and-displaying-the-image-through-the-browser/
+	:param request:
+	:param image_id:
+	:return:
+	"""
+
+	try:
+		audio = models.HydrophoneAudio.objects.get(pk=hydrophone_audio_id)
+	except models.HydrophoneAudio.DoesNotExist:
+		raise Http404("Audio file with that ID does not exist in database. It may be incorrect, or may not have been loaded yet.")
+	file = image_id
+	filepath = os.path.join(path, file)
+
+	# Here, you put your code to check whether the user has access to this photo or not
+
+	response = HttpResponse(mimetype=mimetypes.guess_type(filepath))
+	response['Content-Disposition'] = 'filename="%s"' % smart_str(file)
+
+
+	response["X-Sendfile"] = filepath
+	response['Content-length'] = os.stat(filepath).st_size
+
+	return response
