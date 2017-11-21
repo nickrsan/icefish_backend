@@ -2,6 +2,7 @@
 import logging
 import os
 import wave
+import subprocess
 
 from icefish.models import HydrophoneAudio, FLACIntegrityError
 from icefish_backend import settings
@@ -43,6 +44,8 @@ def hydrophone_pipeline(inbound_folder=settings.WAV_STORAGE_FOLDER, outbound_fol
 
 		try:
 			audio.make_flac(full_output, overwrite=reprocess)
+		except subprocess.CalledProcessError:
+			continue
 		except FileExistsError:
 			if reprocess is False:
 				continue  # it already exists, so we'll just skip adding this file for now - currently, this leaves it to be processed again - should we do that?
