@@ -261,7 +261,12 @@ class HydrophoneAudio(models.Model):
 		# Make FLAC file
 		flac_params = [settings.FLAC_BINARY, settings.FLAC_COMPRESSION_LEVEL, "--totally-silent", "--keep-foreign-metadata", self.wav, "--output-name={}".format(output_path)]
 		log.debug(flac_params)
-		result = subprocess.check_call(flac_params)
+		try:
+			result = subprocess.check_call(flac_params)
+		except subprocess.CalledProcessError:
+			self.flac = None
+			log.warning("Failed to create FLAC for wav at {}".format(self.wav))
+
 		self.flac = output_path
 
 	def _check_wave(self):
@@ -340,6 +345,9 @@ class HydrophoneAudio(models.Model):
 			failed encoding (MD5 signature will be missing), or if it failed its actual integrity check.
 		:return: True if file is valid, False otherwise
 		"""
+		if not self.flac:
+			return False
+
 		try:
 			f = soundfile.read(self.flac)  # this might be a CPU-expensive check that may not make a difference - trying to make sure a file isn't half encoded - the he
 			del f
