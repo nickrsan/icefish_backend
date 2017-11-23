@@ -121,7 +121,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = 'b195-moo-router.usap.gov:8005/static/'
 HYDROPHONE_URL = 'b195-moo-router.usap.gov:8005/hydrophone/'
 HYDROPHONE_FLAC_FOLDER = 'flac'
 HYDROPHONE_SPECTROGRAM_FOLDER = 'spectrogram'

@@ -3,6 +3,9 @@ import os
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+SERVE_ADDRESS = "*:8009"
+STATIC_URL = '/static'  # actual value should be something like 'b195-moo-router.usap.gov:8005/static/'
+
 #Paths and databases
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # leave this line alone
 DB_NAME = "icefishdb"  # replace with the name of your database on the server.
