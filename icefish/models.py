@@ -460,20 +460,20 @@ class MOOVideo(models.Model):
 
 		metadata_dict = {}
 		line_matcher = re.compile("-\s(?P<key>.+):\s(?P<value>.+)")
-		group_key = None
-		for line in metadata.exportPlaintext():
+		group_key = None  # group_key stores which group we're currently in for nesting subkeys
+		for line in metadata.exportPlaintext():  # this is what hachoir offers for dumping readable information
 			parts = line_matcher.match(line)
 			if not parts:  # not all lines have metadata - at least one is a header
 				if line == "Metadata:":  # if it's the generic header, set it to "Common: to match items with multiple streams, so there's always a Common key
 					group_key = "Common"
 				else:
-					group_key = line[:-1]  # strip off the trailing colon
+					group_key = line[:-1]  # strip off the trailing colon of the group header and set it to be the current group we add other keys into
 				metadata_dict[group_key] = {}  # initialize the group
 				continue
 
-			if group_key:
+			if group_key:  # if we're inside of a group, then nest this key inside it
 				metadata_dict[group_key][parts.group("key")] = parts.group("value")
-			else:
+			else:  # otherwise, put it in the root of the dict
 				metadata_dict[parts.group("key")] = parts.group("value")
 
 		return metadata_dict
