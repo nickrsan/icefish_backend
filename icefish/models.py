@@ -389,6 +389,8 @@ class MOOVideo(models.Model):
 			return self.source_path  # it's OK if it's None too - that's what caller should get in that case
 
 	def get_metadata(self):
+		log.debug("Loading video metadata")
+
 		metadata = self.get_video_metadata()
 		self.duration = metadata["Common"]["Duration"]
 		try:
@@ -471,7 +473,40 @@ class MOOVideo(models.Model):
 				metadata_dict[parts.group("key")] = parts.group("value")
 
 		return metadata_dict
-	
 
+	def transcode(self, output_directory, remove_bottom, remove_existing=False):
 
+		log.info("Transcoding {}".format(self.source_path))
+		filename = os.path.splitext(os.path.basename(self.source_path))[0]  # get the name without the extension
+		output_path = os.path.join(output_directory, "{}.mp4".format(filename))
 
+		if os.path.exists(output_path):
+			if not remove_existing:
+				raise ValueError("Can't transcode, file already exists!")
+			else:
+				os.unlink(output_path)
+
+		if remove_bottom:
+			temp_height = int(self.height * .97)  # this is to remove the bottom bar
+			args = [settings.FFMPEG_EXECUTABLE,
+					 "-i", self.source_path,
+					 "-filter:v", "crop={}:{}:0:0,scale={}:{}".format(self.width, temp_height, self.width, self.height),
+					 "-r", "30",
+					 output_path
+					 ]
+		else:
+			args = [settings.FFMPEG_EXECUTABLE,
+					"-i", self.source_path,
+					"-r", "30",
+					output_path
+					]
+
+		log.debug(args)
+		try:
+			result = subprocess.check_call(args)
+		except subprocess.CalledProcessError:
+			self.transcoded_path = None
+			log.warning("Failed to transcode video at {} to {}".format(self.source_path, output_path))
+			raise
+
+		self.transcoded_path = output_path
