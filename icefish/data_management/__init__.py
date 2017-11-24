@@ -4,10 +4,10 @@ import os
 import wave
 import subprocess
 
-from icefish.models import HydrophoneAudio, FLACIntegrityError
+from icefish.models import HydrophoneAudio, FLACIntegrityError, MOOVideo
 from icefish_backend import settings
 
-log = logging.getLogger("icefish.audio")
+log = logging.getLogger("icefish")
 
 def hydrophone_pipeline(inbound_folder=settings.WAV_STORAGE_FOLDER, outbound_folder=settings.FLAC_STORAGE_FOLDER, spectrogram_folder=settings.SPECTROGRAM_STORAGE_FOLDER, reprocess=False):
 	"""
@@ -57,6 +57,38 @@ def hydrophone_pipeline(inbound_folder=settings.WAV_STORAGE_FOLDER, outbound_fol
 			audio.remove_wav()  # automatically checks the integrity of the FLAC file before deleting WAV file
 		except FLACIntegrityError:
 			log.warning("Unable to remove wav file {}. FLAC file is invalid. Regenerate the flac file for audio record with ID {}".format(audio.wav, audio.id))
+
+def video_pipeline(remove_bottom=True, remove_existing=False):
+
+	log.debug("Searching for new videos")
+	for folder in settings.VIDEO_FOLDERS:
+		params = settings.VIDEO_FOLDERS[folder]
+		log.debug("Searching in {}".format(folder))
+
+		found_videos = [vid for vid in os.listdir(folder) if os.path.splitext(vid)[1] in params["extensions"]]
+		log.debug(found_videos)
+
+		for video in found_videos:  # all the videos of the extensions we're looking for
+			log.debug("Loading video {}".format(video))
+			source_path = os.path.join(folder, video)
+			try:
+				MOOVideo.objects.get(source_path=source_path)
+				continue  ## if it successfully is gotten, skip it
+			except MOOVideo.DoesNotExist:
+				pass  # only reaches the next portion if we get here anyway
+
+			v = MOOVideo()
+			v.source_path = source_path
+			v.get_metadata()  # have it load up its own metadata
+
+			if params["transcode"]:
+				v.transcode(params["transcoding_path"], remove_bottom, remove_existing)
+
+			if not params["keep_original"]:
+				os.unlink(source_path)
+
+			v.save()
+
 
 def already_loaded(wave_path):
 	"""
