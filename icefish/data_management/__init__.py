@@ -82,7 +82,10 @@ def video_pipeline(remove_bottom=True, remove_existing=False):
 			v.get_metadata()  # have it load up its own metadata
 
 			if params["transcode"]:
-				v.transcode(params["transcoding_path"], remove_bottom, remove_existing)
+				try:
+					v.transcode(params["transcoding_path"], remove_bottom, remove_existing)
+				except ValueError:
+					pass  # as of right now, it just means it already exists and we didn't tell it to remove it!
 
 			if not params["keep_original"]:
 				os.unlink(source_path)

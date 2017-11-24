@@ -3,8 +3,9 @@ import os
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+
+STATIC_URL = '/static/'  # actual value should be something like 'b195-moo-router.usap.gov:8005/static/'
 SERVE_ADDRESS = "*:8009"
-STATIC_URL = '/static'  # actual value should be something like 'b195-moo-router.usap.gov:8005/static/'
 
 #Paths and databases
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # leave this line alone
@@ -24,6 +25,18 @@ DATABASES = {
 	}
 }
 
+# Video Settings
+
+FFMPEG_EXECUTABLE = r"C:\Users\dsx\Downloads\ffmpeg-20150401-git-3c91239-win64-static\bin\ffmpeg.exe"
+VIDEO_FOLDERS = {
+    r'C:\Users\Nick\Documents\Recorded Live Moo Video': {
+        "transcode": True,
+        "transcoding_path": r'C:\Code\converted',
+        "keep_original": True,
+        "extensions": [".asf", ".mkv"]
+    },
+}
+
 # NCDC Weather data
 NCDC_V2_API_KEY = ""  # probably not needed
 NCDC_LEGACY_API_KEY = ""  # probably not needed
@@ -33,9 +46,9 @@ RETRY_WAIT_TIME = 600  # seconds to wait between attempts to retry
 
 # AUDIO PROCESSING
 FLAC_STORAGE_FOLDER = r"H:\flac"  # what is the full path to the place we should convert flac files into?
+WAV_STORAGE_FOLDER = r"H:\incoming"
 TEMPORARY_AUDIO_FOLDER = r""  # folder to dump temporary conversion products in - they'll be deleted. May not be used in some cases (if SOX is used)
 SPECTROGRAM_STORAGE_FOLDER = r"H:\spectrographs"  # where should spectrograph images be stored?
-WAV_STORAGE_FOLDER = r"H:\incoming"
 FLAC_BINARY = r""  # path to flac.exe for converting files
 SOX_BINARY = r""  # path to sox.exe for creating spectrograms for retroactive data visualization
 GENERATE_SPECTROGRAM = True  # set this flag to turn spectrogram generation on or off - meant for CPU scheduling
@@ -56,6 +69,8 @@ SERVER_EMAIL = ''  # the email address to send alerts as
 WARN_EMAILS = [('name', 'email@email.com',), ('name2', 'email2@email.com')]  # who should receive warnings emitted by the application - name and email pairs as python tuples in a list
 ERROR_EMAILS = [('name', 'email@email.com',),]  # who should receive errors emitted by the application
 ADMINS = ERROR_EMAILS
+SUPERCOOLING_EMAILS = [('Paul Cziko', '273@pg.mcmurdo.usap.gov',), ('Paul Cziko', 'pcziko@gmail.com',), ('Nick', 'ultraayla@gmail.com',)]  # who should get alerts when the water is supercooled?
+SUPERCOOLING_ALERT_INTERVAL = 120  # how often should alerts be resent when water is supercooled?
 
 # CTD Settings
 CTD_LOGGING_INTERVAL = 90  # how often should the CTD take a sample and have the script monitor it - in seconds
