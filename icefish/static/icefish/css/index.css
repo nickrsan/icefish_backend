@@ -1,0 +1,35 @@
+#icefish_logo{
+    width:90%;
+    margin: 5%;
+}
+
+#icefish_charts{
+    height:100vh;
+}
+
+.icefish_chart{
+    height:33.3vh;
+}
+
+#icefish_navbar{
+    height:100vh;
+    background-color: #3a87ad;
+    /*border-right: 1px solid #004B6B;*/
+}
+
+#icefish_navbar ul{
+    margin:0;
+    padding:0;
+    list-style-type:none;
+}
+
+#icefish_navbar li.icefish_navbar_button{
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin:0 auto;
+    padding:1em 0;
+    font-size: 1.25em;
+    border-top: 1px solid #004B6B;
+    border-bottom: 1px solid #004B6B;
+}
