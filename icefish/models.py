@@ -26,11 +26,13 @@ log = logging.getLogger("icefish.models")
 class FLACIntegrityError(BaseException):
 	pass
 
+
 class DataQuantityError(BaseException):
 	"""
 		Used to indicate we don't have enough data
 	"""
 	pass
+
 
 class Weather(models.Model):
 	"""
@@ -50,6 +52,7 @@ class Weather(models.Model):
 	valid_from = models.DateTimeField(db_index=True, null=True, blank=True)
 	valid_to = models.DateTimeField(db_index=True, null=True, blank=True)
 
+
 class CTDInstrument(models.Model):
 	deployment_start = models.DateTimeField()
 	deployment_end = models.DateTimeField(null=True, blank=True)
@@ -59,6 +62,7 @@ class CTDInstrument(models.Model):
 	coord_x = models.FloatField(null=True, blank=True)
 	coord_y = models.FloatField(null=True, blank=True)
 
+
 class CTD(models.Model):
 	temp = models.FloatField(db_index=True)  # ITS 90, celsius
 	pressure = models.FloatField(db_index=True)  # decibars
@@ -66,7 +70,6 @@ class CTD(models.Model):
 	salinity = models.FloatField(blank=True, null=True, db_index=True)  # practical salinity units
 	dt = models.DateTimeField(db_index=True)  # datetime
 	server_dt = models.DateTimeField()  # the server reading the data's timestamp
-	flags = models.TextField(default="M")  # used as a flag if we interpolate any values. If measured == True, then it's direct off the CTD
 	instrument = models.ForeignKey(CTDInstrument)
 	weather = models.ForeignKey(Weather, null=True, blank=True)
 
@@ -228,13 +231,13 @@ class CTD(models.Model):
 		else:
 			return 0
 
+
 class HydrophoneAudio(models.Model):
 	wav = models.FilePathField(null=True, blank=True, unique=True)  # just the original wav location, but if we ever back it out to a wav from flac, could use this - not guaranteed to exist
 	flac = models.FilePathField(unique=True)  # converted flac file
 	start_time = models.DateTimeField(db_index=True)
 	length = models.PositiveIntegerField()
 	spectrogram = models.FilePathField(null=True, blank=True)  # where is
-	flags = models.CharField(blank=True, max_length=255)  # we don't have a scheme for flags yet, but we might want to create a set of characters to mean things
 
 	@property
 	def end_time(self):
@@ -369,6 +372,7 @@ class HydrophoneAudio(models.Model):
 
 		return True
 
+
 class MOOVideo(models.Model):
 	source_path = models.FilePathField()
 	transcoded_path = models.FilePathField(null=True, blank=True)
@@ -398,7 +402,7 @@ class MOOVideo(models.Model):
 		except KeyError:
 			self.get_dimension_from_subkey(metadata, "Video stream #1")
 
-		self.dt = arrow.get(metadata["Common"]["Creation date"])
+		self.dt = arrow.get(metadata["Common"]["Creation date"]).datetime
 
 		if "Bit rate" in metadata["Common"]:
 			self.bit_rate = metadata["Common"]["Bit rate"]
@@ -510,3 +514,37 @@ class MOOVideo(models.Model):
 			raise
 
 		self.transcoded_path = output_path
+
+
+class AbstractFlag(models.Model):
+	flag = models.CharField(max_length=15)
+	details = models.CharField(max_length=255, null=True, blank=True)
+
+	class Meta:
+		abstract = True
+
+
+class CTDFlag(AbstractFlag):
+	"""
+		Flags:
+		-- BoundFail: Indicates that the data is out of bounds based on an automated check of possible values
+		-- Measured: Indicates that the data were measured by an instrument
+		-- Interpolated: Indicates that the data were interpolated from other data to fill a gap
+	"""
+	ctd = models.ForeignKey(CTD, related_name="flags")
+
+
+class HydrophoneAudioFlag(AbstractFlag):
+	hydrophone_audio = models.ForeignKey(HydrophoneAudio, related_name="flags")
+
+
+class MOOVideoFlag(AbstractFlag):
+	"""
+		Flags:
+		-- OceanCond: Indicates that the reason for keeping this is because of ocean conditions
+		-- GuardTour: Indicates this video is from a guard tour
+		-- Autokeep: Indicates software decided to keep this based on rules (guard tour, ocean conditions, etc)
+		-- ManualKeep: Indicates that the video has been marked for keeping by a human
+		-- Seals: Indicates the video has good shots of seals
+	"""
+	moo_video = models.ForeignKey(MOOVideo, related_name="flags")
