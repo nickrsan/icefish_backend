@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.core import mail
 
 from icefish_backend import local_settings, settings
-from icefish.models import Weather, HydrophoneAudio
+from icefish.models import Weather, HydrophoneAudio, MOOVideo
 from icefish.data_management import ncdc
 from icefish.management.commands import monitor_ctd
 # Create your tests here.
@@ -124,3 +124,22 @@ class AlertsTest(TestCase):
 		self.assertFalse(status["sent"])
 		self.assertEqual(status["status"], "supercooled")
 		self.assertEqual(len(mail.outbox), 2)
+
+
+class VideoTest(TestCase):
+	def setUp(self):
+		self.test_video = r"C:\Users\dsx\Dropbox\Antarctica\video\20171117_15-59-38.mp4"
+		self.test_video2 = r"C:\Users\dsx\Dropbox\Antarctica\video\PipeInsertion2.asf"
+
+	def test_video_metadata(self):
+		for video in (self.test_video, self.test_video2):
+			v = MOOVideo()
+			v.source_path = video
+			v.get_metadata()
+
+			self.assertGreater(v.length, 0)
+			self.assertGreater(v.width, 0)
+			self.assertGreater(v.height, 0)
+			self.assertIsNotNone(v.dt)
+			self.assertIsNotNone(v.duration)
+			self.assertIsNotNone(v.format)

@@ -9,11 +9,15 @@ import contextlib
 import platform
 import wave
 import soundfile
+import re
 
 import arrow  # similar to datetime
+from hachoir.parser import createParser
+from hachoir.metadata import extractMetadata
+
+from django.db import models
 
 from icefish_backend import settings
-from django.db import models
 
 log = logging.getLogger("icefish.models")
 
@@ -364,3 +368,110 @@ class HydrophoneAudio(models.Model):
 			return False
 
 		return True
+
+class MOOVideo(models.Model):
+	source_path = models.FilePathField()
+	transcoded_path = models.FilePathField(null=True, blank=True)
+	duration = models.CharField(max_length=50)
+	# length = number of seconds, calculated via property - duration is a human readable format returned by hachoir's metadata parser - length is calculated from that
+	width = models.SmallIntegerField()
+	height = models.SmallIntegerField()
+	bit_rate = models.CharField(max_length=50, blank=True, null=True)
+	format = models.CharField(max_length=10)
+
+	dt = models.DateTimeField()
+
+	@property
+	def path(self):
+		if self.transcoded_path is not None:
+			return self.transcoded_path
+		else:
+			return self.source_path  # it's OK if it's None too - that's what caller should get in that case
+
+	def get_metadata(self):
+		metadata = self.get_video_metadata()
+		self.duration = metadata["Common"]["Duration"]
+		try:
+			self.get_dimension_from_subkey(metadata, "Common")
+		except KeyError:
+			self.get_dimension_from_subkey(metadata, "Video stream #1")
+
+		self.dt = arrow.get(metadata["Common"]["Creation date"])
+
+		if "Bit rate" in metadata["Common"]:
+			self.bit_rate = metadata["Common"]["Bit rate"]
+
+		self.format = os.path.splitext(self.path)[1]
+
+	def get_dimension_from_subkey(self, metadata, subkey):
+		self.width = int(metadata[subkey]["Image width"].replace(" pixels", ""))
+		self.height = int(metadata[subkey]["Image height"].replace(" pixels", ""))
+
+	@property
+	def length(self):
+
+		timesplit = re.match("(?P<hours>\d+\shrs)?\s*(?P<minutes>\d+\smin)?\s*(?P<seconds>\d+\ssec)?\s*(?P<ms>\d+\sms)", self.duration)
+
+		fields_and_multipliers = {
+			"hours": 3600,
+			"minutes": 60,
+			"seconds": 1,
+			"ms": 1
+		}
+
+		total_time = 0
+		for group in fields_and_multipliers:
+			if timesplit.group(group) is not None:
+				total_time += float(timesplit.group(group).split(" ")[0]) * fields_and_multipliers[group]  # get the number from the match and multiply it to make seconds
+
+		return total_time
+
+	def get_video_metadata(self):  # this could have been static, but was having some import loops
+		"""
+			Given a path, returns a dictionary of the video's metadata, as parsed by hachoir. Keys likely vary by exact filetype,
+			but for an MP4 file on my machine, I get the following keys:
+				"Duration", "Image width", "Image height", "Creation date", "Last modification", "MIME type", "Endianness"
+
+			Dict is nested - common keys are inside of a subdict "Common", which will always exist, but some keys *may* be
+			inside of video/audio specific stream subdicts, named "Video Stream #1" or "Audio Stream #1", etc. Not all formats
+			result in this separation.
+		:param path: str path to video file
+		:return: dict of video metadata
+		"""
+
+		if not os.path.exists(self.path):
+			raise ValueError("Provided path to video ({}) does not exist".format(self.path))
+
+		parser = createParser(self.path)
+		if not parser:
+			raise RuntimeError("Unable to get metadata from video file")
+
+		with parser:
+			metadata = extractMetadata(parser)
+
+			if not metadata:
+				raise RuntimeError("Unable to get metadata from video file")
+
+		metadata_dict = {}
+		line_matcher = re.compile("-\s(?P<key>.+):\s(?P<value>.+)")
+		group_key = None
+		for line in metadata.exportPlaintext():
+			parts = line_matcher.match(line)
+			if not parts:  # not all lines have metadata - at least one is a header
+				if line == "Metadata:":  # if it's the generic header, set it to "Common: to match items with multiple streams, so there's always a Common key
+					group_key = "Common"
+				else:
+					group_key = line[:-1]  # strip off the trailing colon
+				metadata_dict[group_key] = {}  # initialize the group
+				continue
+
+			if group_key:
+				metadata_dict[group_key][parts.group("key")] = parts.group("value")
+			else:
+				metadata_dict[parts.group("key")] = parts.group("value")
+
+		return metadata_dict
+	
+
+
+

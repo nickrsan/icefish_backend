@@ -1,6 +1,6 @@
 Django
 psycopg2
-seabird-ctd>=0.2.4.0
+seabird-ctd>=0.2.4.2
 six
 pika
 arrow
@@ -8,3 +8,4 @@ soundfile
 sqlparse
 djangorestframework
 waitress
+hachoir3
