@@ -3,7 +3,8 @@ body, html{
 }
 
 #spectrogram{
-    background-color: #999999;
+    background-color: #000; /*#3c33c1;*/
+    color: #ddd;
 }
 
 .letterbox, .video_container {
@@ -48,7 +49,7 @@ body, html{
 
 #icefish_navbar{
     height:100vh;
-    background-color: #3a87ad;
+    background-color: #235388;
     /*border-right: 1px solid #004B6B;*/
 }
 
@@ -64,7 +65,8 @@ body, html{
     text-align: center;
     margin:0 auto;
     padding:1em 0;
-    font-size: 1.25em;
+    font-size: 2em;
     border-top: 1px solid #004B6B;
     border-bottom: 1px solid #004B6B;
+    color: #ddd;
 }
