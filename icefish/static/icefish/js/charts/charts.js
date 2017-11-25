@@ -40,7 +40,8 @@ function synchronize_graphs(data){
     graphs.forEach(function(other_graph){
         // for all the other graphs, set their range to match the range on the update, then call Plotly.relayout to force the update
         if(graph === other_graph.div || !ICEFISH_INIT){ return } // don't process the same graph
-        if (ranges["xaxis.autorange"] === undefined){
+
+        if (ranges["xaxis.autorange"] === undefined){ // basically, if the key isn't set to do an autorange, pull the specifics from the object, otherwise, just use the object for autoranging
             var update = {'xaxis.range': [ranges["xaxis.range[0]"], ranges["xaxis.range[1]"]]};
         }else{
             var update = ranges;
@@ -80,17 +81,24 @@ function get_initial_data(divs) {
             var pressure = document.getElementById(divs["pressure"]);
             var salinity = document.getElementById(divs["salinity"]);
 
-            var temperature_layout = {
-                xaxis: {title: 'Time'},
-                yaxis: {title: 'Temperature'}, //range:[-1.92, -1.905]},
-                margin: {t: 20},
-                hovermode: 'closest'
+            var common_layout = {
+                margin: {t: 5, b:50, l:50, r:0},
+                hovermode: 'closest',
+                plot_bgcolor: '#213c52',
+                paper_bgcolor: '#213c52',
+                showlegend: false,
+                font: {color: "#ffffff"},
             };
+
+            var temperature_layout = Object.assign({
+                xaxis: {title: 'Time'},
+                yaxis: {title: 'Temperature'},
+            }, common_layout);  // merge the common layout items with the specific ones
             a = Plotly.plot(temperature, [{
                     x: unpack(data, "dt").reverse(),  // we have to reverse them all so we can connect new additions later
                     y: unpack(data, "temp").reverse(),
                     name: "Temperature (C)",
-                    line: {color: "#1651a1",},
+                    line: {color: "#367be2",},
                 }, {
                     x: unpack(data, "dt").reverse(),
                     y: unpack(data, "freezing_point").reverse(),
@@ -102,12 +110,10 @@ function get_initial_data(divs) {
                 temperature_layout
             );
 
-            var pressure_layout = {
+            var pressure_layout = Object.assign({
                 xaxis: {title: 'Time'},
-                yaxis: {title: 'Pressure'}, // range:[18.7,19]},
-                margin: {t: 20},
-                hovermode: 'closest'
-            };
+                yaxis: {title: 'Pressure'}
+            }, common_layout);  // merge the common layout items with the specific ones
             Plotly.plot(pressure, [{
                     x: unpack(data, "dt").reverse(),
                     y: unpack(data, "pressure").reverse(),
@@ -116,16 +122,14 @@ function get_initial_data(divs) {
                 pressure_layout
             );
 
-            var salinity_layout = {
+            var salinity_layout = Object.assign({
                 xaxis: {title: 'Time'},
-                yaxis: {title: 'Salinity'}, //range:[34.62,34.66]},
-                margin: {t: 20},
-                hovermode: 'closest'
-            };
+                yaxis: {title: 'Salinity'}
+            }, common_layout);  // merge the common layout items with the specific ones
             var a = Plotly.plot(salinity, [{
                     x: unpack(data, "dt").reverse(),
                     y: unpack(data, "salinity").reverse(),
-                    line: {color: "#2c834d"},
+                    line: {color: "#4ee039"},
                 }],
                 salinity_layout
             );
@@ -206,6 +210,9 @@ function extend_chart(new_records, variable, index, variable_name){
 }
 
 function autorange(){
+    /*
+        Sends the autorange update to a single plot, causing all plots to update due to the event handlers we have set up.
+     */
     Plotly.relayout(icefish_charts.temperature.div, {"xaxis.autorange": true, "yaxis.autorange": true})  // calling it on one will trigger it on all of them
 }
 
@@ -213,8 +220,9 @@ function change_chart_size(){
     //if (chart_expanded === false){
     $("#icefish_main").toggleClass("pure-u-17-24 pure-u-1-3");  // first is original, second is updated
     $("#icefish_charts").toggleClass("pure-1-4 pure-u-3-5");  // first is original, second is updated
+    $("#icefish_chart_toggle_button").toggleClass("fa-caret-left fa-caret-right");  // first is original, second is updated
     //}
     Object.keys(icefish_charts).forEach(function(chart){
-        Plotly.Plots.resize(icefish_charts[chart].div).then(autorange, autorange);  // autorange on success or fail
+        Plotly.Plots.resize(icefish_charts[chart].div).then(autorange, autorange);  // autorange on success or fail - only the last one will actually work - the rest will bail because the resizing is already in progress
     });
 }
