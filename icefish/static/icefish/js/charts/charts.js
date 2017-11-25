@@ -8,6 +8,7 @@ icefish_data_records = [];
 
 chart_expanded = false;
 
+open_dialog = null;  // if we open a dialog, store it here so we can close it
 
 function unpack(rows, key) {
     return rows.map(function(row) { return row[key]; });
@@ -134,7 +135,7 @@ function get_initial_data(divs) {
             var a = Plotly.plot(salinity, [{
                     x: unpack(data, "dt").reverse(),
                     y: unpack(data, "salinity").reverse(),
-                    line: {color: "#9be309"},
+                    line: {color: "#96e343"},
                 }],
                 salinity_layout
             );
@@ -229,10 +230,38 @@ function chart_autosize(){
 
 function change_chart_size(){
     //if (chart_expanded === false){
-    $("#icefish_main").toggleClass("pure-u-17-24 pure-u-1-3");  // first is original, second is updated
-    $("#icefish_charts").toggleClass("pure-1-4 pure-u-3-5");  // first is original, second is updated
+    $("#icefish_main").toggleClass("pure-u-md-17-24 pure-u-md-1-3");  // first is original, second is updated
+    $("#icefish_charts").toggleClass("pure-md-1-4 pure-u-md-3-5");  // first is original, second is updated
     $("#icefish_chart_toggle_button").toggleClass("fa-caret-left fa-caret-right");  // first is original, second is updated
     //}
 
     chart_autosize();
+}
+
+function toggle_dialog(id){
+    var transition = null;
+    var toggle_main = null;
+    if (open_dialog === null){  // there's nothing open already
+        transition = "slide";
+        open_dialog = id;
+        toggle_main = true;
+    }else if (open_dialog === id || (id === false && open_dialog !== null)){  // close *any* open dialogs if we pass in false and something is open
+        transition = "slide";
+        if (id === false){
+            id = open_dialog;  // save it because we'll use it to close it
+        }
+        open_dialog = null;
+        toggle_main = true;
+    }else{  // something is open already, swap it
+        $("#"+open_dialog).toggle();
+        open_dialog = id;
+        toggle_main = false; // don't do anything to the main divs if we're just swapping open panels
+    }
+
+    $("#"+id).toggle(transition);
+
+    if (toggle_main === true){
+        $("#icefish_main").toggleClass("pure-u-md-17-24 pure-u-md-5-24");  // first is original, second is updated
+        $("#icefish_charts").toggle();  // first is original, second is updated
+    }
 }

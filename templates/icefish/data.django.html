@@ -5,13 +5,22 @@
     <div class="pure-u-md-1-24 pure-u-sm-1" id="icefish_navbar">
         <img src="{% static "icefish/img/core/B195M_Logo_240.png" %}" id="icefish_logo">
         <ul>
-            <li class="pure-u-1-1 icefish_navbar_button"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video"></i></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio"></i></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><i class="fa fa-database" aria-hidden="false" aria-label="CTD Data and API"></i></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project"></i></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><i class="fa fa-sliders" aria-hidden="false" aria-label="Settings"></i></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_video_browser');"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_audio_browser');"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_data_browser');"><i class="fa fa-database" aria-hidden="false" aria-label="CTD Data and API"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_about');"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_settings');"><i class="fa fa-sliders" aria-hidden="false" aria-label="Settings"></i></a></li>
         </ul>
     </div>
+
+    <!-- Dialogs for other applications -->
+    <div id="icefish_about" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog">Well hullo!</div>  <!-- first in the page because it doesn't matter and this way its contents are pulled first by robots -->
+    <div id="icefish_video_browser" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog"></div>
+    <div id="icefish_audio_browser" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog"></div>
+    <div id="icefish_data_browser" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog"></div>
+    <div id="icefish_settings" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog"></div>
+    <div id="icefish_error_console" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog"></div>
+
     <div class="pure-u-md-17-24 pure-u-sm-1" id="icefish_main">
         <div id="video" class="pure-u-1-1 video_container"> <!-- height here doesn't control video size, but does push the spectrogram down to appropriate spot -->
             <div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>
