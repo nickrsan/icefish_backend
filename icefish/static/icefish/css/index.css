@@ -1,3 +1,15 @@
+body, html{
+    background-color: #213c52;
+}
+
+#spectrogram{
+    background-color: #999999;
+}
+
+.letterbox, .video_container {
+    background-color: #000000;
+}
+
 #icefish_logo{
     width:90%;
     margin: 5%;
@@ -9,6 +21,29 @@
 
 .icefish_chart{
     height:33.3vh;
+}
+
+#icefish_charts{
+    background-color: #213c52;
+}
+
+#icefish_chart_toggle_bar{
+    background-color:#235388;
+    height:100vh;
+    color: #ffffff;
+    text-align:center;
+}
+
+#icefish_chart_toggle_link{
+    padding-top:49vh;
+    color: #ffffff;
+    height:100%;
+    width:100%;
+    display:block;
+}
+
+#icefish_chart_toggle_button{
+    color: #ffffff;
 }
 
 #icefish_navbar{
