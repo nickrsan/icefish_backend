@@ -171,7 +171,16 @@ function get_initial_data(divs) {
     });
 
     // check_for_updates = setInterval(update_charts, ICEFISH_UPDATE_INTERVAL*1000); // schedule the update so it happens every interval seconds)
+
+    setTimeout(check_and_start_wowza, 5000);  // give the player a moment to be created, then tell it to play
     console.log("Function complete");
+}
+
+function check_and_start_wowza(){
+    var player = WowzaPlayer.get('WowzaPlayerElement')
+    if (!player.isPlaying()){
+        player.play();
+    }
 }
 
 function update_charts(){
