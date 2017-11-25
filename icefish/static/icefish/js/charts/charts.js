@@ -65,6 +65,10 @@ function set_up_events(graphs_object){
             synchronize_graphs({graph: graph.div, graphs: graphs, ranges: ranges})
         });
     });
+
+    window.onresize = function(){
+        chart_autosize();
+    }
 }
 
 function get_initial_data(divs) {
@@ -209,11 +213,17 @@ function extend_chart(new_records, variable, index, variable_name){
     }
 }
 
-function autorange(){
+function chart_autorange(){
     /*
         Sends the autorange update to a single plot, causing all plots to update due to the event handlers we have set up.
      */
     Plotly.relayout(icefish_charts.temperature.div, {"xaxis.autorange": true, "yaxis.autorange": true})  // calling it on one will trigger it on all of them
+}
+
+function chart_autosize(){
+    Object.keys(icefish_charts).forEach(function(chart){
+        Plotly.Plots.resize(icefish_charts[chart].div).then(chart_autorange, chart_autorange);  // autorange on success or fail - only the last one will actually work - the rest will bail because the resizing is already in progress
+    });
 }
 
 function change_chart_size(){
@@ -222,7 +232,6 @@ function change_chart_size(){
     $("#icefish_charts").toggleClass("pure-1-4 pure-u-3-5");  // first is original, second is updated
     $("#icefish_chart_toggle_button").toggleClass("fa-caret-left fa-caret-right");  // first is original, second is updated
     //}
-    Object.keys(icefish_charts).forEach(function(chart){
-        Plotly.Plots.resize(icefish_charts[chart].div).then(autorange, autorange);  // autorange on success or fail - only the last one will actually work - the rest will bail because the resizing is already in progress
-    });
+
+    chart_autosize();
 }
