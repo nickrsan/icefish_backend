@@ -15,7 +15,7 @@ except ImportError:
 
 log = logging.getLogger("icefish.ctd")
 
-instrument = CTDInstrument.objects.first()  # right now, get the *only* object in this table - in the future, when a new instrument goes down, we'd need to update this
+instrument = CTDInstrument.objects.get(serial=local_settings.CTD_DEFAULT_SERIAL)  # right now, get the *only* object in this table - in the future, when a new instrument goes down, we'd need to update this
 
 class Command(BaseCommand):
 	help = 'Listens for new data on the CTD and inserts into the database'

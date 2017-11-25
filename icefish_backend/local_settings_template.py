@@ -73,6 +73,7 @@ SUPERCOOLING_EMAILS = [('Paul Cziko', '273@pg.mcmurdo.usap.gov',), ('Paul Cziko'
 SUPERCOOLING_ALERT_INTERVAL = 120  # how often should alerts be resent when water is supercooled?
 
 # CTD Settings
+CTD_DEFAULT_SERIAL = 5062  # which CTD should records be considered as coming from by default? Identify it by serial number here. Replace this if the CTD changes, and add a CTDInstrument object to the database that corresponds to it
 CTD_LOGGING_INTERVAL = 90  # how often should the CTD take a sample and have the script monitor it - in seconds
 CTD_BAUD_RATE = 4800  # The baud rate of the CTD cable. We're running a long cable, so we need to operate at 4800 baud
 CTD_DEFAULT_COM_PORT = "COM3"  # What COM port is the CTD running on when it's plugged in?
