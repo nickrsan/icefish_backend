@@ -2,24 +2,25 @@
 {% load staticfiles %}
 
 {% block content %}
-    <div class="pure-u-1-24" id="icefish_navbar">
+    <div class="pure-u-md-1-24 pure-u-sm-1" id="icefish_navbar">
         <img src="{% static "icefish/img/core/B195M_Logo_240.png" %}" id="icefish_logo">
         <ul>
-            <li class="icefish_navbar_button"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video"></i></li>
-            <li class="icefish_navbar_button"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio"></i></li>
-            <li class="icefish_navbar_button"><i class="fa fa-database" aria-hidden="false" aria-label="CTD Data and API"></i></li>
-            <li class="icefish_navbar_button"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project"></i></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video"></i></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio"></i></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><i class="fa fa-database" aria-hidden="false" aria-label="CTD Data and API"></i></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project"></i></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><i class="fa fa-sliders" aria-hidden="false" aria-label="Settings"></i></li>
         </ul>
     </div>
-    <div class="pure-u-17-24" id="icefish_main">
-        <div id="video" class="pure-u-1-1 video_container" style="height:68vh;"> <!-- height here doesn't control video size, but does push the spectrogram down to appropriate spot -->
-            <div class="pure-u-1-12 letterbox" style="height:100%"></div>
-            <div class="pure-u-5-6">
+    <div class="pure-u-md-17-24 pure-u-sm-1" id="icefish_main">
+        <div id="video" class="pure-u-1-1 video_container"> <!-- height here doesn't control video size, but does push the spectrogram down to appropriate spot -->
+            <div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>
+            <div class="pure-u-md-5-6 pure-u-sm-1">
                 <div id="WowzaPlayerElement" style="width:100%; height:0; padding:0 0 56.25% 0"></div>
             </div>
-            <div class="pure-u-1-12 letterbox"></div>
+            <div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>
         </div>
-        <div id="spectrogram" style="height:32vh;"><!-- Waterfall Display -->
+        <div id="spectrogram" class="pure-u-1"><!-- Waterfall Display -->
             <div id="waterfall-display" class="chart-holder" style="height:100%">
                 <div class="chart"></div>
                 <div class="chartmessage">Loading Waterfall Display...</div>
@@ -37,7 +38,7 @@
             </div>
         </div>
     </div>
-    <div class="pure-u-1-4" id="icefish_charts">
+    <div class="pure-u-md-1-4 pure-u-sm-1" id="icefish_charts">
         <div class="pure-u-1-24">
             <div class="pure-u-2-3" id="icefish_chart_toggle_bar">
                 <a href="#" id="icefish_chart_toggle_link" onclick="change_chart_size();">
