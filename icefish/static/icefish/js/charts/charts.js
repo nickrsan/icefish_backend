@@ -82,7 +82,7 @@ function get_initial_data(divs) {
             var salinity = document.getElementById(divs["salinity"]);
 
             var common_layout = {
-                margin: {t: 5, b:50, l:50, r:0},
+                margin: {t: 10, b:50, l:50, r:0},
                 hovermode: 'closest',
                 plot_bgcolor: '#213c52',
                 paper_bgcolor: '#213c52',
