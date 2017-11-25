@@ -5,31 +5,63 @@
     <div class="pure-u-md-1-24 pure-u-sm-1" id="icefish_navbar">
         <img src="{% static "icefish/img/core/B195M_Logo_240.png" %}" id="icefish_logo">
         <ul>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_video_browser');"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_audio_browser');"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_data_browser');"><i class="fa fa-database" aria-hidden="false" aria-label="CTD Data and API"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_about');"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_settings');"><i class="fa fa-sliders" aria-hidden="false" aria-label="Settings"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_video_browser');"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video" title="Browse Video Archive"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_audio_browser');"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio" title="Browse Audio Archive"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_data_browser');"><i class="fa fa-database" aria-hidden="false" aria-label="CTD Data and API" title="CTD Data and API"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_about');"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project" title="About this Project"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_settings');"><i class="fa fa-sliders" aria-hidden="false" aria-label="Settings" title="Application Settings"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_controls', 'pure-u-md-11-24');"><i class="fa fa-arrows" aria-hidden="false" aria-label="Camera Control" title="Camera Control"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_summary_stats');"><i class="fa fa-table" aria-hidden="false" aria-label="Summary Statistics and Regional Data" title="Summary Statistics and Regional Data"></i></a></li>
         </ul>
     </div>
 
     <!-- Dialogs for other applications -->
-    <div id="icefish_about" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog">Well hullo!</div>  <!-- first in the page because it doesn't matter and this way its contents are pulled first by robots -->
-    <div id="icefish_video_browser" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog"></div>
-    <div id="icefish_audio_browser" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog"></div>
-    <div id="icefish_data_browser" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog"></div>
-    <div id="icefish_settings" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog">
-        <h3>Realtime Spectrogram</h3>
-            <!-- Tool Bars - code straight from hydrophone -->
-            <div id="toolbar">
-                <span>Step size: <select id="step" disabled="1"></select></span>
-                <span id="abId0.5314168991210294">Reference: <input id="ref" size="2" value=46 disabled="1">dB µPa</span>
-                <span>Bandwidth: <span data-field="fftBandWidth">Loading...</span></span>
-                <span id="abId0.433896597943322"><input id="view" size="2" value="4" disabled="1"> min(s)</span>
-                <span><button id="rescale" disabled="1">Rescale</button></span>
-                <span><button id="gobtn">Stop</button></span>
-            </div>
+    <div id="icefish_about" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog">
+        <div class="pure-u-1">
+            <h2>About the McMurdo Oceanographic Observatory</h2>
+        </div>
+    </div>  <!-- first in the page because it doesn't matter and this way its contents are pulled first by robots -->
+    <div id="icefish_video_browser" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog">
+        <div class="pure-u-1">
+            <h2>Video Archive Browser</h2>
+        </div>
     </div>
+    <div id="icefish_controls" class="pure-u-md-1-2 pure-u-sm-1 icefish_hidden_dialog">
+        <div class="pure-u-1">
+            <h2>Observatory Controls</h2>
+        </div>
+    </div>
+    <div id="icefish_audio_browser" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog">
+        <div class="pure-u-1">
+            <h2>Audio Archive Browser</h2>
+        </div>
+    </div>
+    <div id="icefish_data_browser" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog">
+        <div class="pure-u-1">
+            <h2>CTD Data Browser</h2>
+        </div>
+    </div>
+    <div id="icefish_settings" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog">
+        <div class="pure-u-1">
+            <h2>Application Settings</h2>
+                <h3>Realtime Spectrogram</h3>
+                    <!-- Tool Bars - code straight from hydrophone -->
+                    <div id="toolbar">
+                        <span>Step size: <select id="step" disabled="1"></select></span>
+                        <span id="abId0.5314168991210294">Reference: <input id="ref" size="2" value=46 disabled="1">dB µPa</span>
+                        <span>Bandwidth: <span data-field="fftBandWidth">Loading...</span></span>
+                        <span id="abId0.433896597943322"><input id="view" size="2" value="4" disabled="1"> min(s)</span>
+                        <span><button id="rescale" disabled="1">Rescale</button></span>
+                        <span><button id="gobtn">Stop</button></span>
+                    </div>
+        </div>
+    </div>
+    <div id="icefish_summary_stats" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog">
+        <div class="pure-u-1">
+            <h2>Summary Stats and Regional Information</h2>
+        </div>
+    </div>
+
     <div id="icefish_error_console" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog"></div>
 
     <div class="pure-u-md-17-24 pure-u-sm-1" id="icefish_main">

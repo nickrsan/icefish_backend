@@ -18,6 +18,11 @@ body, html{
 
 .icefish_hidden_dialog{
     display:none;
+    color: #eee;
+}
+
+.icefish_hidden_dialog>.pure-u-1{
+    padding: 0 1em;  /* top doesn't need it because it has padding from the header */
 }
 
 

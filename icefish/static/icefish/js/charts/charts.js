@@ -238,7 +238,7 @@ function change_chart_size(){
     chart_autosize();
 }
 
-function toggle_dialog(id){
+function toggle_dialog(id, main_body_new_class){
     var transition = null;
     var toggle_main = null;
     if (open_dialog === null){  // there's nothing open already
@@ -258,10 +258,14 @@ function toggle_dialog(id){
         toggle_main = false; // don't do anything to the main divs if we're just swapping open panels
     }
 
+    if (main_body_new_class === undefined){ // if it wasn't passed in, here's the default
+        main_body_new_class = "pure-u-md-5-24"  // we pass it in for smaller panels
+    }
+
     $("#"+id).toggle(transition);
 
     if (toggle_main === true){
-        $("#icefish_main").toggleClass("pure-u-md-17-24 pure-u-md-5-24");  // first is original, second is updated
+        $("#icefish_main").toggleClass("pure-u-md-17-24 " + main_body_new_class);  // first is original, second is updated
         $("#icefish_charts").toggle();  // first is original, second is updated
     }
 }
