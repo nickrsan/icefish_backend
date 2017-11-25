@@ -75,7 +75,8 @@ def handle_records(records, return_alerts=False):
 	for record in records:
 		new_model = CTD()
 		new_model.temp = record["temperature"]
-		new_model.conductivity = record["conductivity"]
+		if "conductivity" in record:
+			new_model.conductivity = record["conductivity"]
 		new_model.pressure = record["pressure"]
 		if "salinity" in record:
 			new_model.salinity = record["salinity"]
