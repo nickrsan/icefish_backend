@@ -45,6 +45,7 @@ body, html{
     }
     #spectrogram{
         height:32vh;
+        min-height:100px;
     }
 }
 
