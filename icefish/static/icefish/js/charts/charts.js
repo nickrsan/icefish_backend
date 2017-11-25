@@ -98,18 +98,19 @@ function get_initial_data(divs) {
                 xaxis: {title: 'Time'},
                 yaxis: {title: 'Temperature'},
             }, common_layout);  // merge the common layout items with the specific ones
-            a = Plotly.plot(temperature, [{
-                    x: unpack(data, "dt").reverse(),  // we have to reverse them all so we can connect new additions later
-                    y: unpack(data, "temp").reverse(),
-                    name: "Temperature (C)",
-                    line: {color: "#367be2",},
-                }, {
+            a = Plotly.plot(temperature, [
+                {  // freezing point first because we want it to draw under temperature
                     x: unpack(data, "dt").reverse(),
                     y: unpack(data, "freezing_point").reverse(),
                     name: "Freezing Point",
-                    line: {color: "#a0c1cc",},
-                }
-
+                    line: {color: "#c3e9f4",},
+                },
+                {
+                    x: unpack(data, "dt").reverse(),  // we have to reverse them all so we can connect new additions later
+                    y: unpack(data, "temp").reverse(),
+                    name: "Temperature (C)",
+                    line: {color: "#3891ff",},
+                },
                 ],
                 temperature_layout
             );
@@ -121,7 +122,7 @@ function get_initial_data(divs) {
             Plotly.plot(pressure, [{
                     x: unpack(data, "dt").reverse(),
                     y: unpack(data, "pressure").reverse(),
-                    line: {color: "#FF6600"},
+                    line: {color: "#f10b7a"},
                 }],
                 pressure_layout
             );
@@ -133,7 +134,7 @@ function get_initial_data(divs) {
             var a = Plotly.plot(salinity, [{
                     x: unpack(data, "dt").reverse(),
                     y: unpack(data, "salinity").reverse(),
-                    line: {color: "#4ee039"},
+                    line: {color: "#9be309"},
                 }],
                 salinity_layout
             );
