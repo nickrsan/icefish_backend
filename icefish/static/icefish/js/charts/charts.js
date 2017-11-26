@@ -1,7 +1,6 @@
 ICEFISH_INIT = false;
 ICEFISH_GRAPH_SYNC=false;
 ICEFISH_UPDATE_INTERVAL = 15;  // how often to check for updates of data
-ICEFISH_QUERY_ROOT_URL = "/api/ctd/";
 ICEFISH_TESTING_ROOT_URL = "/api/ctd/?since=2017-11-13T22:00:00Z&before=2017-11-15T12:00:24Z"; //before=2017-11-15T12:00:24Z&
 icefish_charts = {};
 icefish_data_records = [];
@@ -171,6 +170,10 @@ function get_initial_data(divs) {
     });
 
     // check_for_updates = setInterval(update_charts, ICEFISH_UPDATE_INTERVAL*1000); // schedule the update so it happens every interval seconds)
+
+    if (ICEFISH_HYDROPHONE_BASE_URL !== null){  // if we know where the spectrogram server is - this will be disabled for Internet version, so we want to check
+        start_spectrogram();  // defined in CTD spectrogram library
+    }
 
     setTimeout(check_and_start_wowza, 5000);  // give the player a moment to be created, then tell it to play
     console.log("Function complete");

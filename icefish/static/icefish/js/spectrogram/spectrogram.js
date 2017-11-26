@@ -7,10 +7,8 @@ RAW_DATA_MIN=0;
 RAW_DATA_MAX=255;
 TICKSIZE_LEVEL=[3,6,10,12,20,30];
 REF_LIMIT=60;
-PORT=51675;
 START_BIN=8;//Start of min/max calc
 END_BIN=400;
-HYDROPHONE_BASE_URL = "b195-moo-router.usap.gov";
 
 // Controls
 var $SELECT_STEP=$("#step")
@@ -528,10 +526,9 @@ dataSet=new FFTDataSet(FFT_CACHE_SIZE);
 waterfallDisplay=null;
 firstSamp=1;
 
-// Initialize
+// Initialize - called in main init code for page, only if spectrogram URL is defined
 // ==========
-$(function()
-{
+function start_spectrogram(){
 	//Menu Builer Utility Functions
 	var buildStepMenu=function()
 	{
@@ -550,7 +547,7 @@ $(function()
 	var ws;
 
 	//establish connection
-	ws=new WebSocket("ws://"+HYDROPHONE_BASE_URL+":"+PORT);
+	ws=new WebSocket("ws://"+ICEFISH_HYDROPHONE_BASE_URL+":"+ICEFISH_HYDROPHONE_PORT);
 
 	//setup the websockets
 	ws.isConnected=false;//use to test if the socket is closed on error
@@ -665,7 +662,7 @@ $(function()
 
 	timeOffset = 780;
 	
-});
+}
 
 function UpdateDisplaySetting()
 {

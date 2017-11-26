@@ -214,10 +214,13 @@ class CTD(models.Model):
 
 	@property
 	def is_supercooled(self):
-		if self.temp < self.freezing_point:
-			return True
-		else:
-			return False
+		try:
+			if self.temp < self.freezing_point:
+				return True
+			else:
+				return False
+		except ValueError:  # freezing point raises ValueError if it can't be calculated, but for a boolean like this function, this means we basically have a null value
+			return None
 
 	@property
 	def supercooling_amount(self):

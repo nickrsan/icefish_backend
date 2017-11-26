@@ -60,10 +60,10 @@ class CTDViewSet(viewsets.ModelViewSet):
 		return queryset
 
 def spectrogram_full(request):
-	return render_to_response("icefish/spectrogram.django.html")
+	return render_to_response(request, "icefish/spectrogram.django.html")
 
 def chart_full(request):
-	return render_to_response("icefish/data.django.html")
+	return render(request, "icefish/data.django.html")
 
 
 def audio_archive(request):
