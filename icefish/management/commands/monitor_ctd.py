@@ -88,11 +88,14 @@ def handle_records(records, return_alerts=False):
 		log.debug("Record saved")
 
 	try:
-		new_model
+		if "salinity" not in record or "pressure" not in record:  # can't do these calculations and alerts without those values
+			return
+
+		new_model  # make sure the loop ran
 		actions = alerts.supercooling_alerts(new_model)  # only run this for the last record we insert so that it's current
 	except NameError:  # just making sure new_model is defined before use
 		pass
 
-	if return_alerts:
+	if return_alerts:  # mostly used for unit tests
 		return actions
 
