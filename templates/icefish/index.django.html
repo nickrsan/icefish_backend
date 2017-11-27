@@ -30,15 +30,16 @@
 {% block main_js %}
 
     <script type="text/javascript">
-    /* Constants from application settings go here, before loading other scripts */
-    ICEFISH_QUERY_ROOT_URL = {{ ICEFISH_QUERY_ROOT_URL | safe}};
-    ICEFISH_HYDROPHONE_BASE_URL = {{ ICEFISH_HYDROPHONE_BASE_URL | safe}};
-    ICEFISH_HYDROPHONE_PORT = {{ ICEFISH_HYDROPHONE_PORT | safe}};
-</script>
+        /* Constants from application settings go here, before loading other scripts */
+        ICEFISH_QUERY_ROOT_URL = {{ ICEFISH_QUERY_ROOT_URL | safe}};
+        ICEFISH_HYDROPHONE_BASE_URL = {{ ICEFISH_HYDROPHONE_BASE_URL | safe}};
+        ICEFISH_HYDROPHONE_PORT = {{ ICEFISH_HYDROPHONE_PORT | safe}};
+        wowza_player_include = "{% static "/icefish/js/video/wowzaplayer.include.js" %}";
+    </script>
 
-<script src="{% static "/icefish/js/common/jquery-3.2.1.min.js"%}"></script>
-<script src="{% static "/icefish/js/charts/plotly_1.31.2.min.js"%}"></script>
-<script src="{% static "/icefish/js/charts/charts.js"%}"></script>
+    <script src="{% static "/icefish/js/common/jquery-3.2.1.min.js"%}"></script>
+    <script src="{% static "/icefish/js/charts/plotly_1.31.2.min.js"%}"></script>
+    <script src="{% static "/icefish/js/charts/charts.js"%}"></script>
 {% endblock %}
 {% block footer_js %}
 
