@@ -219,6 +219,8 @@ class CTD(models.Model):
 				return True
 			else:
 				return False
+		except TypeError:  # happens if we try to compare self.temp to ValueError, which gets returned by freezing_point in some cases - if that happens, it basically means this value is null
+			return None
 		except ValueError:  # freezing point raises ValueError if it can't be calculated, but for a boolean like this function, this means we basically have a null value
 			return None
 
