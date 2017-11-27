@@ -660,7 +660,7 @@ function start_spectrogram(){
 		}
 	});
 
-	timeOffset = 780;
+	timeOffset = 0;
 	
 }
 

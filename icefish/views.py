@@ -60,17 +60,17 @@ class CTDViewSet(viewsets.ModelViewSet):
 		return queryset
 
 def spectrogram_full(request):
-	return render_to_response(request, "icefish/spectrogram.django.html")
+	return render_to_response(request, "icefish/spectrogram.django.html", {'title': "McMurdo Ocean Observatory: Spectrogram"})
 
 def chart_full(request):
-	return render(request, "icefish/data.django.html")
+	return render(request, "icefish/data.django.html", {'title': "McMurdo Ocean Observatory"})
 
 
 def audio_archive(request):
 	audio_files = models.HydrophoneAudio.objects.all().order_by('-start_time')[:20]
 	log.debug("{} audio files".format(len(audio_files)))
 
-	return render_to_response("icefish/audio_archive.django.html", context={"audio_files": audio_files})
+	return render_to_response("icefish/audio_archive.django.html", context={"audio_files": audio_files, "title": "McMurdo Ocean Observatory: Audio"})
 
 def display_spectrogram(request, hydrophone_audio_id):
 	"""

@@ -1,5 +1,6 @@
-
+import shutil
 import logging
+import tempfile
 import os
 import wave
 import subprocess
@@ -30,33 +31,46 @@ def hydrophone_pipeline(inbound_folder=settings.WAV_STORAGE_FOLDER, outbound_fol
 			log.debug("Skipping already loaded file at {}".format(full_input))
 			continue
 
-		audio = HydrophoneAudio()
-		base_name = os.path.basename(wav).split(".")[0]  # get just the root filename without directory or extension - directory won't be included here
-		audio.wav = full_input
-		full_output = os.path.join(outbound_folder, "{}.flac".format(base_name))
-
 		try:
-			audio.get_wave_length()
-		except wave.Error:
-			log.warning("Unable to get metadata about wave file {} - skipping".format(full_input))
-			continue
-		audio.get_start_time()
+			audio = HydrophoneAudio()
+			base_name = os.path.basename(wav).split(".")[0]  # get just the root filename without directory or extension - directory won't be included here
 
-		try:
-			audio.make_flac(full_output, overwrite=reprocess)
-		except subprocess.CalledProcessError:
-			continue
-		except FileExistsError:
-			if reprocess is False:
-				continue  # it already exists, so we'll just skip adding this file for now - currently, this leaves it to be processed again - should we do that?
+			if settings.COPY_WAV_TO_TEMP:
+				audio.wav = tempfile.mktemp(prefix="hydrophone")
+				shutil.copyfile(full_input, audio.wav)  # we'll delete this and overwrite the path later
+			else:
+				audio.wav = full_input
 
-		audio.make_spectrogram(os.path.join(spectrogram_folder, "{}.png".format(base_name)))
-		audio.save()
+			full_output = os.path.join(outbound_folder, "{}.flac".format(base_name))
 
-		try:
-			audio.remove_wav()  # automatically checks the integrity of the FLAC file before deleting WAV file
-		except FLACIntegrityError:
-			log.warning("Unable to remove wav file {}. FLAC file is invalid. Regenerate the flac file for audio record with ID {}".format(audio.wav, audio.id))
+			try:
+				audio.get_wave_length()
+			except wave.Error:
+				log.warning("Unable to get metadata about wave file {} - skipping".format(full_input))
+				continue
+			audio.get_start_time()
+
+			try:
+				audio.make_flac(full_output, overwrite=reprocess)
+			except subprocess.CalledProcessError:
+				continue
+			except FileExistsError:
+				if reprocess is False:
+					continue  # it already exists, so we'll just skip adding this file for now - currently, this leaves it to be processed again - should we do that?
+
+			audio.make_spectrogram(os.path.join(spectrogram_folder, "{}.png".format(base_name)))
+			audio.save()
+
+			try:
+				audio.remove_wav()  # automatically checks the integrity of the FLAC file before deleting WAV file
+			except FLACIntegrityError:
+				log.warning("Unable to remove wav file {}. FLAC file is invalid. Regenerate the flac file for audio record with ID {}".format(audio.wav, audio.id))
+		finally:
+			if settings.COPY_WAV_TO_TEMP:
+				os.unlink(audio.wav)
+				audio.wav = full_input
+
+
 
 def video_pipeline(remove_bottom=True, remove_existing=False):
 
