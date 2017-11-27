@@ -47,7 +47,8 @@ RETRY_WAIT_TIME = 600  # seconds to wait between attempts to retry
 # AUDIO PROCESSING
 FLAC_STORAGE_FOLDER = r"H:\flac"  # what is the full path to the place we should convert flac files into?
 WAV_STORAGE_FOLDER = r"H:\incoming"
-TEMPORARY_AUDIO_FOLDER = r""  # folder to dump temporary conversion products in - they'll be deleted. May not be used in some cases (if SOX is used)
+COPY_WAV_TO_TEMP = True  # should we copy the wav file to a local temp file before processing? This is useful when it's on the network and prevents multiple network reads of the same file
+TEMPORARY_AUDIO_FOLDER = r"C:\Users\dsx\Dropbox\Antarctica\Audio\temp"
 SPECTROGRAM_STORAGE_FOLDER = r"H:\spectrographs"  # where should spectrograph images be stored?
 FLAC_BINARY = r""  # path to flac.exe for converting files
 SOX_BINARY = r""  # path to sox.exe for creating spectrograms for retroactive data visualization
@@ -58,7 +59,7 @@ GENERATE_SPECTROGRAM = True  # set this flag to turn spectrogram generation on o
 SECRET_KEY = ''  # make a long string of letters, punctuation, and numbers between the quoteslike asehp987#ohd^yuinOFIUHBSA*(IUsgdshFMSA)IU
 
 # EMAIL AND ALERTS
-EMAIL_BACKEND = 'django_mailgun.MailgunBackend'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587  # the port email should be sent through
 EMAIL_HOST_USER = ''  # username for email sending login
 EMAIL_HOST_PASSWORD = ''  # the password for the account to send email through
@@ -79,6 +80,11 @@ CTD_BAUD_RATE = 4800  # The baud rate of the CTD cable. We're running a long cab
 CTD_DEFAULT_COM_PORT = "COM3"  # What COM port is the CTD running on when it's plugged in?
 CTD_INTERRUPTABLE = False  # should the CTD be run in the mode that lets us send commands in through a side channel while it's logging. False is safer, True is helpful when you need it
 CTD_FORCE_SETTINGS = False  # should the CTD be stopped to apply the logging interval and update the time (True), or should we just listen in to logging in progress if it's already logging (False)?
+
+# Charting URLs - most items in this section should be prefixed with ICEFISH because they'll integrate in the page with other things
+ICEFISH_QUERY_ROOT_URL = "/api/ctd/"
+ICEFISH_HYDROPHONE_BASE_URL = "b195-moo-proxy.nicksantos.com"
+ICEFISH_HYDROPHONE_PORT = 8010
 
 # RABBITMQ Settings
 # if you're using the advanced version of the CTD logger that lets you send commands while it's autologging, fill these out
