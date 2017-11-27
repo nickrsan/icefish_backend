@@ -208,21 +208,17 @@ class CTD(models.Model):
 		:return:
 		"""
 		if not self.salinity or self.salinity is None:
-			return ValueError("Can't calculate - no salinity measurement for this record")
+			# # return ValueError("Can't calculate - no salinity measurement for this record")
+			return None  # wanted to use ValueError - a better expression of the situation, but returning null instead because that's what it'll get serialized out to
 
 		return -0.0575*self.salinity + 0.001710523*(self.salinity**1.5) - 0.0002154996*(self.salinity**2) - 0.000753*self.pressure
 
 	@property
 	def is_supercooled(self):
-		try:
-			if self.temp < self.freezing_point:
-				return True
-			else:
-				return False
-		except TypeError:  # happens if we try to compare self.temp to ValueError, which gets returned by freezing_point in some cases - if that happens, it basically means this value is null
-			return None
-		except ValueError:  # freezing point raises ValueError if it can't be calculated, but for a boolean like this function, this means we basically have a null value
-			return None
+		if self.temp < self.freezing_point:
+			return True
+		else:
+			return False
 
 	@property
 	def supercooling_amount(self):
