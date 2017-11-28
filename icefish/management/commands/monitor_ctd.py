@@ -15,7 +15,7 @@ except ImportError:
 
 log = logging.getLogger("icefish.ctd")
 
-instrument = CTDInstrument.objects.get(serial=local_settings.CTD_DEFAULT_SERIAL)  # right now, get the *only* object in this table - in the future, when a new instrument goes down, we'd need to update this
+instrument = None
 
 class Command(BaseCommand):
 	help = 'Listens for new data on the CTD and inserts into the database'
@@ -61,6 +61,9 @@ class Command(BaseCommand):
 			log.debug("Setting up interrupt handler")
 			ctd.setup_interrupt(server, local_settings.RABBITMQ_USERNAME, local_settings.RABBITMQ_PASSWORD, local_settings.RABBITMQ_VHOST)  # set it up to receive commands from rabbitmq once autosampling starts
 		log.info("Starting automatic logger")
+
+		instrument = CTDInstrument.objects.get(serial=ctd.serial_number)  # right now, get the *only* object in this table - in the future, when a new instrument goes down, we'd need to update this
+
 		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=not local_settings.CTD_FORCE_SETTINGS)
 
 
