@@ -85,6 +85,7 @@ CTD_FORCE_SETTINGS = False  # should the CTD be stopped to apply the logging int
 ICEFISH_QUERY_ROOT_URL = "/api/ctd/"
 ICEFISH_HYDROPHONE_BASE_URL = "b195-moo-proxy.nicksantos.com"
 ICEFISH_HYDROPHONE_PORT = 8010
+ICEFISH_REALTIME_CTD = True  # Does this device support realtime CTD data in the browser? Should a loaded page request updates? True if so, False if not
 
 # RABBITMQ Settings
 # if you're using the advanced version of the CTD logger that lets you send commands while it's autologging, fill these out
