@@ -79,7 +79,11 @@ def video_pipeline(remove_bottom=True, remove_existing=False):
 		params = settings.VIDEO_FOLDERS[folder]
 		log.debug("Searching in {}".format(folder))
 
-		found_videos = [vid for vid in os.listdir(folder) if os.path.splitext(vid)[1] in params["extensions"]]
+		try:
+			found_videos = [vid for vid in os.listdir(folder) if os.path.splitext(vid)[1] in params["extensions"]]
+		except FileNotFoundError:
+			log.warning("Couldn't check for videos in {}. Unable to read folder.".format(folder))
+			continue
 		log.debug(found_videos)
 
 		for video in found_videos:  # all the videos of the extensions we're looking for
