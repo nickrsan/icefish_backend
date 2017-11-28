@@ -61,6 +61,7 @@ class CTDInstrument(models.Model):
 	depth = models.FloatField(blank=True, null=True)
 	coord_x = models.FloatField(null=True, blank=True)
 	coord_y = models.FloatField(null=True, blank=True)
+	# flags = many item foreign
 
 
 class CTD(models.Model):

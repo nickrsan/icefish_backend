@@ -28,6 +28,8 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 
+		global instrument
+		
 		# figure out which com port to listen on. If it's passed in as an argument, use that, otherwise use the one in the defined environment variable (CTD code will handle that).
 		port = None
 		if options['com_port']:
@@ -65,7 +67,6 @@ class Command(BaseCommand):
 		instrument = CTDInstrument.objects.get(serial=ctd.serial_number)  # right now, get the *only* object in this table - in the future, when a new instrument goes down, we'd need to update this
 
 		ctd.start_autosample(interval, realtime="Y", handler=handle_records, no_stop=not local_settings.CTD_FORCE_SETTINGS)
-
 
 def handle_records(records, return_alerts=False):
 	"""
