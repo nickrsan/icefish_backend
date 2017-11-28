@@ -29,13 +29,41 @@ class CTDViewSet(viewsets.ModelViewSet):
 	"""
 	serializer_class = CTDSerializer
 
+	def make_datetime(self, time_string):
+		"""
+			Takes the time passed to the API and tries a few supported format strings against it until it gets one that works
+			or runs out of format strings to try, in which case it raises ValueError. Returns a datetime object matching the
+			string value if successful.
+		:param time_string: a string time value to parse to a datetime object
+		:return: datetime.datetime matching the passed in string
+		"""
+		date_formats = ["%Y-%m-%dT%H:%M:%SZ",
+						"%Y-%m-%dT%H:%M:%S.%fZ"]  # tries these in order - some of our times may have microseconds, and I don't see a way to make it optional
+
+		for format_string in date_formats:
+			try:
+				dt_object = datetime.datetime.strptime(time_string, format_string).replace(tzinfo=datetime.timezone.utc)
+			except ValueError:
+				continue
+			break
+		else:
+			raise ValueError("Couldn't find a matching format string for the supplied datetime. Allowed formats are {}".format(date_formats))
+
+		return dt_object
+
 	def get_queryset(self):
+		"""
+			Primary function that determines API results. By default returns the last day or so, but takes parameters
+			"since" and "before" that allow specification of datetime values (in formats supported by self.make_datetime
+			- see that method for supported formats. Returns a queryset with the records to pass to the API.
+		:return:
+		"""
 
 		queryset = models.CTD.objects.all().order_by('-dt')
 		beginning_dt = self.request.query_params.get('since', None)
 		end_dt = self.request.query_params.get('before', None)
 		if beginning_dt is not None:
-			filter_dt = datetime.datetime.strptime(beginning_dt, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
+			filter_dt = self.make_datetime(beginning_dt)
 			queryset = queryset.filter(dt__gt=filter_dt)
 		elif end_dt is None:  # only do a default beginning filter if there's no end filter. Because if they provide an end before the beginning, then whoops!
 			# this block tries to go back one day at a time until it accumulates at least settings.ICEFISH_API_MIN_DEFAULT_RECORDS or until it goes back a max of settings.ICEFISH_API_MAX_DEFAULT_DAYS
@@ -55,7 +83,7 @@ class CTDViewSet(viewsets.ModelViewSet):
 			queryset = filtered_queryset  # we assign this back at the end so we keep queryset clear for repeated attempts
 
 		if end_dt is not None:
-			queryset = queryset.filter(dt__lt=datetime.datetime.strptime(end_dt, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc))
+			queryset = queryset.filter(dt__lt=self.make_datetime(end_dt))
 
 		return queryset
 

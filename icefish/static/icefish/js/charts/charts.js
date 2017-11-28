@@ -1,6 +1,6 @@
 ICEFISH_INIT = false;
 ICEFISH_GRAPH_SYNC=false;
-ICEFISH_UPDATE_INTERVAL = 15;  // how often to check for updates of data
+ICEFISH_UPDATE_INTERVAL = 60;  // how often to check for updates of data
 ICEFISH_TESTING_ROOT_URL = "/api/ctd"; // "http://157.132.104.177:8009/api/ctd/"; // ?since=2017-11-13T22:00:00Z&before=2017-11-15T12:00:24Z"; //before=2017-11-15T12:00:24Z&
 icefish_charts = {};
 icefish_data_records = [];
