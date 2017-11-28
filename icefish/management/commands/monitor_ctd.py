@@ -29,7 +29,7 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 
 		global instrument
-		
+
 		# figure out which com port to listen on. If it's passed in as an argument, use that, otherwise use the one in the defined environment variable (CTD code will handle that).
 		port = None
 		if options['com_port']:

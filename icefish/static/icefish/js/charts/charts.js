@@ -197,8 +197,8 @@ function update_charts(){
 
             console.log("Retrieved update: " + data);
             // Plotly.extendTraces(icefish_charts["temperature"], {x:unpack(data, "temp")});
-            extend_chart(data, icefish_charts.temperature, 0);
-            extend_chart(data, icefish_charts.temperature, 1, "freezing_point");
+            extend_chart(data, icefish_charts.temperature, 0, "freezing_point");
+            extend_chart(data, icefish_charts.temperature, 1);
             extend_chart(data, icefish_charts.pressure, 0);
             extend_chart(data, icefish_charts.salinity, 0);
 
