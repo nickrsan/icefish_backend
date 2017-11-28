@@ -5,4 +5,5 @@ hg pull
 hg update
 %ICEFISH_INTERPRETER% -m pip install -r requirements.txt
 %ICEFISH_INTERPRETER% manage.py migrate
-net restart MOOWaitress
+net stop MOOWaitress
+net start MOOWaitress
