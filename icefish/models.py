@@ -535,6 +535,8 @@ class CTDFlag(AbstractFlag):
 		-- BoundFail: Indicates that the data is out of bounds based on an automated check of possible values
 		-- Measured: Indicates that the data were measured by an instrument
 		-- Interpolated: Indicates that the data were interpolated from other data to fill a gap
+		-- Nonrepresentative: Indicates that while data is accurate for current location, not likely accurate for whole area
+								- this can happen when divers are in the water - they heat the local area, but not the whole sound.
 	"""
 	ctd = models.ForeignKey(CTD, related_name="flags")
 
