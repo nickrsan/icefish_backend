@@ -1,11 +1,12 @@
 import os
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 STATIC_URL = '/static/'  # actual value should be something like 'b195-moo-router.usap.gov:8005/static/'
 SERVE_ADDRESS = "*:8009"
+DEVICE_NAME = "CWS-SILVERFORK"  # in a handful of cases, we might not want to clutter local settings with something (a few utilities that may not be used broadly), we'll look up settings by device name that way - we could grab this from the machine, but not going to
 
 #Paths and databases
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # leave this line alone

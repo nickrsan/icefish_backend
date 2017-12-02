@@ -9,11 +9,17 @@ import logging
 import datetime
 
 from django.core.management.base import BaseCommand, CommandError
+from icefish_backend.local_settings import DEVICE_NAME
 
-IPERF_EXE = r"C:\Users\dsx\Downloads\iperf-3.1.3-win64\iperf3.exe"
+IPERF_EXE = {
+				"CWS-SILVERFORK": r"C:\Users\dsx\Downloads\iperf-3.1.3-win64\iperf3.exe",
+				"MOO-SERVER": r"C:\Users\Nick\Desktop\iperf-3.1.3-win64\iperf3.exe"
+			 }
+
 REMOTE_SERVER = r"157.132.104.177"
 MIN_SPEED = 40  # below this, we fire an alert - all speeds in Mbps
-DEFAULT_DURATION = "20"  # seconds to run the test for
+DEFAULT_DURATION = {"CWS-SILVERFORK": "10",
+					"MOO-SERVER": "90"}# seconds to run the test for
 
 log = logging.getLogger("icefish.heartbeat")
 
@@ -27,7 +33,7 @@ class Command(BaseCommand):
 		run_test()
 
 
-def run_test(server=REMOTE_SERVER, iperf=IPERF_EXE, alert_threshold=MIN_SPEED, duration=DEFAULT_DURATION):
+def run_test(server=REMOTE_SERVER, iperf=IPERF_EXE[DEVICE_NAME], alert_threshold=MIN_SPEED, duration=DEFAULT_DURATION[DEVICE_NAME]):
 	"""
 		A simple, completely not elegant function that runs an iperf test and fires off a warning (including email) if it's below a threshold
 	:param server:
@@ -43,6 +49,8 @@ def run_test(server=REMOTE_SERVER, iperf=IPERF_EXE, alert_threshold=MIN_SPEED, d
 	for index, line in enumerate(lines):   # iterate through to find the main line indicating the results
 		if line.startswith("-"):  # that's the only one that starts with a hyphen
 			break
+	else:
+		raise RuntimeError("Unable to parse output from iperf - test likely did not run successfully")
 
 	mb_finder = re.match(".*?(\d+.\d+) Mbits/sec.*", lines[index+2])  # two lines below the hyphen line is the line with the results data. Use that and find the rate in Mbps
 	speed = float(mb_finder.group(1))
