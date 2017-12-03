@@ -71,9 +71,9 @@ class CTDViewSet(viewsets.ModelViewSet):
 			# .order_by("-dt").limit(25) or something like that, but at least early on, it's nice if it includes at
 			# least a full day, but sometimes the CTD is down, so we need to go back further. This is a compromise.
 
-			filter_dt = arrow.utcnow().shift(days=-1).datetime
+			filter_dt = arrow.utcnow().shift(days=-settings.ICEFISH_API_NUM_DAYS_DATA_DEFAULT).datetime  # shift today back by API_NUM_DAYS_DATA_DEFAULT days to get the beginning date
 			filtered_queryset = queryset.filter(dt__gt=filter_dt)
-			num_days_back = 1
+			num_days_back = settings.ICEFISH_API_MIN_DEFAULT_RECORDS
 
 			# this next process is slow and would likely be a problem in public APIs - but for now, it's OK to make it smart - especially for testing while we accumulate data
 			while len(filtered_queryset) < settings.ICEFISH_API_MIN_DEFAULT_RECORDS and num_days_back < settings.ICEFISH_API_MAX_DEFAULT_DAYS:
