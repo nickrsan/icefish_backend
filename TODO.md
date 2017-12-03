@@ -5,23 +5,25 @@ decreases, or some of these look like they'll be here for longer and require
 more individual planning and attention, they'll be moved to Issues.
 
 ## Kiosk
-[ ] Get monitor from Joni
-[ ] Set up Mac Mini as demo
-[ ] Automate login to publicdata account on kiosk
+ * Automate login to publicdata account on kiosk
+ * Get Pi cybersecurity reviewed
+ * Come up with plan for how we know which browser is the kiosk
 
 ## Stability
-[ ] Set Caddy to run as local service
-[ ] Automate deployments to specific branches
-[ ] Move secrets out of local_settings to local_secrets - those items would require logging in to update - others come from either copying local_settings_template or from a kiosk_specific template and a cloud specific template
-[ ] Double check disk array security, maintenance, and alert settings
+ * Set Caddy to run as local service - use its own account - is this already happening though?
+ * Automate deployments to specific branches
+ * Move secrets out of local_settings to local_secrets - those items would require logging in to update - others come from either copying local_settings_template or from a kiosk_specific template and a cloud specific template
+ * Double check disk array security, maintenance, and alert settings
+ * Upgrade Django to 2.0 - test in new Venv first
 
 ### Wowza
-[ ] Close down remaining unnecessary ports to wowza from camera
-[ ] Confirm running as local wowza account
+ * Close down remaining unnecessary ports to wowza from camera
+ * Confirm running as local wowza account
 [ ] Test bitrate vs. stability of stream in browser on public kiosk
 [ ] Configure to use password + PTZ to access camera
 [ ] Issue of HTTP timing and sychronization with hydrophone (https://www.wowza.com/forums/content.php?88-How-to-configure-Apple-HLS-packetization-%28cupertinostreaming%29#mgrlive)
 [ ] Wowza error recovery: we can track if the person pressed stop (maybe) by if the events trigger for play and stop - not sure if they trigger when wowza stops it because it's broken. Maybe we can autorecover by detecting if the player is stopped for a long time and then sending a stop command then waiting, then a play command. Maybe have a setting for this behavior that's automatically true for McMurdo IPs and otherwise is false? Then, we can detect if it's a failing stream that hasn't yet stopped (still shows state of playing) by using the onStats events that will tell us, hopefully, that we're not getting any data.
+ * Set up VOD again for kiosk
 
 ### Hydrophone data ingestion
 [ ] Broken - need to fix the part that deletes the correct file
@@ -45,6 +47,19 @@ more individual planning and attention, they'll be moved to Issues.
 [ ] Logging Server?
 [ ] Django sentry or similar
 [ ] Some sort of heartbeat check for crucial systems - logging in the web page so I know if the kiosk is open, etc, as well as all services are up.
+
+#### Things to Monitor
+ * High CPU, RAM, and low disk on MOO-SERVER, MOO-Proxy, RaspPI kiosk, and MOO-Cloud
+ * Crashes of ADM
+ * All warnings from Django, application errors, etc
+ * Kiosk load failures and warnings - should it email, or just make a post to a URL that loading failed with a specific message?
+ * CTD API is producing new values
+ * New images coming out of MOO Server to MOO-Cloud
+ * Hydrophone audio is being logged
+ * CTD data is being logged
+ * New surveys are being saved
+ * Pages load from the proxy with 200 OK status
+ * Daily (at least at first) "all is well" email - that way if that stops coming, I know email is broken
 
 ## Enhancements
 [ ] Dump daily Postgres backups - rotate backups so that we keep one from 6 months ago, 3 months, 1 month, 2 weeks, 1 week, and last 7 days, or something similar that covers all use cases without destroying disk

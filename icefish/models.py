@@ -71,8 +71,8 @@ class CTD(models.Model):
 	salinity = models.FloatField(blank=True, null=True, db_index=True)  # practical salinity units
 	dt = models.DateTimeField(db_index=True)  # datetime
 	server_dt = models.DateTimeField()  # the server reading the data's timestamp
-	instrument = models.ForeignKey(CTDInstrument)
-	weather = models.ForeignKey(Weather, null=True, blank=True)
+	instrument = models.ForeignKey(CTDInstrument, on_delete=models.DO_NOTHING)
+	weather = models.ForeignKey(Weather, null=True, blank=True, on_delete=models.DO_NOTHING)
 
 	def find_weather(self):
 		"""
@@ -538,11 +538,11 @@ class CTDFlag(AbstractFlag):
 		-- Nonrepresentative: Indicates that while data is accurate for current location, not likely accurate for whole area
 								- this can happen when divers are in the water - they heat the local area, but not the whole sound.
 	"""
-	ctd = models.ForeignKey(CTD, related_name="flags")
+	ctd = models.ForeignKey(CTD, related_name="flags", on_delete=models.DO_NOTHING)
 
 
 class HydrophoneAudioFlag(AbstractFlag):
-	hydrophone_audio = models.ForeignKey(HydrophoneAudio, related_name="flags")
+	hydrophone_audio = models.ForeignKey(HydrophoneAudio, related_name="flags", on_delete=models.DO_NOTHING)
 
 
 class MOOVideoFlag(AbstractFlag):
@@ -554,4 +554,4 @@ class MOOVideoFlag(AbstractFlag):
 		-- ManualKeep: Indicates that the video has been marked for keeping by a human
 		-- Seals: Indicates the video has good shots of seals
 	"""
-	moo_video = models.ForeignKey(MOOVideo, related_name="flags")
+	moo_video = models.ForeignKey(MOOVideo, related_name="flags", on_delete=models.DO_NOTHING)
