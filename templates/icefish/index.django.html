@@ -32,8 +32,10 @@
     <script type="text/javascript">
         /* Constants from application settings go here, before loading other scripts */
         ICEFISH_QUERY_ROOT_URL = {{ ICEFISH_QUERY_ROOT_URL | safe}};
-        ICEFISH_HYDROPHONE_BASE_URL = {{ ICEFISH_HYDROPHONE_BASE_URL | safe}};
+        ICEFISH_HYDROPHONE_BASE_URL = {{ ICEFISH_PROXY_BASE_URL | safe}};
         ICEFISH_HYDROPHONE_PORT = {{ ICEFISH_HYDROPHONE_PORT | safe}};
+        ICEFISH_CONTROL_BASE_URL = {{ ICEFISH_PROXY_BASE_URL | safe }};
+        ICEFISH_CONTROL_PORT = {{ ICEFISH_CONTROL_PORT | safe }};
         ICEFISH_REALTIME_CTD = {{ ICEFISH_REALTIME_CTD | safe}};
         wowza_player_include = "{% static "/icefish/js/video/wowzaplayer.include.js" %}";
     </script>
