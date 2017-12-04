@@ -27,7 +27,7 @@ function icefish_wiper_on_off(on_off) {
 
 function icefish_wiper_revolution(num_revolutions){
     icefish_wiper_on_off("on");
-    setTimeout(icefish_wiper_on_off, ICEFISH_WIPER_SECONDS_PER_REVOLUTION * num_revolutions, "off");
+    setTimeout(icefish_wiper_on_off, ICEFISH_WIPER_SECONDS_PER_REVOLUTION *1000 * num_revolutions, "off");
 }
 
 function move_wiper(degrees){
