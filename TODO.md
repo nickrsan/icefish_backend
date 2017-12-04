@@ -8,6 +8,8 @@ more individual planning and attention, they'll be moved to Issues.
  * Automate login to publicdata account on kiosk
  * Get Pi cybersecurity reviewed
  * Come up with plan for how we know which browser is the kiosk
+ * Add URL to page
+ * Pages should have correct permalinks (including #ctd or #info, etc)
 
 ## Stability
  * Set Caddy to run as local service - use its own account - is this already happening though?
@@ -60,6 +62,7 @@ more individual planning and attention, they'll be moved to Issues.
  * New surveys are being saved
  * Pages load from the proxy with 200 OK status
  * Daily (at least at first) "all is well" email - that way if that stops coming, I know email is broken
+ * Core Temp of MOO Server
 
 ## Enhancements
 [ ] Dump daily Postgres backups - rotate backups so that we keep one from 6 months ago, 3 months, 1 month, 2 weeks, 1 week, and last 7 days, or something similar that covers all use cases without destroying disk
