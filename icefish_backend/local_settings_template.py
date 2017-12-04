@@ -84,7 +84,7 @@ CTD_FORCE_SETTINGS = False  # should the CTD be stopped to apply the logging int
 
 # Charting URLs - most items in this section should be prefixed with ICEFISH because they'll integrate in the page with other things
 ICEFISH_QUERY_ROOT_URL = "/api/ctd/"
-ICEFISH_PROXY_BASE_URL = "b195-moo-proxy.nicksantos.com"
+ICEFISH_PROXY_BASE_URL = "//b195-moo-proxy.nicksantos.com"
 ICEFISH_HYDROPHONE_PORT = 8010
 ICEFISH_CONTROL_PORT = 9070
 ICEFISH_REALTIME_CTD = True  # Does this device support realtime CTD data in the browser? Should a loaded page request updates? True if so, False if not
