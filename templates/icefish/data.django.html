@@ -113,13 +113,19 @@
     <!-- intentionally putting this after the others since it requires an offcontinent request -->
     <script type="text/javascript" src="{% static "/icefish/js/video/wowzaPlayer1.1.07.js" %}"></script>
     <script>
+        {% if mode == "low" %}
+            var source_url = "http%3A%2F%2Fb195-moo-proxy.nicksantos.com%3A1935%2FMOO%2Fsmil%3AAdaptaMoo.smil%2Fplaylist.m3u8";
+        {% else %}
+            var source_url = "http%3A%2F%2Fb195-moo-proxy.nicksantos.com%3A1935%2FMOO%2Fsmil%3AAdaptaMooHigh.smil%2Fplaylist.m3u8";
+        {% endif %}
+
         $( document ).ready(function() {
             WowzaPlayer.create('WowzaPlayerElement',
                 {
                 "license":"PLAY1-3QDBr-GdWfE-GA6MP-NDt9W-VYWuM",
                 "title":"Live McMurdo Oceanographic Observatory",
                 "description":"",
-                "sourceURL":"http%3A%2F%2F157.132.104.177%3A1935%2FMOO%2Fsmil%3AAdaptaMoo.smil%2Fplaylist.m3u8",
+                "sourceURL": source_url,
                 "autoPlay":true,
                 "volume":"100",
                 "mute":false,
