@@ -28,15 +28,12 @@ more individual planning and attention, they'll be moved to Issues.
  * Set up VOD again for kiosk
 
 ### Hydrophone data ingestion
-[ ] Broken - need to fix the part that deletes the correct file
+[ ] Broken - need to fix the part that deletes the source file - trying to delete tempfile only, not original
 [ ] Autostart ingestion service? Or just run as scheduled task? What about recovery when it fails?
 [ ] Run ingestion as low priority
 [ ] Report of number of uningested files if it's over 24*6 or something (since that would mean it has files that didn't process)
 [ ] Crash recovery for OceanSonics Array Data Manager
 [ ] Autostart macro for Array Data Manager - does running it as high priority avoid crashes? Seems to crash when CPU load is heavy
-
-### CTD
-[ ] Make CTD loading a service - it'd be good to do this way so that it has crash recovery
 
 ### Video
 [ ] Move transcoded videos to VideoVariant class
@@ -68,6 +65,9 @@ more individual planning and attention, they'll be moved to Issues.
 [ ] Dump daily Postgres backups - rotate backups so that we keep one from 6 months ago, 3 months, 1 month, 2 weeks, 1 week, and last 7 days, or something similar that covers all use cases without destroying disk
 [ ] Backups - do we want to dump some critical data to externals in addition to array?
 [ ] Set up and secure cloud server - autoupdates, fail2ban, move ssh port, ban root from SSH, the works
+ * Schedule light turn on/off sequences to go with surveys
+ * Schedule automatic surveys for timelapse
+ * Some sort of system for archiving data by timelapsing it
 
 ### Admin enhancements
 [ ] Can we initiate recording to the disk array from the web application? Logged in user?
