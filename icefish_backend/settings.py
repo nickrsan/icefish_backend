@@ -123,8 +123,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 HYDROPHONE_URL = 'b195-moo-router.usap.gov:8005/hydrophone/'
-HYDROPHONE_FLAC_FOLDER = 'flac'
-HYDROPHONE_SPECTROGRAM_FOLDER = 'spectrogram'
+HYDROPHONE_WEB_FLAC_FOLDER = 'flac'
+HYDROPHONE_WEB_SPECTROGRAM_FOLDER = 'spectrogram'
+HYDROPHONE_LOCAL_INITIALIZATION_BINARY = os.path.join(BASE_DIR, "scripts", "start_ADM.exe")
 
 LOGGING = {
     'version': 1,

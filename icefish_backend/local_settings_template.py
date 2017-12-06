@@ -81,6 +81,7 @@ CTD_BAUD_RATE = 4800  # The baud rate of the CTD cable. We're running a long cab
 CTD_DEFAULT_COM_PORT = "COM3"  # What COM port is the CTD running on when it's plugged in?
 CTD_INTERRUPTABLE = False  # should the CTD be run in the mode that lets us send commands in through a side channel while it's logging. False is safer, True is helpful when you need it
 CTD_FORCE_SETTINGS = False  # should the CTD be stopped to apply the logging interval and update the time (True), or should we just listen in to logging in progress if it's already logging (False)?
+CTD_WEB_API_PUBLIC_TOKEN = "b1c583786a501ee2387f8673adfbd225e3d1ba4f"
 
 # Charting URLs - most items in this section should be prefixed with ICEFISH because they'll integrate in the page with other things
 ICEFISH_QUERY_ROOT_URL = "/api/ctd/"
