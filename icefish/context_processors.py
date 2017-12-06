@@ -7,5 +7,5 @@ def charting_constants(request):
 		'ICEFISH_CONTROL_PORT': "'{}'".format(settings.ICEFISH_CONTROL_PORT) if settings.ICEFISH_CONTROL_PORT is not None else "null",
 		'ICEFISH_HYDROPHONE_PORT': settings.ICEFISH_HYDROPHONE_PORT if settings.ICEFISH_HYDROPHONE_PORT is not None else "null",
 		'ICEFISH_REALTIME_CTD': "true" if settings.ICEFISH_REALTIME_CTD is True else False,
-		'ICEFISH_CTD_API_TOKEN': settings.CTD_WEB_API_PUBLIC_TOKEN,
+		'ICEFISH_CTD_API_TOKEN': "'{}'".format(settings.CTD_WEB_API_PUBLIC_TOKEN),
 	}
