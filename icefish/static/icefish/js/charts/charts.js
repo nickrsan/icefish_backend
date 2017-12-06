@@ -77,6 +77,7 @@ function get_initial_data(divs) {
     console.log("In function");
     $.ajax({
         url: ICEFISH_TESTING_ROOT_URL,
+        headers: {"Token": ICEFISH_CTD_API_TOKEN},
         success: function (data, status, xhr) {
             console.log("In success, plotting");
             icefish_data_records = data;  // sorted desc, so keep track of it so we can request newer ones later
@@ -192,6 +193,7 @@ function update_charts(){
     console.log("Checking for update since " + icefish_data_records[0].dt );
     $.ajax({
         url: ICEFISH_QUERY_ROOT_URL + "?since=" + icefish_data_records[0].dt,
+        headers: {"Token": ICEFISH_CTD_API_TOKEN},
         success: function (data, status, xhr) {
             if (data.length == 0){ return } // no update available
 

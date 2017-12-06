@@ -35,14 +35,14 @@ def hydrophone_pipeline(inbound_folder=settings.WAV_STORAGE_FOLDER, outbound_fol
 		base_name = os.path.basename(wav).split(".")[0]  # get just the root filename without directory or extension - directory won't be included here
 
 		if settings.COPY_WAV_TO_TEMP:
-			audio.wav = tempfile.mktemp(prefix="hydrophone")
+			audio.wav = tempfile.mktemp(prefix="hydrophone", suffix=".wav")
 			shutil.copyfile(full_input, audio.wav)  # we'll delete this and overwrite the path later
 		else:
 			audio.wav = full_input
 
 		final_flac = os.path.join(outbound_folder, "{}.flac".format(base_name))
 		if settings.COPY_FLAC_TO_TEMP:
-			full_output = tempfile.mktemp(prefix="hydrophone", suffix="flac")
+			full_output = tempfile.mktemp(prefix="hydrophone", suffix=".flac")
 		else:
 			full_output = final_flac
 

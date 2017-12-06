@@ -9,3 +9,4 @@ sqlparse
 djangorestframework
 waitress
 hachoir3
+psutil
