@@ -90,8 +90,8 @@ class CTDViewSet(viewsets.ModelViewSet):
 def spectrogram_full(request):
 	return render_to_response(request, "icefish/spectrogram.django.html", {'title': "McMurdo Ocean Observatory: Spectrogram"})
 
-def chart_full(request, mode="high"):
-	return render(request, "icefish/data.django.html", {'title': "McMurdo Ocean Observatory", "mode": mode})
+def chart_full(request, location=None):
+	return render(request, "icefish/data.django.html", {'title': "McMurdo Ocean Observatory", "location": location})
 
 
 def audio_archive(request):

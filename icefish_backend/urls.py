@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^spectrogram/', icefish.spectrogram_full),
     url(r'^dashboard/', icefish.chart_full),  # full dashboard experience
-    url(r'^kiosk/', icefish.chart_full, kwargs={"mode": "low"}),  # kiosk is meant for the raspberry pi and does some speed optimizations
+    url(r'^kiosk/', icefish.chart_full, kwargs={"location": "kiosk"}),  # kiosk is meant for the raspberry pi and does some speed optimizations
     url(r'^archive/audio/', icefish.audio_archive),
     url(r'^retrieve/audio/spectrogram/(?P<hydrophone_audio_id>\d+)/', icefish.display_spectrogram),
     url(r'^retrieve/audio/flac/(?P<hydrophone_audio_id>\d+)/', icefish.send_flac)

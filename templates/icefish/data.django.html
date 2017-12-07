@@ -47,11 +47,11 @@
                 <h3>Realtime Spectrogram</h3>
                     <!-- Tool Bars - code straight from hydrophone -->
                     <div id="toolbar">
-                        <span>Step size: <select id="step" disabled="1"></select></span>
-                        <span id="abId0.5314168991210294">Reference: <input id="ref" size="2" value=46 disabled="1">dB µPa</span>
+                        <span>Step size: <select id="step"></select></span>
+                        <span id="abId0.5314168991210294">Reference: <input id="ref" size="2" value=51>dB µPa</span>
                         <span>Bandwidth: <span data-field="fftBandWidth">Loading...</span></span>
-                        <span id="abId0.433896597943322"><input id="view" size="2" value="4" disabled="1"> min(s)</span>
-                        <span><button id="rescale" disabled="1">Rescale</button></span>
+                        <span id="abId0.433896597943322"><input id="view" size="2" value="4"> min(s)</span>
+                        <span><button id="rescale">Rescale</button></span>
                         <span><button id="gobtn">Stop</button></span>
                     </div>
         </div>
@@ -59,6 +59,15 @@
     <div id="icefish_summary_stats" class="pure-u-md-3-4 pure-u-sm-1 icefish_hidden_dialog">
         <div class="pure-u-1">
             <h2>Summary Stats and Regional Information</h2>
+            <h3>The area</h3>
+            <h3>The animals</h3>
+            <p>Two seals are commonly seen in the video stream, each having been tagged previously by the B-009-M team.
+                The most commonly seen seal is number 9410, a male born in 1999 at Turtle Rock who has been seen in 2009,
+                2012, 2013, 2014, 2015, and now 2017. The second seal, number 9631, was tagged as a pup at Hutton Cliffs in 2006
+                by B-009. She has been seen in 2006, 2009, 2010, 2012, 2013, 2014, 2015, 2016, and 2017 in Erebus Bay.
+                She had her first pup at age 8, the typical age when females begin having pups in the B-009 study.
+                She had her 2nd and 3rd pups in 2015 and 2016 at Hutton Cliffs and has been sighted near McMurdo without
+                a pup in 2017.</p>
         </div>
     </div>
 
@@ -75,9 +84,6 @@
         <div id="spectrogram" class="pure-u-1"><!-- Waterfall Display -->
             <div id="waterfall-display" class="chart-holder" style="height:100%">
                 <div class="chart" style="height:100%"></div>
-                <div class="chartmessage">Loading Waterfall Display...</div>
-                <div class="ylabel">Frequency (Hz)</div>
-                <div class="xlabel">Time</div>
             </div>
         </div>
     </div>
@@ -113,11 +119,7 @@
     <!-- intentionally putting this after the others since it requires an offcontinent request -->
     <script type="text/javascript" src="{% static "/icefish/js/video/wowzaPlayer1.1.07.js" %}"></script>
     <script>
-        {% if mode == "low" %}
-            var source_url = "http%3A%2F%2Fb195-moo-proxy.nicksantos.com%3A1935%2FMOO%2Fsmil%3AAdaptaMoo.smil%2Fplaylist.m3u8";
-        {% else %}
-            var source_url = "http%3A%2F%2Fb195-moo-proxy.nicksantos.com%3A1935%2FMOO%2Fsmil%3AAdaptaMooHigh.smil%2Fplaylist.m3u8";
-        {% endif %}
+        var icefish_stream_source_url = "http%3A%2F%2Fb195-moo-proxy.nicksantos.com%3A1935%2FMOO%2Fsmil%3AAdaptaMooHigh.smil%2Fplaylist.m3u8";
 
         $( document ).ready(function() {
             WowzaPlayer.create('WowzaPlayerElement',
@@ -125,7 +127,7 @@
                 "license":"PLAY1-3QDBr-GdWfE-GA6MP-NDt9W-VYWuM",
                 "title":"Live McMurdo Oceanographic Observatory",
                 "description":"",
-                "sourceURL": source_url,
+                "sourceURL": icefish_stream_source_url,
                 "autoPlay":true,
                 "volume":"100",
                 "mute":false,

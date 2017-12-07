@@ -2,6 +2,10 @@ body, html{
     background-color: #213c52;
 }
 
+input, select, button{
+    color: black;
+}
+
 #spectrogram{
     background-color: #000; /*#3c33c1;*/
     color: #ddd;
