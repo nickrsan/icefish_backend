@@ -5,11 +5,10 @@ decreases, or some of these look like they'll be here for longer and require
 more individual planning and attention, they'll be moved to Issues.
 
 ## Kiosk
- * Automate login to publicdata account on kiosk
- * Get Pi cybersecurity reviewed
  * Come up with plan for how we know which browser is the kiosk
  * Add URL to page
  * Pages should have correct permalinks (including #ctd or #info, etc)
+ * Put a reload button on the page so that when it stalls out, they can refresh - kiosk won't have that in browser
 
 ## Stability
  * Set Caddy to run as local service - use its own account - is this already happening though?
@@ -95,6 +94,7 @@ more individual planning and attention, they'll be moved to Issues.
 [ ] Allow users to select time range to view data for
 [ ] Manual refresh button - or some other way to make it clear that the charts autoupdate
 [ ] Public documentation of CTD API - some sort of way to obtain a token?
+[ ] Need to somehow move data off the left side of the viewing window - maybe leave it loaded, but not showing
 
 ### Interface
 [ ] Changing panels by class toggling fails in weird ways when switching from an open panel of one size to another, then trying to close it. Use addClass and removClass insteads and we'll need to track the current_active class so we can remove it.
