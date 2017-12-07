@@ -4,6 +4,9 @@ long right now and many of these are small and fast to check off - when it
 decreases, or some of these look like they'll be here for longer and require
 more individual planning and attention, they'll be moved to Issues.
 
+## Interface
+ * Panels need an X in the top right so people know they can close them - clicking same button isn't always intuitive
+
 ## Kiosk
  * Come up with plan for how we know which browser is the kiosk
  * Add URL to page
