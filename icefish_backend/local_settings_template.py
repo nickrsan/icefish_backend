@@ -56,6 +56,8 @@ SPECTROGRAM_STORAGE_FOLDER = r"H:\spectrographs"  # where should spectrograph im
 FLAC_BINARY = r""  # path to flac.exe for converting files
 SOX_BINARY = r""  # path to sox.exe for creating spectrograms for retroactive data visualization
 GENERATE_SPECTROGRAM = True  # set this flag to turn spectrogram generation on or off - meant for CPU scheduling
+ARRAY_DATA_MANAGER_BINARY = r""
+HYDROPHONE_LOGGING_INTERVAL = 10  # minutes
 
 # SECRETS
 # SECURITY WARNING: keep the secret key used in production secret!
