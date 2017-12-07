@@ -14,7 +14,7 @@ def start_array_data_manager():
 	adm_process = subprocess.Popen([settings.ARRAY_DATA_MANAGER_BINARY])  # run array data manager - don't wait for it to complete
 	time.sleep(5)  # wait for the window to open before continuing
 	log.info("Starting Array Data Manager - if this is a new installation, change the write-path")
-	ahk_result = subprocess.check_call([settings.HYDROPHONE_INITIALIZATION_BINARY, settings.WAV_STORAGE_FOLDER, settings.HYDROPHONE_LOGGING_INTERVAL])  # run the autohotkey script that sets up and starts recording
+	ahk_result = subprocess.check_call([settings.HYDROPHONE_LOCAL_INITIALIZATION_BINARY, settings.WAV_STORAGE_FOLDER, settings.HYDROPHONE_LOGGING_INTERVAL])  # run the autohotkey script that sets up and starts recording
 	time.sleep(2)
 
 def check_recent_hydrophone_data(folder=settings.WAV_STORAGE_FOLDER):
