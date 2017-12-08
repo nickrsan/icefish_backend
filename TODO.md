@@ -86,6 +86,7 @@ more individual planning and attention, they'll be moved to Issues.
 [ ] Why isn't Paul receiving pager messages?
 [ ] Stronger staticfiles planning in deployment - if we ever had another application (even the admin console) it wouldn't get its staticfiles because we're just serving out of our app's directory. Should have update run collectstatic, then serve from that folder.
 [ ] Hydrophone and video history browser
+ * In Safari, the autologin for CTD token doesn't work - it prompts for auth
 
 ### Spectrogram
 [ ] Fix times on spectrogram display

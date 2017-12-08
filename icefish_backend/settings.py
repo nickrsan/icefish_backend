@@ -17,7 +17,7 @@ from icefish_backend.local_settings import *  # import all the variables local t
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-ALLOWED_HOSTS = ["b195-moo-router.usap.gov", "b195-moo-proxy.nicksantos.com", "157.132.104.177", "157.132.105.25", "157.132.94.91", "localhost", '127.0.0.1']
+ALLOWED_HOSTS = ["b195-moo-router.usap.gov", "b195-moo-proxy.nicksantos.com", "157.132.101.126", "157.132.105.25", "157.132.94.91", "localhost", '127.0.0.1']
 
 
 # CORE APPLICATION SETTINGS
