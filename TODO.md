@@ -19,6 +19,7 @@ more individual planning and attention, they'll be moved to Issues.
  * Move secrets out of local_settings to local_secrets - those items would require logging in to update - others come from either copying local_settings_template or from a kiosk_specific template and a cloud specific template
  * Double check disk array security, maintenance, and alert settings
  * Upgrade Django to 2.0 - test in new Venv first
+ * Set up WOL from one system to the rest - maybe a scheduled task to wake the server
 
 ### Wowza
  * Close down remaining unnecessary ports to wowza from camera
@@ -98,6 +99,10 @@ more individual planning and attention, they'll be moved to Issues.
 [ ] Manual refresh button - or some other way to make it clear that the charts autoupdate
 [ ] Public documentation of CTD API - some sort of way to obtain a token?
 [ ] Need to somehow move data off the left side of the viewing window - maybe leave it loaded, but not showing
+
+### Tides
+ * Need to scale all values to an appropriate depth
+ * Delete downloaded weather data from temp when complete - it was sitting there on the server
 
 ### Interface
 [ ] Changing panels by class toggling fails in weird ways when switching from an open panel of one size to another, then trying to close it. Use addClass and removClass insteads and we'll need to track the current_active class so we can remove it.

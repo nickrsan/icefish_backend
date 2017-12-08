@@ -275,7 +275,7 @@ function toggle_dialog(id, main_body_new_class){
     }
 
     if (main_body_new_class === undefined){ // if it wasn't passed in, here's the default
-        main_body_new_class = "pure-u-md-5-24"  // we pass it in for smaller panels
+        main_body_new_class = "pure-u-md-7-24"  // we pass it in for smaller panels
     }
 
     $("#"+id).toggle(transition);
