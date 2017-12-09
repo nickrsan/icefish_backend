@@ -178,7 +178,7 @@ function get_initial_data(divs) {
         start_spectrogram();  // defined in CTD spectrogram library
     }
 
-    setTimeout(check_and_start_wowza, 5000);  // give the player a moment to be created, then tell it to play
+    //setTimeout(check_and_start_wowza, 5000);  // give the player a moment to be created, then tell it to play
     console.log("Function complete");
 }
 

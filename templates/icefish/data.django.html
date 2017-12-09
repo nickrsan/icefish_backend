@@ -1,6 +1,10 @@
 {% extends "icefish/index.django.html" %}
 {% load staticfiles %}
 
+{% block header_css %}
+    <link rel="stylesheet" href="{% static "icefish/js/video/video-js-6.5.1/video-js.css" %}">
+{% endblock %}
+
 {% block content %}
     <div class="pure-u-md-1-24 pure-u-sm-1" id="icefish_navbar">
         <img src="{% static "icefish/img/core/B195M_Logo_240.png" %}" id="icefish_logo">
@@ -78,11 +82,14 @@
             <h1>McMurdo Oceanographic Observatory</h1>
         </div>--><!-- Need to do some work on heights and colors-->
         <div id="video" class="pure-u-1-1 video_container"> <!-- height here doesn't control video size, but does push the spectrogram down to appropriate spot -->
-            <div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>
+            <!--<div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>-->
             <div class="pure-u-md-5-6 pure-u-sm-1" id="icefish_video_player_container">
-                <div id="WowzaPlayerElement" style="width:100%; height:0; padding:0 0 56.25% 0"></div>
+                <video class="video-js" autoplay data-setup='{"fluid": true, "controlBar": {"volumeMenuButton": {"inline": false}}}'>
+                    <source src="http://157.132.101.162:1935/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8" type="application/x-mpegURL">
+                </video>
+                <!--<div id="WowzaPlayerElement" style="width:100%; height:0; padding:0 0 56.25% 0"></div>-->
             </div>
-            <div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>
+            <!--<div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>-->
         </div>
         <div id="spectrogram" class="pure-u-1"><!-- Waterfall Display -->
             <div id="waterfall-display" class="chart-holder" style="height:100%">
@@ -110,8 +117,8 @@
 	<script src="{% static "icefish/js/controls.js" %}"></script><!-- our own system controls -->
 	<script src="{% static "icefish/js/common/jquery_cookie.js" %}"></script><!-- hydrophone requirement -->
 	<script src="{% static "icefish/js/common/jquery_plot.js" %}"></script><!-- hydrophone requirement -->
-    <script src="{% static "/icefish/js/spectrogram/chroma.js" %}"></script><!-- hydrophone requirement -->
-    <script src="{% static "/icefish/js/spectrogram/spectrogram.js" %}"></script><!-- hydrophone requirement -->
+    <script src="{% static "icefish/js/spectrogram/chroma.js" %}"></script><!-- hydrophone requirement -->
+    <script src="{% static "icefish/js/spectrogram/spectrogram.js" %}"></script><!-- hydrophone requirement -->
 
     <script type="text/javascript">
         $( document ).ready(function() {
@@ -119,8 +126,11 @@
         });
     </script>
 
-    <!-- intentionally putting this after the others since it requires an offcontinent request -->
-    <script type="text/javascript" src="{% static "/icefish/js/video/wowzaPlayer1.1.07.js" %}"></script>
+    <script src="{% static "icefish/js/video/video-js-6.5.1/video.js" %}"></script>
+    <script src="{% static "icefish/js/video/video-js-6.5.1/videojs-contrib-hls.js" %}"></script>
+    <script src="{% static "icefish/js/video/videojs-responsive-layout-1.1.1/src/plugin.js" %}"></script>
+
+    <!--<script type="text/javascript" src="{% static "/icefish/js/video/wowzaPlayer1.1.07.js" %}"></script>
     <script>
         var icefish_stream_source_url = "http%3A%2F%2Fb195-moo-proxy.nicksantos.com%3A1935%2FMOO%2Fsmil%3AAdaptaMooHigh.smil%2Fplaylist.m3u8";
 
@@ -140,5 +150,5 @@
                 }
             );
         });
-    </script>
+    </script>-->
 {% endblock %}
