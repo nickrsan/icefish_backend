@@ -14,6 +14,16 @@ function log_error(message){
 
 
 function toggle_dialog(id, icon_id, main_body_new_class){
+    /*
+        Handles logic for opening and closing dialogs, as well as toggling the active class on their icons. There are three
+        main ways this can go:
+
+        * Nothing open, open a new dialog
+        * Closing only, without opening another
+        * Switching from one open dialog to another.
+
+        The conditionals below primarily handle these states
+     */
     var transition = null;
     var toggle_main = null;
     if (icefish_open_dialog === null){  // there's nothing open already
@@ -39,10 +49,11 @@ function toggle_dialog(id, icon_id, main_body_new_class){
         main_body_new_class = "pure-u-md-7-24"  // we pass it in for smaller panels
     }
 
+    /* Out with the old panel, turn on the new icon - old one turned off above */
     $("#"+id).toggle(transition);
-
     $("#"+icon_id).toggleClass("active");
 
+    /* In with the new panel, if needed */
     if (toggle_main === true){
         $("#icefish_main").toggleClass("pure-u-md-17-24 " + main_body_new_class);  // first is original, second is updated
         $("#icefish_charts").toggle();  // first is original, second is updated

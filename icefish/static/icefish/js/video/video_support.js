@@ -4,9 +4,10 @@ function recover_video(){
     if (video_player.ended() || video_player.paused()){  // checking this because on some errors it'll play through. Only want to reset the player if it ends
         // Try to recover the stream by starting to play again
         video_player.reset();
+        video_player.play();
         log_error("Player failed - trying to reset it");
     }else{
-        log_error("Error passed, but stream not ended - handled");
+        log_error("Error passed, but stream not ended - skipping handling");
     }
 }
 function hide_controls(){
@@ -27,7 +28,7 @@ function start_video(){
     });
     video_player.on("error", recover_video);
     video_player.on("abort", recover_video);
-    video_player.on("play",  hide_controls);
-    video_player.skippy({"maxErrors": 999999, "onLiveError": recover_video});
+    //video_player.on("play",  hide_controls);
+    //video_player.skippy({"maxErrors": 999999, "onLiveError": recover_video});
     video_player.play();
 }
