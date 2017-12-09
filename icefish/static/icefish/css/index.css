@@ -1,5 +1,6 @@
 body, html{
     background-color: #213c52;
+    color:#fff;
 }
 
 .pure-g > div {
@@ -18,7 +19,6 @@ input, select, button{
 
 #spectrogram{
     background-color: #000; /*#3c33c1;*/
-    color: #ddd;
 }
 
 .letterbox, .video_container {
@@ -40,7 +40,6 @@ input, select, button{
     padding: 0 1em;  /* top doesn't need it because it has padding from the header */
 }
 
-
 @media screen and (min-width: 9in) and (orientation: landscape){
     #icefish_charts{
         height:100vh;
@@ -60,27 +59,63 @@ input, select, button{
     #video{
         height:68vh;
     }
+
+    #icefish_video_player_container{
+        max-width:90%;
+    }
     #spectrogram{
         height:32vh;
         min-height:100px;
     }
 }
 
+@media screen and (min-width: 18in) and (orientation: landscape){
+    .icefish_chart{
+        height:33.3vh;
+    }
+    #icefish_chart_toggle_link{
+        padding-top:49vh;
+    }
+    #icefish_navbar{
+        height:100vh;
+    }
+    #video{
+        height:80vh;
+    }
+    #spectrogram{
+        height:20vh;
+        min-height:100px;
+    }
+
+}
+
 @media screen and (max-aspect-ratio: 3/2){  /* want something slightly wider than 4:3 but less wide than 16:9 and 16:10 */
+    #video .letterbox{
+        display:none;
+    }
     #spectrogram{
         height:40vh;
     }
     #video{
         height:60vh;
     }
+    #video #icefish_video_player_container{
+        width: 100%;
+    }
 }
 
 @media screen and (min-aspect-ratio:32/15) and (max-aspect-ratio: 8/3){
+    #video .letterbox{
+        width: 12.5%;
+    }
     #spectrogram{
         height:30vh;
     }
     #video{
         height:70vh;
+    }
+    #video #icefish_video_player_container{
+        width: 74%;
     }
 }
 
