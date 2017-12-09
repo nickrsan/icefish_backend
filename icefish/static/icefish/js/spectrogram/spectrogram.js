@@ -289,7 +289,7 @@ function FFTSpectrum($spectrum,dataSet)
 	{
 		grid:
 		{
-			color:"#FFF",
+			color:"#000",
 			backgroundColor:"#000",
 			margin:{right:24}
 		},
@@ -372,7 +372,7 @@ function FFTWaterfall($waterfall,dataSet,view)
 	{
 		grid:
 		{
-			color:"#FFF",
+			color:"#000",
 			margin:{right:24}
 		},
 		xaxis:
