@@ -9,13 +9,13 @@
     <div class="pure-u-md-1-24 pure-u-sm-1" id="icefish_navbar">
         <img src="{% static "icefish/img/core/B195M_Logo_240.png" %}" id="icefish_logo">
         <ul>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_video_browser');"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video" title="Browse Video Archive"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_audio_browser');"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio" title="Browse Audio Archive"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_data_browser');"><i class="fa fa-database" aria-hidden="false" aria-label="CTD Data and API" title="CTD Data and API"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_about');"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project" title="About this Project"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_settings');"><i class="fa fa-sliders" aria-hidden="false" aria-label="Settings" title="Application Settings"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_controls', 'pure-u-md-11-24');"><i class="fa fa-arrows" aria-hidden="false" aria-label="Camera Control" title="Camera Control"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button"><a href="#" onclick="toggle_dialog('icefish_summary_stats');"><i class="fa fa-table" aria-hidden="false" aria-label="Summary Statistics and Regional Data" title="Summary Statistics and Regional Data"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button" id="video_browse_button"><a href="#" onclick="toggle_dialog('icefish_video_browser', 'video_browse_button');"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video" title="Browse Video Archive"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button" id="audio_browse_button"><a href="#" onclick="toggle_dialog('icefish_audio_browser', 'audio_browse_button');"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio" title="Browse Audio Archive"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button" id="ctd_data_button"><a href="#" onclick="toggle_dialog('icefish_data_browser', 'ctd_data_button');"><i class="fa fa-area-chart" aria-hidden="false" aria-label="CTD Data and API" title="CTD Data and API"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button" id="project_about_button"><a href="#" onclick="toggle_dialog('icefish_about', 'project_about_button');"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project" title="About this Project"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button" id="interface_settings_button"><a href="#" onclick="toggle_dialog('icefish_settings', 'interface_settings_button');"><i class="fa fa-sliders" aria-hidden="false" aria-label="Settings" title="Application Settings"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button" id="ptz_controls_button"><a href="#" onclick="toggle_dialog('icefish_controls', 'ptz_controls_button', 'pure-u-md-11-24');"><i class="fa fa-arrows" aria-hidden="false" aria-label="Camera Control" title="Camera Control"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button" id="project_context_button"><a href="#" onclick="toggle_dialog('icefish_summary_stats', 'project_context_button');"><i class="fa fa-table" aria-hidden="false" aria-label="Summary Statistics and Regional Data" title="Summary Statistics and Regional Data"></i></a></li>
         </ul>
     </div>
 
@@ -28,16 +28,19 @@
     <div id="icefish_video_browser" class="pure-u-md-2-3 pure-u-sm-1 icefish_hidden_dialog">
         <div class="pure-u-1-1">
             <h2>Video Archive Browser</h2>
+            <p>Initially, just VOD versions of Henry's videos</p>
         </div>
     </div>
     <div id="icefish_controls" class="pure-u-md-1-2 pure-u-sm-1 icefish_hidden_dialog">
         <div class="pure-u-1-1">
             <h2>Observatory Controls</h2>
+            <p>Hide for now</p>
         </div>
     </div>
     <div id="icefish_audio_browser" class="pure-u-md-2-3 pure-u-sm-1 icefish_hidden_dialog">
         <div class="pure-u-1-1">
             <h2>Audio Archive Browser</h2>
+            <p>Curated spectrograms and audio clips that show and demonstrate the common tones/features that they'll see and hear</p>
         </div>
     </div>
     <div id="icefish_data_browser" class="pure-u-md-2-3 pure-u-sm-1 icefish_hidden_dialog">
@@ -84,7 +87,7 @@
         <div id="video_outside_container" class="pure-u-1-1 video_container"> <!-- height here doesn't control video size, but does push the spectrogram down to appropriate spot -->
             <!--<div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>-->
             <div class="pure-u-md-1-1 pure-u-sm-1" id="icefish_video_player_container">
-                <video id="video_player" class="video-js vjs-default-skin" autoplay data-setup='{"fluid": true, "controlBar": {"volumeMenuButton": {"inline": false}}}'>
+                <video id="video_player" class="video-js vjs-default-skin" data-setup='{"fluid": true, "controlBar": {"volumeMenuButton": {"inline": false}}}'>
                     <source src="http://157.132.101.162:1935/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8" type="application/x-mpegURL">
                 </video>
                 <!--<div id="WowzaPlayerElement" style="width:100%; height:0; padding:0 0 56.25% 0"></div>-->
@@ -114,6 +117,7 @@
 {% endblock %}
 
 {% block footer_js %}
+    <script src="{% static "icefish/js/core.js" %}"></script>
     <script src="{% static "icefish/js/video/video_support.js" %}"></script>
 	<script src="{% static "icefish/js/controls.js" %}"></script><!-- our own system controls -->
 	<script src="{% static "icefish/js/common/jquery_cookie.js" %}"></script><!-- hydrophone requirement -->

@@ -10,7 +10,7 @@ function recover_video(){
     }
 }
 function hide_controls(){
-    if (video_player.userActive() !== true){  // only hide the controls if nobody is there right now
+    if (video_player.userActive !== true){  // only hide the controls if nobody is there right now
         video_player.controls(false);
     }else {
         video_player.on("userinactive", function () {
@@ -20,7 +20,6 @@ function hide_controls(){
 }
 function start_video(){
     var video_player = videojs("video_player");
-    video_player.skippy({"maxErrors": 999999, "onLiveError": recover_video});
     video_player.on("abort", recover_video);
     video_player.on("ended", function(){
         video_player.controls(true);
@@ -29,4 +28,6 @@ function start_video(){
     video_player.on("error", recover_video);
     video_player.on("abort", recover_video);
     video_player.on("play",  hide_controls);
+    video_player.skippy({"maxErrors": 999999, "onLiveError": recover_video});
+    video_player.play();
 }
