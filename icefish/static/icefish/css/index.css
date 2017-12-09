@@ -164,6 +164,11 @@ input, select, button{
     list-style-type:none;
 }
 
+#icefish_navbar ul li.active{
+    background-color: #ddd;
+    color: #235388;
+}
+
 #icefish_navbar li.icefish_navbar_button{
     display: block;
     width: 100%;
