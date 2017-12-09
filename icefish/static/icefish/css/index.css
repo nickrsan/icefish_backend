@@ -72,8 +72,12 @@ input, select, button{
 @media screen and (min-width: 16in) and (orientation: landscape){
     #video{
         height:72vh;
-        max-width:100%;
     }
+
+    #icefish_video_player_container{
+        max-width:90%;
+    }
+    
     #spectrogram{
         height:28vh;
         min-height:100px;
