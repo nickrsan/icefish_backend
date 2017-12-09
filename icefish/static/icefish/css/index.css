@@ -69,21 +69,13 @@ input, select, button{
     }
 }
 
-@media screen and (min-width: 18in) and (orientation: landscape){
-    .icefish_chart{
-        height:33.3vh;
-    }
-    #icefish_chart_toggle_link{
-        padding-top:49vh;
-    }
-    #icefish_navbar{
-        height:100vh;
-    }
+@media screen and (min-width: 16in) and (orientation: landscape){
     #video{
-        height:80vh;
+        height:72vh;
+        width:100%;
     }
     #spectrogram{
-        height:20vh;
+        height:28vh;
         min-height:100px;
     }
 
