@@ -57,9 +57,6 @@ input, select, button{
     #icefish_navbar{
         height:100vh;
     }
-    .letterbox{
-        height:100%;
-    }
     #video{
         height:68vh;
     }
@@ -70,32 +67,20 @@ input, select, button{
 }
 
 @media screen and (max-aspect-ratio: 3/2){  /* want something slightly wider than 4:3 but less wide than 16:9 and 16:10 */
-    #video .letterbox{
-        display:none;
-    }
     #spectrogram{
         height:40vh;
     }
     #video{
         height:60vh;
     }
-    #video #icefish_video_player_container{
-        width: 100%;
-    }
 }
 
 @media screen and (min-aspect-ratio:32/15) and (max-aspect-ratio: 8/3){
-    #video .letterbox{
-        width: 12.5%;
-    }
     #spectrogram{
         height:30vh;
     }
     #video{
         height:70vh;
-    }
-    #video #icefish_video_player_container{
-        width: 74%;
     }
 }
 
@@ -166,4 +151,13 @@ input, select, button{
     padding: 0;
     width: 100%;
     height: 100%;
+}
+
+.video_container{
+    text-align:center;
+}
+
+video{
+    margin-left: auto;
+    margin-right: auto;
 }
