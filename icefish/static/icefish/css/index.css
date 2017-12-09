@@ -75,9 +75,9 @@ input, select, button{
     }
 
     #icefish_video_player_container{
-        max-width:90%;
+        max-width:100%;
     }
-    
+
     #spectrogram{
         height:28vh;
         min-height:100px;
