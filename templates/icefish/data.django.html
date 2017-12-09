@@ -3,7 +3,6 @@
 
 {% block header_css %}
     <link rel="stylesheet" href="{% static "icefish/js/video/video-js-6.5.1/video-js.css" %}">
-    <link rel="stylesheet" href="{% static "icefish/js/video/videojs-record-2.0.3/dist/css/videojs.record.css" %}">
 {% endblock %}
 
 {% block content %}
@@ -82,10 +81,10 @@
         <!--<div id="header" class="pure-u-1-1">
             <h1>McMurdo Oceanographic Observatory</h1>
         </div>--><!-- Need to do some work on heights and colors-->
-        <div id="video" class="pure-u-1-1 video_container"> <!-- height here doesn't control video size, but does push the spectrogram down to appropriate spot -->
+        <div id="video_outside_container" class="pure-u-1-1 video_container"> <!-- height here doesn't control video size, but does push the spectrogram down to appropriate spot -->
             <!--<div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>-->
             <div class="pure-u-md-1-1 pure-u-sm-1" id="icefish_video_player_container">
-                <video class="video-js vjs-default-skin" autoplay data-setup='{"fluid": true, "controlBar": {"volumeMenuButton": {"inline": false}}}'>
+                <video id="video_player" class="video-js vjs-default-skin" autoplay data-setup='{"fluid": true, "controlBar": {"volumeMenuButton": {"inline": false}}}'>
                     <source src="http://157.132.101.162:1935/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8" type="application/x-mpegURL">
                 </video>
                 <!--<div id="WowzaPlayerElement" style="width:100%; height:0; padding:0 0 56.25% 0"></div>-->
@@ -115,40 +114,24 @@
 {% endblock %}
 
 {% block footer_js %}
+    <script src="{% static "icefish/js/video/video_support.js" %}"></script>
 	<script src="{% static "icefish/js/controls.js" %}"></script><!-- our own system controls -->
 	<script src="{% static "icefish/js/common/jquery_cookie.js" %}"></script><!-- hydrophone requirement -->
 	<script src="{% static "icefish/js/common/jquery_plot.js" %}"></script><!-- hydrophone requirement -->
     <script src="{% static "icefish/js/spectrogram/chroma.js" %}"></script><!-- hydrophone requirement -->
     <script src="{% static "icefish/js/spectrogram/spectrogram.js" %}"></script><!-- hydrophone requirement -->
 
+    <script src="{% static "icefish/js/video/video-js-6.5.1/video.js" %}"></script>
+    <script src="{% static "icefish/js/video/video-js-6.5.1/videojs-contrib-hls.js" %}"></script>
+    <script src="{% static "icefish/js/video/videojs-skippy.js" %}"></script>
+
+    <script src="{% static "icefish/js/video/video_support.js" %}"></script>
+
     <script type="text/javascript">
         $( document ).ready(function() {
-            get_initial_data({"temperature": "temperature", "pressure": "pressure", "salinity": "salinity"})
+            get_initial_data({"temperature": "temperature", "pressure": "pressure", "salinity": "salinity"});
+            start_video();
         });
     </script>
 
-    <script src="{% static "icefish/js/video/video-js-6.5.1/video.js" %}"></script>
-    <script src="{% static "icefish/js/video/video-js-6.5.1/videojs-contrib-hls.js" %}"></script>
-
-    <!--<script type="text/javascript" src="{% static "/icefish/js/video/wowzaPlayer1.1.07.js" %}"></script>
-    <script>
-        var icefish_stream_source_url = "http%3A%2F%2Fb195-moo-proxy.nicksantos.com%3A1935%2FMOO%2Fsmil%3AAdaptaMooHigh.smil%2Fplaylist.m3u8";
-
-        $( document ).ready(function() {
-            WowzaPlayer.create('WowzaPlayerElement',
-                {
-                "license":"PLAY1-3QDBr-GdWfE-GA6MP-NDt9W-VYWuM",
-                "title":"Live McMurdo Oceanographic Observatory",
-                "description":"",
-                "sourceURL": icefish_stream_source_url,
-                "autoPlay":true,
-                "volume":"100",
-                "mute":false,
-                "loop":false,
-                "audioOnly":false,
-                "uiShowQuickRewind":false
-                }
-            );
-        });
-    </script>-->
 {% endblock %}
