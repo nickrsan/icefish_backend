@@ -33,6 +33,7 @@ input, select, button{
 .icefish_hidden_dialog{
     display:none;
     color: #eee;
+    font-size: 1.2em;
 }
 
 .icefish_hidden_dialog>.pure-u-1-1{
