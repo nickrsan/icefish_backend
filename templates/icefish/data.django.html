@@ -14,7 +14,7 @@
             <li class="pure-u-1-1 icefish_navbar_button" id="ctd_data_button"><a href="#" onclick="toggle_dialog('icefish_data_browser', 'ctd_data_button');"><i class="fa fa-area-chart" aria-hidden="false" aria-label="CTD Data and API" title="CTD Data and API"></i></a></li>
             <li class="pure-u-1-1 icefish_navbar_button" id="project_about_button"><a href="#" onclick="toggle_dialog('icefish_about', 'project_about_button', 'pure-u-md-11-24');"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project" title="About this Project"></i></a></li>
             <li class="pure-u-1-1 icefish_navbar_button" id="interface_settings_button"><a href="#" onclick="toggle_dialog('icefish_settings', 'interface_settings_button');"><i class="fa fa-sliders" aria-hidden="false" aria-label="Settings" title="Application Settings"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button" id="ptz_controls_button"><a href="#" onclick="toggle_dialog('icefish_controls', 'ptz_controls_button', 'pure-u-md-11-24');"><i class="fa fa-arrows" aria-hidden="false" aria-label="Camera Control" title="Camera Control"></i></a></li>
+            <!--<li class="pure-u-1-1 icefish_navbar_button" id="ptz_controls_button"><a href="#" onclick="toggle_dialog('icefish_controls', 'ptz_controls_button', 'pure-u-md-11-24');"><i class="fa fa-arrows" aria-hidden="false" aria-label="Camera Control" title="Camera Control"></i></a></li>-->
             <li class="pure-u-1-1 icefish_navbar_button" id="project_context_button"><a href="#" onclick="toggle_dialog('icefish_summary_stats', 'project_context_button');"><i class="fa fa-table" aria-hidden="false" aria-label="Summary Statistics and Regional Data" title="Summary Statistics and Regional Data"></i></a></li>
         </ul>
     </div>
@@ -27,11 +27,11 @@
     </div>  <!-- first in the page because it doesn't matter and this way its contents are pulled first by robots -->
     <div id="icefish_video_browser" class="pure-u-md-2-3 pure-u-sm-1 icefish_hidden_dialog">
         <div class="pure-u-1-1">
-            <h2>Video Archive Browser</h2>
-            <p>Initially, just VOD versions of Henry's videos</p>
+            <h2>Video Archive</h2>
+            <h3>Installing the Observatory</h3>
             <p>
-                <video controls class="video-js vjs-default-skin" data-setup='{"fluid": true}'>
-                    <source src="{{ ICEFISH_VIDEO_SERVER_URL }}/vod/promos/mp4:B-195_Diving_Video_1_THE_McM_JETTY.mp4/playlist.m3u8" type="application/x-mpegURL">
+                <video controls id="promos_player" class="video-js vjs-default-skin" data-setup='{"fluid": true}'>
+                    <source src="{{ ICEFISH_VIDEO_SERVER_URL }}/MOO_promos/mp4:short_moo_promo_4.0.mp4/playlist.m3u8" type="application/x-mpegURL">
                 </video>
             </p>
         </div>
