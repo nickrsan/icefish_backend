@@ -19,6 +19,9 @@ def kiosk_url(url, location):
 			link_url = "http://{}".format(url)
 		else:
 			link_url = url
+
+		# it should be fine to mark this as safe - the variables we use shouldn't be provided by third parties - just
+		# hardcoded in templates by our programmers
 		return mark_safe("<a href=\"{}\" target=\"_blank\">{}</a>".format(link_url, url))
 
 

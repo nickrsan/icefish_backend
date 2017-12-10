@@ -8,4 +8,7 @@ def charting_constants(request):
 		'ICEFISH_HYDROPHONE_PORT': settings.ICEFISH_HYDROPHONE_PORT if settings.ICEFISH_HYDROPHONE_PORT is not None else "null",
 		'ICEFISH_REALTIME_CTD': "true" if settings.ICEFISH_REALTIME_CTD is True else False,
 		'ICEFISH_CTD_API_TOKEN': "'Token {}'".format(settings.CTD_WEB_API_PUBLIC_TOKEN),
+
+		# note that this URL is *not* in quotes! meant to be used directly in HTML - if putting it in JS, we need to quote it
+		'ICEFISH_VIDEO_SERVER_URL': "{}".format(settings.ICEFISH_VIDEO_SERVER_URL) if settings.ICEFISH_VIDEO_SERVER_URL is not None else "null",
 	}
