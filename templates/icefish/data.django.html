@@ -12,7 +12,7 @@
             <li class="pure-u-1-1 icefish_navbar_button" id="video_browse_button"><a href="#" onclick="toggle_dialog('icefish_video_browser', 'video_browse_button');"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video" title="Browse Video Archive"></i></a></li>
             <li class="pure-u-1-1 icefish_navbar_button" id="audio_browse_button"><a href="#" onclick="toggle_dialog('icefish_audio_browser', 'audio_browse_button');"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio" title="Browse Audio Archive"></i></a></li>
             <li class="pure-u-1-1 icefish_navbar_button" id="ctd_data_button"><a href="#" onclick="toggle_dialog('icefish_data_browser', 'ctd_data_button');"><i class="fa fa-area-chart" aria-hidden="false" aria-label="CTD Data and API" title="CTD Data and API"></i></a></li>
-            <li class="pure-u-1-1 icefish_navbar_button" id="project_about_button"><a href="#" onclick="toggle_dialog('icefish_about', 'project_about_button');"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project" title="About this Project"></i></a></li>
+            <li class="pure-u-1-1 icefish_navbar_button" id="project_about_button"><a href="#" onclick="toggle_dialog('icefish_about', 'project_about_button', 'pure-u-md-11-24');"><i class="fa fa-info-circle" aria-hidden="false" aria-label="About This Project" title="About this Project"></i></a></li>
             <li class="pure-u-1-1 icefish_navbar_button" id="interface_settings_button"><a href="#" onclick="toggle_dialog('icefish_settings', 'interface_settings_button');"><i class="fa fa-sliders" aria-hidden="false" aria-label="Settings" title="Application Settings"></i></a></li>
             <li class="pure-u-1-1 icefish_navbar_button" id="ptz_controls_button"><a href="#" onclick="toggle_dialog('icefish_controls', 'ptz_controls_button', 'pure-u-md-11-24');"><i class="fa fa-arrows" aria-hidden="false" aria-label="Camera Control" title="Camera Control"></i></a></li>
             <li class="pure-u-1-1 icefish_navbar_button" id="project_context_button"><a href="#" onclick="toggle_dialog('icefish_summary_stats', 'project_context_button');"><i class="fa fa-table" aria-hidden="false" aria-label="Summary Statistics and Regional Data" title="Summary Statistics and Regional Data"></i></a></li>
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Dialogs for other applications -->
-    <div id="icefish_about" class="pure-u-md-2-3 pure-u-sm-1 icefish_hidden_dialog">
+    <div id="icefish_about" class="pure-u-md-1-2 pure-u-sm-1 icefish_hidden_dialog">
         <div class="pure-u-1-1">
             {% include "icefish/about.django_include.html" %}
         </div>

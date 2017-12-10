@@ -94,6 +94,8 @@ ICEFISH_HYDROPHONE_PORT = 8010
 ICEFISH_CONTROL_PORT = 9070
 ICEFISH_REALTIME_CTD = True  # Does this device support realtime CTD data in the browser? Should a loaded page request updates? True if so, False if not
 
+ICEFISH_VIDEO_SERVER_URL = "http://157.132.101.162:1935"
+
 # RABBITMQ Settings
 # if you're using the advanced version of the CTD logger that lets you send commands while it's autologging, fill these out
 RABBITMQ_USERNAME = ""  # username for rabbitmq - this user should have config privileges on the vhost defined below.
