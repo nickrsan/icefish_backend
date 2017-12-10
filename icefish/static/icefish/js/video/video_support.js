@@ -1,3 +1,5 @@
+videojs.Hls.GOAL_BUFFER_LENGTH = 10;  // on local network, we want to keep this reduced because it keeps pulling too much data and fails otherwise
+videojs.Hls.MAX_GOAL_BUFFER_LENGTH = 20; // same as above - we might want to tweak this to be a local setting when this all goes up online.
 
 function recover_video(){
     /*
