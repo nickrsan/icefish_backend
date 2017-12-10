@@ -1,6 +1,10 @@
 body, html{
     background-color: #213c52;
-    color:#fff;
+    color: #fff;
+}
+
+a{
+    color: #eee;
 }
 
 .pure-g > div {
@@ -179,9 +183,10 @@ input, select, button{
     border-top: 1px solid #004B6B;
     border-bottom: 1px solid #004B6B;
     color: #ddd;
+    max-height: 12.5vh;
 }
 
-#icefish_navbar a{
+#icefish_navbar ul li a{
     color: inherit;
     display: block;
     margin: 0;

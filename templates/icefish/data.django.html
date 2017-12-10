@@ -7,7 +7,7 @@
 
 {% block content %}
     <div class="pure-u-md-1-24 pure-u-sm-1" id="icefish_navbar">
-        <img src="{% static "icefish/img/core/B195M_Logo_240.png" %}" id="icefish_logo">
+        <a href="#" onclick="toggle_dialog('icefish_about', 'project_about_button');"><img src="{% static "icefish/img/core/B195M_Logo_240.png" %}" id="icefish_logo"></a>
         <ul>
             <li class="pure-u-1-1 icefish_navbar_button" id="video_browse_button"><a href="#" onclick="toggle_dialog('icefish_video_browser', 'video_browse_button');"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video" title="Browse Video Archive"></i></a></li>
             <li class="pure-u-1-1 icefish_navbar_button" id="audio_browse_button"><a href="#" onclick="toggle_dialog('icefish_audio_browser', 'audio_browse_button');"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio" title="Browse Audio Archive"></i></a></li>
