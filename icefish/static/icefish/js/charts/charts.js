@@ -95,7 +95,7 @@ function get_initial_data(divs) {
 
             var temperature_layout = Object.assign({
                 xaxis: {title: 'Time'},
-                yaxis: {title: 'Temperature'},
+                yaxis: {title: 'Temperature (C)'},
             }, common_layout);  // merge the common layout items with the specific ones
             a = Plotly.plot(temperature, [
                 {  // freezing point first because we want it to draw under temperature
@@ -116,7 +116,7 @@ function get_initial_data(divs) {
 
             var pressure_layout = Object.assign({
                 xaxis: {title: 'Time'},
-                yaxis: {title: 'Pressure'}
+                yaxis: {title: 'Pressure (decibars)'}
             }, common_layout);  // merge the common layout items with the specific ones
             Plotly.plot(pressure, [{
                     x: unpack(data, "dt").reverse(),
@@ -128,7 +128,7 @@ function get_initial_data(divs) {
 
             var salinity_layout = Object.assign({
                 xaxis: {title: 'Time'},
-                yaxis: {title: 'Salinity'}
+                yaxis: {title: 'Salinity (PSU)'}
             }, common_layout);  // merge the common layout items with the specific ones
             var a = Plotly.plot(salinity, [{
                     x: unpack(data, "dt").reverse(),

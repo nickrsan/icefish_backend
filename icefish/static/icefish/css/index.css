@@ -36,6 +36,8 @@ input, select, button{
 
 .icefish_hidden_dialog{
     display:none;
+    overflow-y: auto;
+    height:100vh;
     color: #eee;
     font-size: 1.2em;
 }
