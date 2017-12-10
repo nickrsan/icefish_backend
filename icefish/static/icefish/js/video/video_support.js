@@ -39,7 +39,12 @@ function start_video(){
     video_player.on("abort", recover_video);
     //video_player.on("play",  hide_controls);
     //video_player.skippy({"maxErrors": 999999, "onLiveError": recover_video});
+
     video_player.ready(function(){
         video_player.play();  // only play when ready - this is likely the issue we were having after we swapped from autoplay to this call
     });
+}
+
+function create_video(container, src, autoplay, controls){
+
 }
