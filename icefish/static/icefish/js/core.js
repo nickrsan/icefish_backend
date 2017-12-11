@@ -1,4 +1,89 @@
 icefish_open_dialog = null;  // if we open a dialog, store it here so we can close it
+main_body_default_class = "pure-u-md-17-24";
+
+panels = {
+    "icefish_settings":{
+        "container":"icefish_settings",
+        "button":"interface_settings_button",
+        "open_class":"pure-u-md-1-3",
+        "main_class":"pure-u-md-15-24",
+        "is_open": false,
+    },
+    "icefish_video_browser":{
+        "container":"icefish_video_browser",
+        "button":"video_browse_button",
+        "open_class":"pure-u-md-2-3",
+        "main_class":"pure-u-md-7-24",
+        "is_open": false,
+    },
+    "icefish_audio_browser":{
+        "container":"icefish_audio_browser",
+        "button":"audio_browse_button",
+        "open_class":"pure-u-md-2-3",
+        "main_class":"pure-u-md-7-24",
+        "is_open": false,
+    },
+    "icefish_data_browser":{
+        "container":"icefish_data_browser",
+        "button":"ctd_data_button",
+        "open_class":"pure-u-md-2-3",
+        "main_class":"pure-u-md-7-24",
+        "is_open": false,
+    },
+    "icefish_about":{
+        "container":"icefish_about",
+        "button":"project_about_button",
+        "open_class":"pure-u-md-1-2",
+        "main_class":"pure-u-md-11-24",
+        "is_open": false,
+    },
+    "icefish_summary_stats":{
+        "container":"icefish_summary_stats",
+        "button":"project_context_button",
+        "open_class":"pure-u-md-2-3",
+        "main_class":"pure-u-md-7-24",
+        "is_open": false,
+    },
+    "ptz_controls_button":{
+        "container":"icefish_controls",
+        "button":"interface_settings_button",
+        "open_class":"pure-u-md-1-3",
+        "main_class":"pure-u-md-15-24",
+        "is_open": false,
+    }
+};
+
+function swap_panels(new_panel_id){
+    /*
+        Handles opening and closing panels, when called with no arguments, closes all panels. Panels
+        MUST be defined above in the `panels` variable in order to be open or closed, as all the required
+        information is defined there.
+     */
+
+    var current_panel = null;
+    Object.keys(panels).forEach(function(panel_key){
+        var panel = panels[panel_key];
+        if (panel.is_open){
+            $("#"+panel.container).removeClass(panel.open_class).hide("slide");
+            $("#"+panel.button).removeClass("active");
+            $("#icefish_main").removeClass(panel.main_class).addClass(main_body_default_class);
+            panels[panel_key].is_open = false;  // not sure this would work in JS - it's operating on a copy
+            current_panel = panel_key;
+        }
+    });
+
+    if(new_panel_id !== undefined && current_panel !== new_panel_id){
+        var new_panel_settings = panels[new_panel_id];
+
+        $("#"+new_panel_id).addClass(new_panel_settings.open_class).show("slide");
+        $("#icefish_main").addClass(new_panel_settings.main_class).removeClass(main_body_default_class);
+        $("#"+new_panel_settings.button).addClass("active");
+        panels[new_panel_id].is_open = true;
+        $("#icefish_charts").hide();
+    }else{
+        $("#icefish_charts").show();
+    }
+}
 
 function _log(message, level){
     /*
@@ -12,50 +97,27 @@ function log_error(message){
     _log(message, "ERROR");
 }
 
+function startup(){
+    $( document ).ready(function() {
 
-function toggle_dialog(id, icon_id, main_body_new_class){
+        get_initial_data({"temperature": "temperature", "pressure": "pressure", "salinity": "salinity"});
+
+        set_up_dialogs();
+
+        videojs.Hls.GOAL_BUFFER_LENGTH = 10;  // on local network, we want to keep this reduced because it keeps pulling too much data and fails otherwise
+        videojs.Hls.MAX_GOAL_BUFFER_LENGTH = 20; // same as above - we might want to tweak this to be a local setting when this all goes up online.
+
+        start_video();
+
+    });
+}
+
+function set_up_dialogs(){
     /*
-        Handles logic for opening and closing dialogs, as well as toggling the active class on their icons. There are three
-        main ways this can go:
-
-        * Nothing open, open a new dialog
-        * Closing only, without opening another
-        * Switching from one open dialog to another.
-
-        The conditionals below primarily handle these states
+        Right now just for making sure that clicks outside of them will cause them to close
      */
-    var transition = null;
-    var toggle_main = null;
-    if (icefish_open_dialog === null){  // there's nothing open already
-        transition = "slide";
-        icefish_open_dialog = {"id": id, "icon_id": icon_id};
-        toggle_main = true;
-    }else if (icefish_open_dialog.id === id || (id === false && icefish_open_dialog !== null)){  // close *any* open dialogs if we pass in false and something is open
-        transition = "slide";
-        if (id === false){
-            id = icefish_open_dialog.id;  // save it because we'll use it to close it
-            $("#"+icefish_open_dialog.icon_id).toggleClass("active");
-        }
-        icefish_open_dialog = null;
-        toggle_main = true;
-    }else{  // something is open already, swap it
-        $("#"+icefish_open_dialog.id).toggle();
-        $("#"+icefish_open_dialog.icon_id).toggleClass("active");
-        icefish_open_dialog = {"id": id, "icon_id": icon_id};
-        toggle_main = false; // don't do anything to the main divs if we're just swapping open panels
-    }
 
-    if (main_body_new_class === undefined){ // if it wasn't passed in, here's the default
-        main_body_new_class = "pure-u-md-7-24"  // we pass it in for smaller panels
-    }
-
-    /* Out with the old panel, turn on the new icon - old one turned off above */
-    $("#"+id).toggle(transition);
-    $("#"+icon_id).toggleClass("active");
-
-    /* In with the new panel, if needed */
-    if (toggle_main === true){
-        $("#icefish_main").toggleClass("pure-u-md-17-24 " + main_body_new_class);  // first is original, second is updated
-        $("#icefish_charts").toggle();  // first is original, second is updated
-    }
+    $("#icefish_main").on("click", function(){  // closes open dialogs if we click on the main area
+        swap_panels(); // closes all panels when called with no arguments
+    });
 }
