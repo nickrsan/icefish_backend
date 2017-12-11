@@ -178,4 +178,4 @@ LOGGING = {
 
 ICEFISH_API_MIN_DEFAULT_RECORDS = 25  # how many records should be accumulated before it stops going back to prior days
 ICEFISH_API_MAX_DEFAULT_DAYS = 30  # how many days back should it go before stopping attempts to find records?
-ICEFISH_API_NUM_DAYS_DATA_DEFAULT = 7  # how many days of data should be sent out by the API in the event no parameters are provided in a query?
+ICEFISH_API_NUM_DAYS_DATA_DEFAULT = 14  # how many days of data should be sent out by the API in the event no parameters are provided in a query?
