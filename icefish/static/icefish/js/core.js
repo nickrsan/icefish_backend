@@ -12,22 +12,22 @@ panels = {
     "icefish_video_browser":{
         "container":"icefish_video_browser",
         "button":"video_browse_button",
-        "open_class":"pure-u-md-2-3",
-        "main_class":"pure-u-md-7-24",
+        "open_class":"pure-u-md-1-2",
+        "main_class":"pure-u-md-11-24",
         "is_open": false,
     },
     "icefish_audio_browser":{
         "container":"icefish_audio_browser",
         "button":"audio_browse_button",
-        "open_class":"pure-u-md-2-3",
-        "main_class":"pure-u-md-7-24",
+        "open_class":"pure-u-md-1-2",
+        "main_class":"pure-u-md-11-24",
         "is_open": false,
     },
     "icefish_data_browser":{
         "container":"icefish_data_browser",
         "button":"ctd_data_button",
-        "open_class":"pure-u-md-2-3",
-        "main_class":"pure-u-md-7-24",
+        "open_class":"pure-u-md-1-2",
+        "main_class":"pure-u-md-11-24",
         "is_open": false,
     },
     "icefish_about":{
@@ -40,8 +40,8 @@ panels = {
     "icefish_summary_stats":{
         "container":"icefish_summary_stats",
         "button":"project_context_button",
-        "open_class":"pure-u-md-2-3",
-        "main_class":"pure-u-md-7-24",
+        "open_class":"pure-u-md-1-2",
+        "main_class":"pure-u-md-11-24",
         "is_open": false,
     },
     "ptz_controls_button":{

@@ -1,4 +1,4 @@
-function recover_video(player){
+function recover_video(player, force){
     /*
         This is an attempt to restart the stream if it fails - documentation on videojs is a little sparse on what these
         functions actually *do*, so this is a guess, and is being tested whenever the stream fails. It's possible that the
@@ -9,7 +9,7 @@ function recover_video(player){
     }
 
     var video_player = videojs(player);
-    if (video_player.ended() || video_player.paused()){  // checking this because on some errors it'll play through. Only want to reset the player if it ends
+    if (video_player.ended() || video_player.paused() || force === true){  // checking this because on some errors it'll play through. Only want to reset the player if it ends
         // Try to recover the stream by starting to play again
         log_error("Player failed - trying to reset it");
         video_player.dispose();  // destroy and recreate it
@@ -55,6 +55,10 @@ function _create_video(container, autoplay, controls, fluid){
     if (autoplay === undefined){
         autoplay = false;
     }
-    var video_player = videojs(container);
+
+    var video_player = videojs(container, {"autoplay": autoplay,
+                                            "fluid": fluid,
+                                            "controls": controls
+    });
     return video_player;
 }
