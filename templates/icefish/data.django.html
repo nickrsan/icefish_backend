@@ -7,7 +7,7 @@
 
 {% block content %}
     <div class="pure-u-md-1-24 pure-u-sm-1" id="icefish_navbar">
-        <a href="#" onclick="toggle_dialog('icefish_about', 'project_about_button');"><img src="{% static "icefish/img/core/B195M_Logo_240.png" %}" id="icefish_logo"></a>
+        <a href="#" onclick="swap_panels('icefish_about');"><img src="{% static "icefish/img/core/B195M_Logo_240.png" %}" id="icefish_logo"></a>
         <ul>
             <li class="pure-u-1-1 icefish_navbar_button" id="video_browse_button"><a href="#" onclick="swap_panels('icefish_video_browser');"><i class="fa fa-video-camera" aria-hidden="false" aria-label="Browse Video" title="Browse Video Archive"></i></a></li>
             <li class="pure-u-1-1 icefish_navbar_button" id="audio_browse_button"><a href="#" onclick="swap_panels('icefish_audio_browser');"><i class="fa fa-headphones" aria-hidden="false" aria-label="Browse Audio" title="Browse Audio Archive"></i></a></li>
@@ -92,7 +92,7 @@
         <div id="video_outside_container" class="pure-u-1-1 video_container"> <!-- height here doesn't control video size, but does push the spectrogram down to appropriate spot -->
             <!--<div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>-->
             <div class="pure-u-md-1-1 pure-u-sm-1" id="icefish_video_player_container">
-                <video id="video_player" class="pure-u-1-1 video-js vjs-default-skin" data-setup='{"fluid": true}'>
+                <video id="video_player" class="pure-u-1-1 video-js vjs-default-skin" data-setup='{"fluid": true}' autoplay>
                     <source src="{{ ICEFISH_VIDEO_SERVER_URL }}/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8" type="application/x-mpegURL">
                 </video>
                 <!--<div id="WowzaPlayerElement" style="width:100%; height:0; padding:0 0 56.25% 0"></div>-->
