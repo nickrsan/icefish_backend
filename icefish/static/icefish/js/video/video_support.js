@@ -1,15 +1,19 @@
-function recover_video(){
+function recover_video(player){
     /*
         This is an attempt to restart the stream if it fails - documentation on videojs is a little sparse on what these
         functions actually *do*, so this is a guess, and is being tested whenever the stream fails. It's possible that the
         tutorial docs (as opposed to the API docs) in videojs describe more how to handle this
      */
-    var video_player = videojs("video_player");
+    if (player === undefined){
+        player = "video_player" // our default player
+    }
+
+    var video_player = videojs(player);
     if (video_player.ended() || video_player.paused()){  // checking this because on some errors it'll play through. Only want to reset the player if it ends
         // Try to recover the stream by starting to play again
-        video_player.reset();
-        video_player.play();
         log_error("Player failed - trying to reset it");
+        video_player.dispose();  // destroy and recreate it
+        start_video();  // destroy and recreate it
     }else{
         log_error("Error passed, but stream not ended - skipping handling");
     }
@@ -28,22 +32,29 @@ function hide_controls(){
     }
 }
 function start_video(){
-    var video_player = videojs("video_player");
-    video_player.on("abort", recover_video);
-    video_player.on("ended", function(){
-        video_player.controls(true);
-        recover_video();
-    });
-    video_player.on("error", recover_video);
-    video_player.on("abort", recover_video);
-    //video_player.on("play",  hide_controls);
-    //video_player.skippy({"maxErrors": 999999, "onLiveError": recover_video});
-
-    video_player.ready(function(){
-        video_player.play();  // only play when ready - this is likely the issue we were having after we swapped from autoplay to this call
+    var video_player = _create_video("video_player", true, false, true);
+    video_player.on("ready", function() {
+        video_player.on("abort", recover_video);
+        video_player.on("ended", function () {
+            video_player.controls(true);
+            recover_video();
+        });
+        video_player.on("error", recover_video);
     });
 }
 
-function create_video(container, src, autoplay, controls){
+function _create_video(container, autoplay, controls, fluid){
+    if (controls === undefined){
+        controls = true;
+    }
 
+    if (fluid === undefined){
+        fluid = true;
+    }
+
+    if (autoplay === undefined){
+        autoplay = false;
+    }
+    var video_player = videojs(container);
+    return video_player;
 }
