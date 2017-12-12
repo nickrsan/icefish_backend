@@ -32,7 +32,7 @@ function hide_controls(){
     }
 }
 function start_video(){
-    var video_player = _create_video("video_player", true, false, true);
+    var video_player = _create_video("icefish_video_player_container", "video_player", true, false, true);
     video_player.on("ready", function() {
         video_player.on("abort", recover_video);
         video_player.on("ended", function () {
@@ -40,25 +40,33 @@ function start_video(){
             recover_video();
         });
         video_player.on("error", recover_video);
+
+        video_player.play();
     });
 }
 
-function _create_video(container, autoplay, controls, fluid){
+function _create_video(container, video_name, autoplay, controls, fluid){
+    if (video_name === undefined){
+        video_name = "video_player"
+    }
+
     if (controls === undefined){
         controls = true;
     }
 
-    if (fluid === undefined){
-        fluid = true;
+    if (fluid === undefined || fluid === true){
+        $("#"+container).addClass("icefish_fluid");  // when initializing this way, vjs-fluid just adds some weird padding - not sure if I'm doing something wrong with the container, but tried a lot - setting our own class instead works
     }
 
     if (autoplay === undefined){
         autoplay = false;
     }
 
-    var video_player = videojs(container, {"autoplay": autoplay,
-                                            "fluid": fluid,
+    $("#"+container).append("             <video id=\"video_player\" class=\"vjs-default-skin pure-u-md-1-1 icefish_fluid\">\n" +
+        "                    <source src=\"" +ICEFISH_VIDEO_SERVER_URL +"/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8\" type=\"application/x-mpegURL\">\n" +
+        "                </video>");
+
+    return videojs(video_name, {"autoplay": autoplay,
                                             "controls": controls
     });
-    return video_player;
 }
