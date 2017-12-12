@@ -203,7 +203,29 @@ input, select, button{
     text-align:center;
 }
 
-video{
-    margin-left: auto;
-    margin-right: auto;
+video.icefish_fluid, div.icefish_fluid>video{
+    /* this fixes a bug when using videojs' "fluid" setting and providing options in JS and not in HTML.
+     Don't combine with videojs' fluid setting */
+    width: 100%;
+}
+
+#icefish_about{
+    text-justify: auto;
+    text-align: justify;
+}
+
+#icefish_about img.profile_image{
+    width:100%;
+}
+
+#icefish_about p.icefish_profile_text{
+    margin-left: 1em;
+}
+
+#icefish_about #sponsor_logos{
+    margin-top:7em;
+}
+
+#icefish_about #sponsor_logos img{
+    margin-left: 6.25%;
 }

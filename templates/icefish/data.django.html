@@ -99,9 +99,6 @@
         <div id="video_outside_container" class="pure-u-1-1 video_container"> <!-- height here doesn't control video size, but does push the spectrogram down to appropriate spot -->
             <!--<div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>-->
             <div class="pure-u-md-1-1 pure-u-sm-1" id="icefish_video_player_container">
-                <video id="video_player" class="pure-u-1-1 video-js vjs-default-skin" data-setup='{"fluid": true}' autoplay>
-                    <source src="{{ ICEFISH_VIDEO_SERVER_URL }}/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8" type="application/x-mpegURL">
-                </video>
                 <!--<div id="WowzaPlayerElement" style="width:100%; height:0; padding:0 0 56.25% 0"></div>-->
             </div>
             <!--<div class="pure-u-md-1-12 pure-u-sm-1 letterbox"></div>-->
@@ -129,6 +126,9 @@
 {% endblock %}
 
 {% block footer_js %}
+    <script type="text/javascript">
+        ICEFISH_VIDEO_SERVER_URL = "{{ ICEFISH_VIDEO_SERVER_URL }}";
+    </script>
     <script src="{% static "icefish/js/core.js" %}"></script>
     <script src="{% static "icefish/js/video/video_support.js" %}"></script>
 	<script src="{% static "icefish/js/controls.js" %}"></script><!-- our own system controls -->
