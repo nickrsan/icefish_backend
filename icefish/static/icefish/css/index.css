@@ -209,9 +209,18 @@ video.icefish_fluid, div.icefish_fluid>video{
     width: 100%;
 }
 
-#icefish_about{
+.icefish_hidden_dialog{
     text-justify: auto;
     text-align: justify;
+}
+
+#icefish_data_browser h3, #icefish_data_browser h4{
+    margin-bottom:0;
+    -webkit-margin-after:0;
+}
+
+#icefish_data_browser p{
+    margin-left: .5em;
 }
 
 #icefish_about img.profile_image{
