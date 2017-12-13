@@ -28,9 +28,9 @@
     <div id="icefish_video_browser" class="pure-u-sm-1 icefish_hidden_dialog">
         <div class="pure-u-1-1">
             <h2>Video Archive</h2>
-            <h3>Installing the Observatory</h3>
+            <h3 id="icefish_video_archive_title">Installing the Observatory</h3>
             <p id="video_archive_container">
-                <video controls id="promos_player" class="video-js vjs-default-skin" data-setup='{"fluid": true}'>
+                <video controls id="icefish_video_promos_player" class="video-js vjs-default-skin" data-setup='{"fluid": true}'>
                     <source src="{{ ICEFISH_VIDEO_SERVER_URL }}/MOO_promos/mp4:short_moo_promo_4.0.mp4/playlist.m3u8" type="application/x-mpegURL">
                 </video>
             </p>
@@ -93,20 +93,20 @@
             <h2>Application Settings</h2>
                 <h3>Realtime Spectrogram</h3>
                     <!-- Tool Bars - code straight from hydrophone -->
-                    <div id="toolbar">
+                    <div id="toolbar"> <!-- don't want to change this ID just yet because need to look through hydrophone code about it -->
                         <span>Step size: <select id="step"></select></span>
-                        <span id="abId0.5314168991210294">Reference: <input id="ref" size="2" value=51>dB µPa</span>
-                        <span>Bandwidth: <span data-field="fftBandWidth">Loading...</span></span>
-                        <span id="abId0.433896597943322"><input id="view" size="2" value="4"> min(s)</span>
-                        <span><button id="rescale">Rescale</button></span>
-                        <span><button id="gobtn">Stop</button></span>
+                        <span id="abId0.5314168991210294">Reference: <input id="ref" size="3" value=51 type="number" style="max-width:5em;">dB µPa</span>
+                        <button id="hydrophone_settings_button">Update</button> <!-- This doesn't need to be here, but it gets people to click out of the boxes so the settings change -->
+                        <span class="hidden_hydrophone_ui">Bandwidth: <span data-field="fftBandWidth">Loading...</span></span>
+                        <span class="hidden_hydrophone_ui" id="abId0.433896597943322"><input id="view" size="2" value="4"> min(s)</span>
+                        <span class="hidden_hydrophone_ui"><button id="rescale">Rescale</button></span>
+                        <span class="hidden_hydrophone_ui"><button id="gobtn">Stop</button></span>
                     </div>
         </div>
     </div>
     <div id="icefish_summary_stats" class="pure-u-sm-1 icefish_hidden_dialog">
         <div class="pure-u-1-1">
             <h2>Summary Stats and Regional Information</h2>
-            <h3>The area</h3>
             <h3>The animals</h3>
             <p>Two seals are commonly seen in the video stream, each having been tagged previously by the B-009-M team.
                 The most commonly seen seal is number 9410, a male born in 1999 at Turtle Rock who has been seen in 2009,

@@ -15,6 +15,9 @@ panels = {
         "open_class":"pure-u-md-1-2",
         "main_class":"pure-u-md-11-24",
         "is_open": false,
+        "on_close": function(){
+            videojs("icefish_video_promos_player").pause();
+        }
     },
     "icefish_audio_browser":{
         "container":"icefish_audio_browser",
@@ -68,6 +71,9 @@ function swap_panels(new_panel_id){
             $("#"+panel.button).removeClass("active");
             $("#icefish_main").removeClass(panel.main_class).addClass(main_body_default_class);
             panels[panel_key].is_open = false;  // not sure this would work in JS - it's operating on a copy
+            if (panel.on_close !== undefined){  // run any callback for closing the panel
+                panel.on_close();
+            }
             current_panel = panel_key;
         }
     });

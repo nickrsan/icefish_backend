@@ -4,14 +4,72 @@ on_demand_videos = [
         thumbnail: "",
         name: "Observatory Compilation Video",
         type:"application/x-mpegURL",
-        id: "icefish_video_moo_compilation"
+        id: "icefish_video_promos_player",
+        title_id: "icefish_video_archive_title",
     },
     {
         path:ICEFISH_VIDEO_SERVER_URL +"/MOO_promos/mp4:short_moo_promo_4.0.mp4/playlist.m3u8",
         container: "video_archive_container",
         name: "Installing the Observatory",
         type:"application/x-mpegURL",
-        id: "icefish_video_installing_observatory",
+        id: "icefish_video_promos_player",
+        title_id: "icefish_video_archive_title",
+    },
+    {
+        path:ICEFISH_VIDEO_SERVER_URL +"/MOO_promos/mp4:diving_video_1_mcmurdo_jetty.mp4/playlist.m3u8",
+        container: "video_archive_container",
+        name: "Diving at McMurdo Jetty",
+        type:"application/x-mpegURL",
+        id: "icefish_video_promos_player",
+        title_id: "icefish_video_archive_title",
+    },
+    {
+        path:ICEFISH_VIDEO_SERVER_URL +"/MOO_promos/mp4:diving_video_2_granite_harbor.mp4/playlist.m3u8",
+        container: "video_archive_container",
+        name: "Diving at Granite Harbor",
+        type:"application/x-mpegURL",
+        id: "icefish_video_promos_player",
+        title_id: "icefish_video_archive_title",
+    },
+    {
+        path:ICEFISH_VIDEO_SERVER_URL +"/MOO_promos/mp4:seal_fight.mp4/playlist.m3u8",
+        container: "video_archive_container",
+        name: "Seal Fight at Granite Harbor",
+        type:"application/x-mpegURL",
+        id: "icefish_video_promos_player",
+        title_id: "icefish_video_archive_title",
+    },
+    {
+        path:ICEFISH_VIDEO_SERVER_URL +"/MOO_promos/mp4:henry_kaiser_music_of_the_seals.mp4/playlist.m3u8",
+        container: "video_archive_container",
+        name: "Henry Kaiser, Music of the Seals",
+        type:"application/x-mpegURL",
+        id: "icefish_video_promos_player",
+        title_id: "icefish_video_archive_title",
+    },
+    {
+        path:ICEFISH_VIDEO_SERVER_URL +"/MOO_promos/mp4:netting_fish.mp4/playlist.m3u8",
+        container: "video_archive_container",
+        name: "Netting Fish",
+        type:"application/x-mpegURL",
+        id: "icefish_video_promos_player",
+        title_id: "icefish_video_archive_title",
+    },
+    {
+        path:ICEFISH_VIDEO_SERVER_URL +"/MOO_promos/mp4:ocean_quest_antarctica.mp4/playlist.m3u8",
+        container: "video_archive_container",
+        name: "Ocean Quest Antarctica",
+        type:"application/x-mpegURL",
+        id: "icefish_video_promos_player",
+        title_id: "icefish_video_archive_title",
+    },
+    {
+        path:ICEFISH_VIDEO_SERVER_URL +"/MOO_promos/mp4:fish_watch.mp4/playlist.m3u8",
+        container: "video_archive_container",
+        name: "Fish Watch",
+        type:"application/x-mpegURL",
+        id: "icefish_video_promos_player",
+        title_id: "icefish_video_archive_title",
     }
 ];
 
@@ -49,7 +107,7 @@ function hide_controls(){
     }
 }
 function start_video(){
-    var video_player = _create_video("icefish_video_player_container", "video_player", true, false, true);
+    var video_player = _create_video("icefish_video_player_container", "video_player", ICEFISH_VIDEO_SERVER_URL + "/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8", true, false, true);
     video_player.on("ready", function() {
         video_player.on("abort", recover_video);
         video_player.on("ended", function () {
@@ -62,10 +120,13 @@ function start_video(){
     });
 }
 
-function switch_video(path, type, container, id){
-    var container_element = $("#"+container);
-    container_element.empty();  // remove existing video
-    _create_video(container, id, path, true, true, true, type);
+function switch_video(path, type, container, id, title_id, name){
+    videojs("icefish_video_promos_player").dispose();
+    $("#"+container).empty();  // remove existing video
+    _create_video(container, id, path, true, true, true, type, true);
+    if (title_id !== undefined){
+        $("#"+title_id).text(name);
+    }
 }
 
 function make_video_archive_navigation(container){
@@ -76,13 +137,15 @@ function make_video_archive_navigation(container){
     }
 
     on_demand_videos.forEach(function(video){
-        container.append("<li><a href=\"#\" onclick=\"switch_video('"+video.path+"','"+video.type+"','"+video.container+"','"+video.id+"');\">"+video.name+"</li>");
+        container.append("<li><a href=\"#\" onclick=\"switch_video('"+video.path+"','"+video.type+"','"+video.container+"','"+video.id+"','"+video.title_id+"','"+video.name+"');\">"+video.name+"</li>");
     });
 
 
 }
 
-function _create_video(container, video_name, video_path, autoplay, controls, fluid, video_type){
+function _create_video(container, video_name, video_path, autoplay, controls, fluid, video_type, use_vjs_setup_class){
+    var controls_text = null;
+    var vjs_setup = null;
     if (video_name === undefined){
         video_name = "video_player"
     }
@@ -93,10 +156,9 @@ function _create_video(container, video_name, video_path, autoplay, controls, fl
 
     if (controls === undefined){
         controls = true;
-    }
-
-    if (fluid === undefined || fluid === true){
-        $("#"+container).addClass("icefish_fluid");  // when initializing this way, vjs-fluid just adds some weird padding - not sure if I'm doing something wrong with the container, but tried a lot - setting our own class instead works
+        controls_text = "controls ";
+    }else{
+        controls_text = "";
     }
 
     if (autoplay === undefined){
@@ -107,11 +169,27 @@ function _create_video(container, video_name, video_path, autoplay, controls, fl
         video_type = "application/x-mpegURL"
     }
 
-    $("#"+container).append("             <video id=\""+video_name+"\" class=\"vjs-default-skin pure-u-md-1-1 icefish_fluid\">\n" +
-        "                    <source src=\"" + video_path +"\" type=\"application/x-mpegURL\">\n" +
+    if (use_vjs_setup_class === true){
+        vjs_setup = "video-js vjs-default-skin";
+    }else{
+        vjs_setup = "";
+    }
+
+    $("#"+container).append("             <video id=\""+video_name+"\" class=\"pure-u-md-1-1 icefish_fluid "+vjs_setup+"\">\n" +
+        "                    <source src=\"" + video_path +"\" type=\""+video_type+"\">\n" +
         "                </video>");
 
-    return videojs(video_name, {"autoplay": autoplay,
-                                            "controls": controls
-    });
+    var video = videojs(video_name, {"autoplay": autoplay,
+                                    "controls": controls
+                                    }  ,
+        function(){
+            if (fluid === undefined || fluid === true){
+                $("#" + container).addClass("icefish_fluid");  // when initializing this way, vjs-fluid just adds some weird padding - not sure if I'm doing something wrong with the container, but tried a lot - setting our own class instead works
+                $("#"+video_name).addClass("icefish_fluid");  // when initializing this way, vjs-fluid just adds some weird padding - not sure if I'm doing something wrong with the container, but tried a lot - setting our own class instead works
+            }
+
+        });
+
+
+    return video;
 }
