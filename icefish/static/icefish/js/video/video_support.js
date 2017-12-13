@@ -1,3 +1,20 @@
+on_demand_videos = [
+    {   path: ICEFISH_VIDEO_SERVER_URL + "/MOO_promos/mp4:moo_video_compilation_1.0.mp4/playlist.m3u8",
+        container: "video_archive_container",
+        thumbnail: "",
+        name: "Observatory Compilation Video",
+        type:"application/x-mpegURL",
+        id: "icefish_video_moo_compilation"
+    },
+    {
+        path:ICEFISH_VIDEO_SERVER_URL +"/MOO_promos/mp4:short_moo_promo_4.0.mp4/playlist.m3u8",
+        container: "video_archive_container",
+        name: "Installing the Observatory",
+        type:"application/x-mpegURL",
+        id: "icefish_video_installing_observatory",
+    }
+];
+
 function recover_video(player, force){
     /*
         This is an attempt to restart the stream if it fails - documentation on videojs is a little sparse on what these
@@ -45,9 +62,33 @@ function start_video(){
     });
 }
 
-function _create_video(container, video_name, autoplay, controls, fluid){
+function switch_video(path, type, container, id){
+    var container_element = $("#"+container);
+    container_element.empty();  // remove existing video
+    _create_video(container, id, path, true, true, true, type);
+}
+
+function make_video_archive_navigation(container){
+    if(container === null){
+        container = $("#video_archive_selector");
+    }else{
+        container = $("#"+container);
+    }
+
+    on_demand_videos.forEach(function(video){
+        container.append("<li><a href=\"#\" onclick=\"switch_video('"+video.path+"','"+video.type+"','"+video.container+"','"+video.id+"');\">"+video.name+"</li>");
+    });
+
+
+}
+
+function _create_video(container, video_name, video_path, autoplay, controls, fluid, video_type){
     if (video_name === undefined){
         video_name = "video_player"
+    }
+
+    if(video_path === undefined){
+        video_path = ICEFISH_VIDEO_SERVER_URL +"/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8";
     }
 
     if (controls === undefined){
@@ -62,8 +103,12 @@ function _create_video(container, video_name, autoplay, controls, fluid){
         autoplay = false;
     }
 
-    $("#"+container).append("             <video id=\"video_player\" class=\"vjs-default-skin pure-u-md-1-1 icefish_fluid\">\n" +
-        "                    <source src=\"" +ICEFISH_VIDEO_SERVER_URL +"/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8\" type=\"application/x-mpegURL\">\n" +
+    if (video_type === undefined){
+        video_type = "application/x-mpegURL"
+    }
+
+    $("#"+container).append("             <video id=\""+video_name+"\" class=\"vjs-default-skin pure-u-md-1-1 icefish_fluid\">\n" +
+        "                    <source src=\"" + video_path +"\" type=\"application/x-mpegURL\">\n" +
         "                </video>");
 
     return videojs(video_name, {"autoplay": autoplay,

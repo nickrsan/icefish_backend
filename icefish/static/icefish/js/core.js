@@ -80,6 +80,9 @@ function swap_panels(new_panel_id){
         $("#"+new_panel_settings.button).addClass("active");
         panels[new_panel_id].is_open = true;
         $("#icefish_charts").hide();
+        if($("#icefish_chart_toggle_button").hasClass("fa-caret-right")){
+            change_chart_size();
+        }
     }else{
         $("#icefish_charts").show();
     }
@@ -108,7 +111,7 @@ function startup(){
         videojs.Hls.MAX_GOAL_BUFFER_LENGTH = 30; // same as above - we might want to tweak this to be a local setting when this all goes up online.
 
         start_video();
-
+        make_video_archive_navigation("video_archive_selector");
     });
 }
 
