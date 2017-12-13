@@ -207,6 +207,7 @@ video.icefish_fluid, div.icefish_fluid>video{
     /* this fixes a bug when using videojs' "fluid" setting and providing options in JS and not in HTML.
      Don't combine with videojs' fluid setting */
     width: 100%;
+    height:auto;
 }
 
 .icefish_hidden_dialog{
@@ -237,4 +238,14 @@ video.icefish_fluid, div.icefish_fluid>video{
 
 #icefish_about #sponsor_logos img{
     margin-left: 6.25%;
+}
+
+
+/* hide dangerous plotly items and other UI items from other systems */
+a.plotlyjsicon{
+    display:none;
+}
+
+.hidden_hydrophone_ui{
+    display:none;
 }
