@@ -12,6 +12,8 @@ more individual planning and attention, they'll be moved to Issues.
  * Add URL to page
  * Pages should have correct permalinks (including #ctd or #info, etc)
  * Put a reload button on the page so that when it stalls out, they can refresh - kiosk won't have that in browser
+ * Tab: History, maps, site install and choice
+ * Tab: Observables: Something showing different items you see in video. For audio, divers, seals, Pisten bully, wiper, plow, ctd pump.
 
 ## Stability
  * Set Caddy to run as local service - use its own account - is this already happening though?
@@ -31,19 +33,23 @@ more individual planning and attention, they'll be moved to Issues.
  * Set up VOD again for kiosk
 
 ### Hydrophone data ingestion
-[ ] Broken - need to fix the part that deletes the source file - trying to delete tempfile only, not original
 [ ] Autostart ingestion service? Or just run as scheduled task? What about recovery when it fails?
 [ ] Run ingestion as low priority
 [ ] Report of number of uningested files if it's over 24*6 or something (since that would mean it has files that didn't process)
-[ ] Crash recovery for OceanSonics Array Data Manager
+[ ] Crash recovery for OceanSonics Array Data Manager - finalize monitoring service
 [ ] Autostart macro for Array Data Manager - does running it as high priority avoid crashes? Seems to crash when CPU load is heavy
+ * Check to make sure that the audio coming in while files are transferring is OK
 
 ### Video
 [ ] Move transcoded videos to VideoVariant class
 [ ] Do we want to transcode automated surveys?
 [ ] Ingestion service for video, even if we don't transcode, so Paul can have listing of what we're getting
 [ ] How are we going to get the image off continent every two minutes? Separate from Wowza? Do we have a script that connects, reads, dumps the first frame it finds, and uploads?
+ * Set up automatic frame dumps from PTZ to array and to Intenet
 [ ] Alternatively, script constantly dumps a frame every __ seconds - server stores these frames anyway, and we have a web service that loads last frame. Cloud server hits that service
+ * How to handle when stream isn't up? Show an error? Show a video from archive?
+ * Finalize video recovery tools
+ * Auto-exit from autodemand if it's in fullscreen mode and has been finished for a while (no user interaction, etc)
 
 ### Monitoring
 [ ] Logging Server?
@@ -65,12 +71,13 @@ more individual planning and attention, they'll be moved to Issues.
  * Core Temp of MOO Server
 
 ## Enhancements
-[ ] Dump daily Postgres backups - rotate backups so that we keep one from 6 months ago, 3 months, 1 month, 2 weeks, 1 week, and last 7 days, or something similar that covers all use cases without destroying disk
+[ ] Dump daily Postgres backups - rotate backups so that we keep one from 6 months ago, 3 months, 1 month, 2 weeks, 1 week, and last 7 days, or something similar that covers all use cases without destroying disk - is there a tool that does this already? A backup autorotater or a general autorotater
 [ ] Backups - do we want to dump some critical data to externals in addition to array?
 [ ] Set up and secure cloud server - autoupdates, fail2ban, move ssh port, ban root from SSH, the works
  * Schedule light turn on/off sequences to go with surveys
  * Schedule automatic surveys for timelapse
  * Some sort of system for archiving data by timelapsing it
+ * intro.js introduction to components of the interface
 
 ### Admin enhancements
 [ ] Can we initiate recording to the disk array from the web application? Logged in user?
@@ -100,6 +107,7 @@ more individual planning and attention, they'll be moved to Issues.
 [ ] Manual refresh button - or some other way to make it clear that the charts autoupdate
 [ ] Public documentation of CTD API - some sort of way to obtain a token?
 [ ] Need to somehow move data off the left side of the viewing window - maybe leave it loaded, but not showing
+ * Graphs slide under hydrophone spectrogram for some panels
 
 ### Tides
  * Need to scale all values to an appropriate depth
