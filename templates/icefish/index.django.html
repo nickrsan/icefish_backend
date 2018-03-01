@@ -45,6 +45,10 @@
     <script src="{% static "/icefish/js/common/jquery-3.2.1.min.js"%}"></script>
     <script src="{% static "/icefish/js/charts/plotly_1.31.2.min.js"%}"></script>
     <script src="{% static "/icefish/js/charts/charts.js"%}"></script>
+    <script src="https://cdn.ravenjs.com/3.22.4/raven.min.js" crossorigin="anonymous"></script>
+    <script type="javascript">
+        Raven.config('https://b2b81bec149e43d2a867e90f5ff443af@sentry.io/296432').install();
+    </script>
 {% endblock %}
 {% block footer_js %}
 
@@ -52,5 +56,6 @@
 
 {% block footer %}
 {% endblock %}
+
 </body>
 </html>
