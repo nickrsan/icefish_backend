@@ -172,7 +172,9 @@
     <script src="{% static "icefish/js/video/video_support.js" %}"></script>
 
     <script type="text/javascript">
-        startup();
+    Raven.context(function(){
+       startup();
+    });
     </script>
 
 {% endblock %}
