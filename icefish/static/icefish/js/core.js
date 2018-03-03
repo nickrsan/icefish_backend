@@ -106,8 +106,9 @@ function startup(){
 
             set_up_dialogs();
 
-            videojs.Hls.GOAL_BUFFER_LENGTH = 15;  // on local network, we want to keep this reduced because it keeps pulling too much data and fails otherwise
-            videojs.Hls.MAX_GOAL_BUFFER_LENGTH = 30; // same as above - we might want to tweak this to be a local setting when this all goes up online.
+            // The below items are heavily needed for playback of on-demand video but *might* mess up streaming video. Commenting them out to test
+            //videojs.Hls.GOAL_BUFFER_LENGTH = 15;  // on local network, we want to keep this reduced because it keeps pulling too much data and fails otherwise
+            //videojs.Hls.MAX_GOAL_BUFFER_LENGTH = 30; // same as above - we might want to tweak this to be a local setting when this all goes up online.
 
             start_video();
         });
