@@ -109,16 +109,30 @@ function log_error(message){
 function startup(){
     $( document ).ready(function() {
 
-        get_initial_data({"temperature": "temperature", "pressure": "pressure", "salinity": "salinity"});
+        set_up_raven();
+        Raven.context(function(){
+            get_initial_data({"temperature": "temperature", "pressure": "pressure", "salinity": "salinity"});
 
-        set_up_dialogs();
+            set_up_dialogs();
 
-        videojs.Hls.GOAL_BUFFER_LENGTH = 15;  // on local network, we want to keep this reduced because it keeps pulling too much data and fails otherwise
-        videojs.Hls.MAX_GOAL_BUFFER_LENGTH = 30; // same as above - we might want to tweak this to be a local setting when this all goes up online.
+            // The below items are heavily needed for playback of on-demand video but *might* mess up streaming video. Commenting them out to test
+            //videojs.Hls.GOAL_BUFFER_LENGTH = 15;  // on local network, we want to keep this reduced because it keeps pulling too much data and fails otherwise
+            //videojs.Hls.MAX_GOAL_BUFFER_LENGTH = 30; // same as above - we might want to tweak this to be a local setting when this all goes up online.
 
-        start_video();
-        make_video_archive_navigation("video_archive_selector");
+            start_video();
+            make_video_archive_navigation("video_archive_selector");
+        });
     });
+}
+
+function set_up_raven() {
+    Raven.config('https://b2b81bec149e43d2a867e90f5ff443af@sentry.io/296432').install(
+        {
+            captureUnhandledRejections: true,
+            environment: DEVICE_NAME,
+        }
+    );
+
 }
 
 function set_up_dialogs(){
