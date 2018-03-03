@@ -96,6 +96,13 @@ ICEFISH_REALTIME_CTD = True  # Does this device support realtime CTD data in the
 
 ICEFISH_VIDEO_SERVER_URL = "http://157.132.101.162:1935"
 
+# REMOTE SERVER UPLOADS - used to send images to a remote serve
+REMOTE_SERVER_ADDRESS = ""
+REMOTE_SERVER_SSH_PORT = 22
+REMOTE_SERVER_IMAGE_FOLDER = "/var/MOO/images"
+REMOTE_SERVER_USER = ""
+REMOTE_SERVER_PASSWORD = ""
+
 # RABBITMQ Settings
 # if you're using the advanced version of the CTD logger that lets you send commands while it's autologging, fill these out
 RABBITMQ_USERNAME = ""  # username for rabbitmq - this user should have config privileges on the vhost defined below.
