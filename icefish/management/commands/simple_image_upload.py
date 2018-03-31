@@ -92,6 +92,7 @@ class Command(BaseCommand):
 
 					log.info("Sending new image to remote for waypoint {}".format(waypoint))
 					new_image = get_newest_image(os.path.join(settings.WAYPOINT_IMAGE_FOLDER, waypoint_info["base_path"]))
+					log.debug("Newest image is {}".format(new_image))
 					try:
 						image_to_upload = self.prep_for_upload(new_image, waypoint, waypoint_info)
 						log.info("Sending {}".format(image_to_upload))
