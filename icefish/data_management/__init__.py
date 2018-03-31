@@ -4,6 +4,7 @@ import tempfile
 import os
 import wave
 import subprocess
+import traceback
 
 from icefish.models import HydrophoneAudio, FLACIntegrityError, MOOVideo
 from icefish_backend import settings
@@ -50,6 +51,7 @@ def hydrophone_pipeline(inbound_folder=settings.WAV_STORAGE_FOLDER, outbound_fol
 			try:
 				audio.get_wave_length()
 			except wave.Error:
+				log.warning(traceback.format_exc())
 				log.warning("Unable to get metadata about wave file {} - skipping".format(full_input))
 				continue
 			audio.get_start_time()
