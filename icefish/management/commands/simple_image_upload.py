@@ -82,7 +82,7 @@ class Command(BaseCommand):
 		ImageFile.LOAD_TRUNCATED_IMAGES = True  # we have lots of "damaged" images - this lets it read through and use them
 		waypoint_last_update = {}
 
-		sleep_time = min([waypoint["update_interval"] for waypoint in waypoints]) # check for new images at the minimum interval specified for all the waypoints
+		sleep_time = min([waypoints[waypoint]["update_interval"] for waypoint in waypoints]) # check for new images at the minimum interval specified for all the waypoints
 
 		while True:
 			log.debug("Checking for images")
