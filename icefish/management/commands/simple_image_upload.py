@@ -8,7 +8,7 @@ import logging
 from icefish_backend import settings
 
 import arrow
-from PIL import Image
+from PIL import Image, ImageFile
 import pysftp
 
 from django.core.management.base import BaseCommand, CommandError
@@ -82,6 +82,7 @@ class Command(BaseCommand):
 		else:
 			waypoints = [waypoint for waypoint in settings.WAYPOINTS]
 
+		ImageFile.LOAD_TRUNCATED_IMAGES = True  # we have lots of "damaged" images - this lets it read through and use them
 		waypoint_last_update = {}
 
 		while True:
