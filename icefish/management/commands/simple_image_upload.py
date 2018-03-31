@@ -60,16 +60,20 @@ class Command(BaseCommand):
 		cnopts = pysftp.CnOpts()
 		cnopts.hostkeys = None  # disable host key checking
 		with pysftp.Connection(settings.REMOTE_SERVER_ADDRESS, port=settings.REMOTE_SERVER_SSH_PORT, username=settings.REMOTE_SERVER_USER, password=settings.REMOTE_SERVER_PASSWORD, cnopts=cnopts) as sftp:
-			remote_path = "{}/{}".format(settings.REMOTE_SERVER_IMAGE_FOLDER, remote_folder)
-			if not sftp.exists(remote_path):  # make sure the folder exists
+			base_remote_path = "{}/{}".format(settings.REMOTE_SERVER_IMAGE_FOLDER, remote_folder)
+			if not sftp.exists(base_remote_path):  # make sure the folder exists
+				sftp.mkdir(base_remote_path)
+
+			remote_path = "{}/{}".format(base_remote_path, arrow.utcnow().year)
+			if not sftp.exists(remote_path):
 				sftp.mkdir(remote_path)
 
 			with sftp.cd(remote_path):  # temporarily chdir to public
 				sftp.put(image_path)  # send the image
 
 				base_name = os.path.basename(image_path)
-				log.debug("cp \"{}/{}\" {}/current.jpg".format(remote_path, base_name, remote_path))
-				sftp.execute("cp \"{}/{}\" {}/current.jpg".format(remote_path, base_name, remote_path))  # remote copy the file to current.jpg to upload it only once
+				log.debug("cp \"{}/{}\" {}/current.jpg".format(remote_path, base_name, base_remote_path))
+				sftp.execute("cp \"{}/{}\" {}/current.jpg".format(remote_path, base_name, base_remote_path))  # remote copy the file to current.jpg to upload it only once
 
 	def handle(self, *args, **options):
 
@@ -99,6 +103,10 @@ class Command(BaseCommand):
 						self.send_image(image_to_upload, waypoint_info["remote_path"])
 
 						os.remove(image_to_upload)  # remove the temporary file
+
+						# now, move the image to the uploaded folder
+						new_path = os.path.
+						os.rename(new_image, )
 						waypoint_last_update[waypoint] = current_time  # set the last update time so we wait the right amount later on
 					except OSError:
 						log.warning("Failed to read image file")
@@ -106,4 +114,4 @@ class Command(BaseCommand):
 						log.warning("Failed to read image file")
 						# we want to log these issues, but roll on through them - it seems to have issues with network drive, might need to force a local copy, then read
 
-			time.sleep(10)
+			time.sleep(30)
