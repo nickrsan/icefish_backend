@@ -102,6 +102,29 @@ REMOTE_SERVER_SSH_PORT = 22
 REMOTE_SERVER_IMAGE_FOLDER = "/var/MOO/images"
 REMOTE_SERVER_USER = ""
 REMOTE_SERVER_PASSWORD = ""
+WAYPOINT_IMAGE_FOLDER = r""
+WAYPOINTS = {
+    "base": {
+        "base_path": r"",
+        "remote_path": r"base",
+        "update_interval": 300,  #seconds
+        "resize_quality": 50,
+        "resize_x": 1280,
+        "resize_y": 720,
+    },
+    #"home_northeast": {
+    #    "base_path": r"Home Northeast",
+    #    "update_interval": 300,  # seconds
+    #    "resize_quality": 70,
+    #    "resize_x": 1280,
+    #},
+    #"light_tour": {
+    #    "base_path": r"Light Tour 7",
+    #    "update_interval": 300,  # seconds
+    #    "resize_quality": 70,
+    #    "resize_x": 1280,
+    #},
+}
 
 # RABBITMQ Settings
 # if you're using the advanced version of the CTD logger that lets you send commands while it's autologging, fill these out

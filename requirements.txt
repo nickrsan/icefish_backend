@@ -10,3 +10,5 @@ djangorestframework
 waitress
 hachoir3
 psutil
+pysftp
+Pillow
