@@ -95,7 +95,8 @@ class Command(BaseCommand):
 					# last upload does this actually run
 
 					log.info("Sending new image to remote for waypoint {}".format(waypoint))
-					new_image = get_newest_image(os.path.join(settings.WAYPOINT_IMAGE_FOLDER, waypoint_info["base_path"]))
+					base_folder = os.path.join(settings.WAYPOINT_IMAGE_FOLDER, waypoint_info["base_path"])
+					new_image = get_newest_image(base_folder)
 					log.debug("Newest image is {}".format(new_image))
 					try:
 						image_to_upload = self.prep_for_upload(new_image, waypoint, waypoint_info)
@@ -105,8 +106,9 @@ class Command(BaseCommand):
 						os.remove(image_to_upload)  # remove the temporary file
 
 						# now, move the image to the uploaded folder
-						new_path = os.path.
-						os.rename(new_image, )
+						new_path = os.path.join(base_folder, "uploaded")
+						image_name = os.path.basename(new_image)
+						os.rename(new_image, os.path.join(new_path, image_name))
 						waypoint_last_update[waypoint] = current_time  # set the last update time so we wait the right amount later on
 					except OSError:
 						log.warning("Failed to read image file")
