@@ -92,11 +92,17 @@ class Command(BaseCommand):
 
 					log.info("Sending new image to remote for waypoint {}".format(waypoint))
 					new_image = get_newest_image(os.path.join(settings.WAYPOINT_IMAGE_FOLDER, waypoint_info["base_path"]))
-					image_to_upload = self.prep_for_upload(new_image, waypoint, waypoint_info)
-					log.info("Sending {}".format(image_to_upload))
-					self.send_image(image_to_upload, waypoint_info["remote_path"])
+					try:
+						image_to_upload = self.prep_for_upload(new_image, waypoint, waypoint_info)
+						log.info("Sending {}".format(image_to_upload))
+						self.send_image(image_to_upload, waypoint_info["remote_path"])
 
-					os.remove(image_to_upload)  # remove the temporary file
-					waypoint_last_update[waypoint] = current_time  # set the last update time so we wait the right amount later on
+						os.remove(image_to_upload)  # remove the temporary file
+						waypoint_last_update[waypoint] = current_time  # set the last update time so we wait the right amount later on
+					except OSError:
+						log.warning("Failed to read image file")
+					except IOError:
+						log.warning("Failed to read image file")
+						# we want to log these issues, but roll on through them - it seems to have issues with network drive, might need to force a local copy, then read
 
 			time.sleep(10)
