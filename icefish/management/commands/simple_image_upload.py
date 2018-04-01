@@ -4,6 +4,7 @@ import tempfile
 import time
 import platform
 import logging
+import subprocess
 
 from icefish_backend import settings
 
@@ -78,6 +79,11 @@ class Command(BaseCommand):
 			waypoints = [options['waypoint'][0], ]
 		else:
 			waypoints = [waypoint for waypoint in settings.WAYPOINTS]
+
+		# if it's on the network, set it up so the service version can connect to the files
+		if settings.WAYPOINT_IMAGE_FOLDER.startswith(r"\\"):
+			connect_command = 'NET USE {} /User:{} "{}"'.format(settings.WAYPOINT_IMAGE_FOLDER, settings.WAYPOINT_IMAGE_PASSWORD, settings.WAYPOINT_IMAGE_PASSWORD)
+			subprocess.check_call(connect_command, stdout=subprocess.PIPE, shell=True)
 
 		ImageFile.LOAD_TRUNCATED_IMAGES = True  # we have lots of "damaged" images - this lets it read through and use them
 		waypoint_last_update = {}
