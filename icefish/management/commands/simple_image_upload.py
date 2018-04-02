@@ -110,7 +110,12 @@ class Command(BaseCommand):
 						log.info("Sending new image to remote for waypoint {}".format(waypoint))
 						base_folder = os.path.join(settings.WAYPOINT_IMAGE_FOLDER, waypoint_info["base_path"])
 						new_image = get_newest_image(base_folder)
-						log.debug("Newest image is {}".format(new_image))
+
+						if not os.path.exists(new_image):  # if it returns empty
+							continue
+						else:
+							log.debug("Newest image is {}".format(new_image))
+
 						try:
 							image_to_upload = self.prep_for_upload(new_image, waypoint, waypoint_info)
 							log.info("Sending {}".format(image_to_upload))
