@@ -140,5 +140,6 @@ class Command(BaseCommand):
 							log.warning(traceback.format_exc())
 							log.warning("Failed to read image file")
 							# we want to log these issues, but roll on through them - it seems to have issues with network drive, might need to force a local copy, then read
-
+			
+			log.info("Done with sending. Sleeping for {} seconds".format(sleep_time))
 			time.sleep(sleep_time)
