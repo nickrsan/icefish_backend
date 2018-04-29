@@ -4,6 +4,7 @@ import time
 import platform
 import logging
 import subprocess
+import traceback
 
 from icefish_backend import settings
 
@@ -102,9 +103,12 @@ class Command(BaseCommand):
 
 		# if it's on the network, set it up so the service version can connect to the files
 		if settings.WAYPOINT_IMAGE_FOLDER.startswith(r"\\"):
-			connect_command = 'NET USE {} /User:{} "{}"'.format(settings.WAYPOINT_IMAGE_FOLDER, settings.WAYPOINT_IMAGE_USERNAME, settings.WAYPOINT_IMAGE_PASSWORD)
-			subprocess.check_call(connect_command, stdout=subprocess.PIPE, shell=True)
-
+			try:
+				connect_command = 'NET USE {} /User:{} "{}"'.format(settings.WAYPOINT_IMAGE_FOLDER, settings.WAYPOINT_IMAGE_USERNAME, settings.WAYPOINT_IMAGE_PASSWORD)
+				subprocess.check_call(connect_command, stdout=subprocess.PIPE, shell=True)
+			except subprocess.CalledProcessError:
+				log.warning("Failed to connect network drive for images. This can be ignored if running interactively and drives are mapped, but should be noted if this crops up from the service")
+			
 		ImageFile.LOAD_TRUNCATED_IMAGES = True  # we have lots of "damaged" images - this lets it read through and use them
 		waypoint_last_update = {}
 
@@ -140,19 +144,23 @@ class Command(BaseCommand):
 						try:
 							image_to_upload = self.prep_for_upload(new_image, waypoint, waypoint_info)
 							log.info("Sending {}".format(image_to_upload))
-							self.send_image(image_to_upload, waypoint_info["remote_path"], sftp)
-
-							os.remove(image_to_upload)  # remove the temporary file
-
-							# now, move the image to the uploaded folder
-							new_path = os.path.join(base_folder, "uploaded")
-							image_name = os.path.basename(new_image)
-							os.rename(new_image, os.path.join(new_path, image_name))
-							waypoint_last_update[waypoint] = current_time  # set the last update time so we wait the right amount later on
+							try:
+								self.send_image(image_to_upload, waypoint_info["remote_path"], sftp)
+								
+								# now, move the image to the uploaded folder
+								new_path = os.path.join(base_folder, "uploaded")
+								image_name = os.path.basename(new_image)
+								os.rename(new_image, os.path.join(new_path, image_name))
+								waypoint_last_update[waypoint] = current_time  # set the last update time so we wait the right amount later on
+							finally:  # always remove the temporary file, but it won't catch a failure after it's created, but before this block is entered
+								os.remove(image_to_upload)  # remove the temporary file
 						except OSError:
-							log.warning("Failed to read image file")
+							log.warning(traceback.format_exc())
+							log.warning("Failed to work with image file - check the permissions on the uploading user's access to the folder this image is uploading into, and check on the images themselves.")
 						except IOError:
+							log.warning(traceback.format_exc())
 							log.warning("Failed to read image file")
 							# we want to log these issues, but roll on through them - it seems to have issues with network drive, might need to force a local copy, then read
-
+			
+			log.info("Done with sending. Sleeping for {} seconds".format(sleep_time))
 			time.sleep(sleep_time)
