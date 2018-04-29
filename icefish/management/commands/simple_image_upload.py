@@ -1,5 +1,4 @@
 import os
-import glob
 import tempfile
 import time
 import platform
@@ -15,6 +14,17 @@ import pysftp
 from django.core.management.base import BaseCommand, CommandError
 
 from icefish_backend import local_settings
+
+####
+#
+# NEED TO MAKE IT IGNORE IMAGES THAT START WITH int_19700101 - these happen when the
+# camera forgets what time it is (probably a reboot). Either ignore images, or
+# overwrite on move. These should be the only files whose names won't be unique. Also
+# Don't have it check which is newest if length of images found is 1. Also, don't use
+# glob to find images - just use listdir and a comprehension in python to filter to 
+# jpgs.
+####
+
 
 log = logging.getLogger("icefish")
 
@@ -37,8 +47,18 @@ def get_newest_image(folder):
 	:param folder:
 	:return:
 	"""
-	list_of_files = glob.glob(os.path.join(folder, "*.jpg"))  # * means all if need specific format then *.csv
-	return max(list_of_files, key=get_time)
+	list_of_files = os.listdir(os.path.join(folder))  # get all the files in the folder first
+	only_jpgs = [filename for filename in list_of_files if filename.endswith("jpg")]  # doing this instead of glob because I think globbing had some performance issues on windows/networks
+
+	# this step does two things - first, it adds back in the full folder path, and it filters out
+	# bad images that had date in name from 1970 after camera restarts - causes many problems and network load
+	final_candidates = [os.path.join(folder, filename) for filename in only_jpgs if not filename.startswith("int_1970")]
+
+	# return the single image with the latest time, returning None if we have no images for any reason
+	if len(final_candidates) is 0:
+		return None
+
+	return max(final_candidates, key=get_time)
 
 
 class Command(BaseCommand):
@@ -112,6 +132,7 @@ class Command(BaseCommand):
 						new_image = get_newest_image(base_folder)
 
 						if not os.path.exists(new_image):  # if it returns empty
+							log.debug("Skipping upload - no valid image to upload")
 							continue
 						else:
 							log.debug("Newest image is {}".format(new_image))
