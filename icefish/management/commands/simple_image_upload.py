@@ -135,7 +135,7 @@ class Command(BaseCommand):
 						base_folder = os.path.join(settings.WAYPOINT_IMAGE_FOLDER, waypoint_info["base_path"])
 						new_image = get_newest_image(base_folder)
 
-						if not os.path.exists(new_image):  # if it returns empty
+						if new_image is None or not os.path.exists(new_image):  # if it returns empty
 							log.debug("Skipping upload - no valid image to upload")
 							continue
 						else:
