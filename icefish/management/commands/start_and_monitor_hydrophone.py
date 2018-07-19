@@ -37,9 +37,6 @@ def check_recent_hydrophone_data(folder=settings.WAV_STORAGE_FOLDER):
 		find_and_kill_array_data_manager()
 		start_array_data_manager()
 
-	time.sleep(600)
-	check_recent_hydrophone_data(folder)
-
 def find_and_kill_array_data_manager():
 	running_processes = {p.name(): p.info for p in psutil.process_iter(attrs=['pid'])}
 	pid = running_processes["ArrayDataMgr.exe"]['pid']
@@ -69,5 +66,6 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		start_array_data_manager()
-		time.sleep(600)
-		check_recent_hydrophone_data()  # this automatically loops
+		while True:
+			time.sleep(600)
+			check_recent_hydrophone_data()  # if there's nothing recent, this kills the current application and starts it up again
