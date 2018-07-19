@@ -37,11 +37,13 @@ def check_recent_hydrophone_data(folder=settings.WAV_STORAGE_FOLDER):
 
 def find_and_kill_array_data_manager():
 	running_processes = {p.name(): p.info for p in psutil.process_iter(attrs=['pid'])}
-	pid = running_processes["ArrayDataMgr.exe"]['pid']
-	try:
-		kill_process(pid)
-	except RuntimeError:
-		raise RuntimeError("Failed to kill ArrayDataMgr.exe - please check on the server - it's possible a new copy was still able to start")
+	process_name = "ArrayDataMgr.exe"
+	if process_name in running_processes:
+		pid = running_processes[process_name]['pid']
+		try:
+			kill_process(pid)
+		except RuntimeError:
+			raise RuntimeError("Failed to kill ArrayDataMgr.exe - please check on the server - it's possible a new copy was still able to start")
 
 def kill_process(pid, sig=signal.SIGTERM, timeout=60):
 	"""Kill a process tree (including grandchildren) with signal
