@@ -21,7 +21,7 @@ if __name__ == "__main__":
 					 )
 	if sent == 0:
 		log.warning("Emails not sent to notify Paul of ADM failure")
-		
+
 	try:
 		find_and_kill_array_data_manager()
 	except:
