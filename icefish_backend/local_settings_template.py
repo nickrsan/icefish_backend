@@ -85,37 +85,37 @@ CTD_BAUD_RATE = 4800  # The baud rate of the CTD cable. We're running a long cab
 CTD_DEFAULT_COM_PORT = "COM3"  # What COM port is the CTD running on when it's plugged in?
 CTD_INTERRUPTABLE = False  # should the CTD be run in the mode that lets us send commands in through a side channel while it's logging. False is safer, True is helpful when you need it
 CTD_FORCE_SETTINGS = False  # should the CTD be stopped to apply the logging interval and update the time (True), or should we just listen in to logging in progress if it's already logging (False)?
-CTD_WEB_API_PUBLIC_TOKEN = "b1c583786a501ee2387f8673adfbd225e3d1ba4f"
+CTD_WEB_API_PUBLIC_TOKEN = "b1c583786a501ee2387f8673adfbd225e3d1ba4f"  # API key used by the kiosk application to get CTD data
 
-# Charting URLs - most items in this section should be prefixed with ICEFISH because they'll integrate in the page with other things
-ICEFISH_QUERY_ROOT_URL = "/api/ctd/"
-ICEFISH_PROXY_BASE_URL = "//b195-moo-proxy.nicksantos.com"
-ICEFISH_HYDROPHONE_PORT = 8010
-ICEFISH_CONTROL_PORT = 9070
+# Charting URLs - most items in this section should be prefixed with ICEFISH because they'll be injected into the javascript to integrate in the page with other things
+ICEFISH_QUERY_ROOT_URL = "/api/ctd/"  # base URL for querying for CTD data
+ICEFISH_PROXY_BASE_URL = "//b195-moo-proxy.nicksantos.com"  # the reverse proxy server for hosting the kiosk at McMurdo - essentially the base URL of the site
+ICEFISH_HYDROPHONE_PORT = 8010  # what port is hydrophone data streamed from (on the proxy base url, not the hydrophone itself) - this is also a reverse proxy thing
+ICEFISH_CONTROL_PORT = 9070  # which port can we send things like wiper commands to - directs to the Raspberry Pi controller (firewalled, except for from specific IPs
 ICEFISH_REALTIME_CTD = True  # Does this device support realtime CTD data in the browser? Should a loaded page request updates? True if so, False if not
 
-ICEFISH_VIDEO_SERVER_URL = "http://157.132.101.162:1935"
+ICEFISH_VIDEO_SERVER_URL = "http://157.132.101.162:1935"  # address and port of the Wowza server providing the live video stream
 
-# REMOTE SERVER UPLOADS - used to send images to a remote serve
+# REMOTE SERVER UPLOADS - used to send images to a remote server for off-continent hosting - in most cases, this is MOO-CONUS
 REMOTE_SERVER_ADDRESS = ""
 REMOTE_SERVER_SSH_PORT = 22
-REMOTE_SERVER_IMAGE_FOLDER = "/var/MOO/images"
+REMOTE_SERVER_IMAGE_FOLDER = "/var/MOO/images"  # where should images be uploaded to?
 REMOTE_SERVER_USER = ""
 REMOTE_SERVER_PASSWORD = ""
 
 
-# IMAGE STORAGE FOLDERS
-WAYPOINT_IMAGE_FOLDER = r""
-WAYPOINT_IMAGE_USERNAME = ""
+# IMAGE STORAGE FOLDERS for tracking and uploads
+WAYPOINT_IMAGE_FOLDER = r""  # base folder that has waypoint and interval images
+WAYPOINT_IMAGE_USERNAME = ""  # username and password are needed because it'll map a connection to the storage array when it runs as its own user account in service-mode - works without this when run as a standalone script in current user context
 WAYPOINT_IMAGE_PASSWORD = ""
 WAYPOINTS = {
-    "base": {
-        "base_path": r"",
-        "remote_path": r"base",
-        "update_interval": 300,  #seconds
-        "resize_quality": 50,
-        "resize_x": 1280,
-        "resize_y": 720,
+    "base": {  # name used internally
+        "base_path": r"",  # path relative to WAYPOINT_IMAGE_FOLDER where images can be found
+        "remote_path": r"base",  # folder to place images in when uploaded to REMOTE_SERVER_ADDRESS (relative to REMOTE_SERVER_IMAGE_FOLDER
+        "update_interval": 300,  #seconds - how often should this folder be checked for new images?
+        "resize_quality": 50,  # 0-100 quality setting (100 is best), for resizing images for uploading to remote server
+        "resize_x": 1280,  # x dimension for resize - we resize and downsample quality to reduce bandwidth requirements of regular uploads
+        "resize_y": 720,  # y dimension for resize
     },
     #"home_northeast": {
     #    "base_path": r"Home Northeast",
@@ -131,7 +131,7 @@ WAYPOINTS = {
     #},
 }
 
-# RABBITMQ Settings
+# RABBITMQ Settings - pretty safe to ignore
 # if you're using the advanced version of the CTD logger that lets you send commands while it's autologging, fill these out
 RABBITMQ_USERNAME = ""  # username for rabbitmq - this user should have config privileges on the vhost defined below.
 RABBITMQ_PASSWORD = ""  # password for rabbitmq
