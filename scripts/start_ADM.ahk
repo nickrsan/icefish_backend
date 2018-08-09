@@ -28,7 +28,7 @@ Click 137, 266
 Send ^a
 Send %logging_interval%					; How many minutes each file should be
 
-PixelSearch, Px, Py, 0, 0, 2000, 2000, 0xff0000, 5, Fast RGB
+PixelSearch, Px, Py, 0, 0, 2000, 2000, 0xff0000, 5, Fast RGB       ; find the start button - it moves if the window resizes
 if ErrorLevel
 	Exit 1								; Couldn't find the pixel to click to start logging
 else
