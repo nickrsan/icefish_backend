@@ -118,7 +118,7 @@ class Command(BaseCommand):
 		for waypoint in waypoints:
 			uploaded_folder = os.path.join(settings.WAYPOINT_IMAGE_FOLDER, settings.WAYPOINTS[waypoint]["base_path"], local_settings.WAYPOINT_IMAGE_UPLOADED_FOLDER)
 			
-			if not os.exists(uploaded_folder):
+			if not os.path.exists(uploaded_folder):
 				os.makedirs(uploaded_folder)  # make sure the full tree exists
 		
 		while True:
