@@ -61,7 +61,28 @@ def get_newest_image(folder):
 
 	return max(final_candidates, key=get_time)
 
+def _move_image(image, base_folder):
+	base_path = os.path.join(base_folder, local_settings.WAYPOINT_IMAGE_UPLOADED_FOLDER)
+	image_name = os.path.basename(image)
 
+	new_path = os.path.join(base_path, image_name)
+	i=2
+	while os.path.exists(new_path) and i < 100:  # if the image already exists (can happen with the reset images or the snapshots if Paul copies an image back to the main folder. But don't want to overwrite anything
+		# if we get to 100 copies, just have it fail and email me instead
+		
+		if i > 2: # how many characters to remove off the end. After the first append, remove 1, then add the number
+			strip_index = 5
+		elif i > 9:
+			strip_index = 6  # two digits to remove
+		else:
+			strip_index = 4  # no digits to remove
+			
+		new_path = "{}_{}.jpg".format(new_path[:-strip_index],str(i))  # strip off the .jpg, add a number to it
+		i += 1  # increase i for if we have to do it again
+		
+	os.rename(image, new_path)
+
+	
 class Command(BaseCommand):
 	help = 'Uploads the latest image for a waypoint to MOO-CONUS'
 
@@ -153,11 +174,8 @@ class Command(BaseCommand):
 							log.info("Sending {}".format(image_to_upload))
 							try:
 								self.send_image(image_to_upload, waypoint_info["remote_path"], sftp)
-								
 								# now, move the image to the uploaded folder
-								new_path = os.path.join(base_folder, local_settings.WAYPOINT_IMAGE_UPLOADED_FOLDER)
-								image_name = os.path.basename(new_image)
-								os.rename(new_image, os.path.join(new_path, image_name))
+								_move_image(new_image, base_folder)
 								waypoint_last_update[waypoint] = current_time  # set the last update time so we wait the right amount later on
 							finally:  # always remove the temporary file, but it won't catch a failure after it's created, but before this block is entered
 								os.remove(image_to_upload)  # remove the temporary file
