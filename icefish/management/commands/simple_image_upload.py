@@ -106,8 +106,8 @@ class Command(BaseCommand):
 			try:
 				connect_command = 'NET USE {} /User:{} "{}"'.format(settings.WAYPOINT_IMAGE_FOLDER, settings.WAYPOINT_IMAGE_USERNAME, settings.WAYPOINT_IMAGE_PASSWORD)
 				subprocess.check_call(connect_command, stdout=subprocess.PIPE, shell=True)
-			except subprocess.CalledProcessError:
-				log.warning("Failed to connect network drive for images. This can be ignored if running interactively and drives are mapped, but should be noted if this crops up from the service")
+			except subprocess.CalledProcessError as e:
+				log.warning("Failed to connect network drive for images. This can be ignored if running interactively and drives are mapped, but should be noted if this crops up from the service. Error reported was: {}".format(str(e)))
 			
 		ImageFile.LOAD_TRUNCATED_IMAGES = True  # we have lots of "damaged" images - this lets it read through and use them
 		waypoint_last_update = {}
