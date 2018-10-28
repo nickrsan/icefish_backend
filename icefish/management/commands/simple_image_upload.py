@@ -114,6 +114,11 @@ class Command(BaseCommand):
 
 		sleep_time = min([settings.WAYPOINTS[waypoint]["update_interval"] for waypoint in waypoints]) # check for new images at the minimum interval specified for all the waypoints
 
+		# on startup, make sure the "uploaded" folder exists - this might not exist if the output location changes (when arrays switch, etc)
+		for waypoint in waypoints:
+			uploaded_folder = os.path.join(settings.WAYPOINT_IMAGE_FOLDER, settings.WAYPOINTS[waypoint]["base_path"], local_settings.WAYPOINT_IMAGE_UPLOADED_FOLDER)
+			os.makedirs(uploaded_folder)  # make sure the full tree exists
+		
 		while True:
 			log.debug("Checking for images")
 
@@ -148,7 +153,7 @@ class Command(BaseCommand):
 								self.send_image(image_to_upload, waypoint_info["remote_path"], sftp)
 								
 								# now, move the image to the uploaded folder
-								new_path = os.path.join(base_folder, "uploaded")
+								new_path = os.path.join(base_folder, local_settings.WAYPOINT_IMAGE_UPLOADED_FOLDER)
 								image_name = os.path.basename(new_image)
 								os.rename(new_image, os.path.join(new_path, image_name))
 								waypoint_last_update[waypoint] = current_time  # set the last update time so we wait the right amount later on
