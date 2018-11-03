@@ -151,7 +151,7 @@ function _create_video(container, video_name, video_path, autoplay, controls, fl
     }
 
     if(video_path === undefined){
-        video_path = ICEFISH_VIDEO_SERVER_URL +"/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8";
+        video_path = ICEFISH_VIDEO_SERVER_URL + ICEFISH_VIDEO_PLAYLIST_URL;
     }
 
     if (controls === undefined){
