@@ -95,6 +95,7 @@ ICEFISH_CONTROL_PORT = 9070  # which port can we send things like wiper commands
 ICEFISH_REALTIME_CTD = True  # Does this device support realtime CTD data in the browser? Should a loaded page request updates? True if so, False if not
 
 ICEFISH_VIDEO_SERVER_URL = "http://157.132.101.162:1935"  # address and port of the Wowza server providing the live video stream
+ICEFISH_VIDEO_PLAYLIST_URL = "/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8"  # everything after the server URL to get the video playlist - include initial slash!
 
 # REMOTE SERVER UPLOADS - used to send images to a remote server for off-continent hosting - in most cases, this is MOO-CONUS
 REMOTE_SERVER_ADDRESS = ""
