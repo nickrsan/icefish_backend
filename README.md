@@ -237,8 +237,6 @@ Need to install packages in requirements.txt and plug in CTD to computer.
 Requires an environment variable to be set, named *SEABIRD_CTD_PORT*
 that indicates which COM port the CTD is connected on (eg COM6).
 
-(Maybe) Need to set up and install Erlang and RabbitMQ server and configure ports. As of 10/23/2017 not required, but might be.
-
 #### Running CTD Monitoring
 To run the script to monitor for CTD data, after setup is complete, simply run
 ```python
@@ -262,3 +260,14 @@ For example, to get the status output printed in the data reader's console
 ```python
 python manage.py send_command_to_ctd DS
 ```
+
+# Updating the application on MOO1
+On MOO1, there is a batch script that handles updates for the kiosk. The basic process is the following:
+1. Open a command prompt as an admin
+2. cd to `C:\Code`
+3. run `virtualenvs/server_virtualenv/scripts/activate`
+4. cd into `icefish_backend`
+5. run `update.bat`
+
+This script pulls changesets from BitBucket, updates to the latest release, updates any requirements specified in
+requirements.txt, then restarts the MOOWaitress (kiosk) service. It does *not* restart the CTD service or the image upload service
