@@ -107,7 +107,7 @@ function hide_controls(){
     }
 }
 function start_video(){
-    var video_player = _create_video("icefish_video_player_container", "video_player", ICEFISH_VIDEO_SERVER_URL + "/MOO/smil:AdaptaMooHigh.smil/playlist.m3u8", true, false, true);
+    var video_player = _create_video("icefish_video_player_container", "video_player", ICEFISH_VIDEO_SERVER_URL + ICEFISH_VIDEO_PLAYLIST_URL, true, false, true);
     video_player.on("ready", function() {
         video_player.on("abort", recover_video);
         video_player.on("ended", function () {
