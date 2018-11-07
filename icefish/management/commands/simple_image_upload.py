@@ -133,7 +133,7 @@ class Command(BaseCommand):
 		ImageFile.LOAD_TRUNCATED_IMAGES = True  # we have lots of "damaged" images - this lets it read through and use them
 		waypoint_last_update = {}
 
-		sleep_time = min([settings.WAYPOINTS[waypoint]["update_interval"] for waypoint in waypoints]) # check for new images at the minimum interval specified for all the waypoints
+		sleep_time = min([settings.WAYPOINTS[waypoint]["update_interval"] for waypoint in waypoints]) / 2 # check for new images at the minimum interval specified for all the waypoints - divide by two so that out of phase check times don't wait too long.
 
 		# on startup, make sure the "uploaded" folder exists - this might not exist if the output location changes (when arrays switch, etc)
 		for waypoint in waypoints:
