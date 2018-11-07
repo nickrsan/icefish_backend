@@ -181,7 +181,7 @@ class Command(BaseCommand):
 								os.remove(image_to_upload)  # remove the temporary file
 						except OSError:
 							log.warning(traceback.format_exc())
-							log.warning("Failed to work with image file - check the permissions on the uploading user's access to the folder this image is uploading into, and check on the images themselves.")
+							log.warning("Failed to work with image for waypoint {} - check the permissions on the uploading user's access to the folder this image is uploading into, and check on the images themselves.".format(waypoint))
 						except IOError:
 							log.warning(traceback.format_exc())
 							log.warning("Failed to read image file")
