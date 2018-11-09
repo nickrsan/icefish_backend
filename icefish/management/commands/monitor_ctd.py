@@ -72,6 +72,7 @@ class Command(BaseCommand):
 		except:
 			exception_info = traceback.format_exc()
 			log.error("Problem working with CTD: {}".format(exception_info))
+			raise  # when running as a service, this will force a restart, basically
 
 
 def handle_records(records, return_alerts=False):
