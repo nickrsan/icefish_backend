@@ -72,6 +72,7 @@ class Command(BaseCommand):
 		except:
 			exception_info = traceback.format_exc()
 			log.error("Problem working with CTD: {}".format(exception_info))
+			ctd.close()  # force a close before raising the exception in hopes the port will be available when the service restarts
 			raise  # when running as a service, this will force a restart, basically
 
 
