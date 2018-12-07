@@ -85,7 +85,7 @@ function get_initial_data(divs) {
             var salinity = document.getElementById(divs["salinity"]);
 
             var common_layout = {
-                margin: {t: 10, b:50, l:50, r:0},
+                margin: {t:10, b:50, l:50, r:0},
                 hovermode: 'closest',
                 plot_bgcolor: '#213c52',
                 paper_bgcolor: '#213c52',
@@ -94,20 +94,20 @@ function get_initial_data(divs) {
             };
 
             var temperature_layout = Object.assign({
-                xaxis: {title: 'Time'},
-                yaxis: {title: 'Temperature (C)'},
+                xaxis: {title: 'Time (UTC)'},
+                yaxis: {title: 'Freeze pt / Temp (°C)'},
             }, common_layout);  // merge the common layout items with the specific ones
             a = Plotly.plot(temperature, [
                 {  // freezing point first because we want it to draw under temperature
                     x: unpack(data, "dt").reverse(),
                     y: unpack(data, "freezing_point").reverse(),
-                    name: "Freezing Point",
+                    name: "Freezing Point (°C)",
                     line: {color: "#c3e9f4",},
                 },
                 {
                     x: unpack(data, "dt").reverse(),  // we have to reverse them all so we can connect new additions later
                     y: unpack(data, "temp").reverse(),
-                    name: "Temperature (C)",
+                    name: "Temperature (°C)",
                     line: {color: "#3891ff",},
                 },
                 ],
@@ -115,7 +115,7 @@ function get_initial_data(divs) {
             );
 
             var pressure_layout = Object.assign({
-                xaxis: {title: 'Time'},
+                xaxis: {title: 'Time (UTC)'},
                 yaxis: {title: 'Pressure (decibars)'}
             }, common_layout);  // merge the common layout items with the specific ones
             Plotly.plot(pressure, [{
@@ -127,7 +127,7 @@ function get_initial_data(divs) {
             );
 
             var salinity_layout = Object.assign({
-                xaxis: {title: 'Time'},
+                xaxis: {title: 'Time (UTC)'},
                 yaxis: {title: 'Salinity (PSU)'}
             }, common_layout);  // merge the common layout items with the specific ones
             var a = Plotly.plot(salinity, [{
