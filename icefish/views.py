@@ -56,10 +56,13 @@ class CTDViewSet(viewsets.ModelViewSet):
 			Primary function that determines API results. By default returns the last day or so, but takes parameters
 			"since" and "before" that allow specification of datetime values (in formats supported by self.make_datetime
 			- see that method for supported formats. Returns a queryset with the records to pass to the API.
+			
+			Excludes any CTD records with a BoundFail flag - in the future, we *might* want to make this configurable, but
+			for now, it's fine to just leave them out
 		:return:
 		"""
 
-		queryset = models.CTD.objects.exclude(flags__flag="BoundFail").order_by('-dt')
+		queryset = models.CTD.objects.exclude(flags__flag="BoundFail").order_by('-dt')  # NOTE - this excludes any records that have a BoundFail flag associated with them!
 		beginning_dt = self.request.query_params.get('since', None)
 		end_dt = self.request.query_params.get('before', None)
 		if beginning_dt is not None:
