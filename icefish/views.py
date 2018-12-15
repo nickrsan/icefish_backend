@@ -59,7 +59,7 @@ class CTDViewSet(viewsets.ModelViewSet):
 		:return:
 		"""
 
-		queryset = models.CTD.objects.all().order_by('-dt')
+		queryset = models.CTD.objects.exclude(flags__flag="BoundFail").order_by('-dt')
 		beginning_dt = self.request.query_params.get('since', None)
 		end_dt = self.request.query_params.get('before', None)
 		if beginning_dt is not None:

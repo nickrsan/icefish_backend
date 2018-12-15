@@ -532,7 +532,7 @@ class AbstractFlag(models.Model):
 class CTDFlag(AbstractFlag):
 	"""
 		Flags:
-		-- BoundFail: Indicates that the data is out of bounds based on an automated check of possible values
+		-- BoundFail: Indicates that the data is out of bounds based on an automated or human check of possible values
 		-- Measured: Indicates that the data were measured by an instrument
 		-- Interpolated: Indicates that the data were interpolated from other data to fill a gap
 		-- Nonrepresentative: Indicates that while data is accurate for current location, not likely accurate for whole area
