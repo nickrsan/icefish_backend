@@ -90,8 +90,10 @@ class CTDViewSet(viewsets.ModelViewSet):
 
 		return queryset
 
+
 def spectrogram_full(request):
 	return render_to_response(request, "icefish/spectrogram.django.html", {'title': "McMurdo Ocean Observatory: Spectrogram"})
+
 
 def chart_full(request, location=None):
 	return render(request, "icefish/data.django.html", {'title': "McMurdo Ocean Observatory", "location": location})
@@ -103,6 +105,7 @@ def audio_archive(request):
 
 	return render_to_response("icefish/audio_archive.django.html", context={"audio_files": audio_files, "title": "McMurdo Ocean Observatory: Audio"})
 
+
 def display_spectrogram(request, hydrophone_audio_id):
 	"""
 
@@ -113,6 +116,7 @@ def display_spectrogram(request, hydrophone_audio_id):
 
 	return _hydrophone_attribute_stream(hydrophone_audio_id=hydrophone_audio_id, attribute="spectrogram")
 
+
 def send_flac(request, hydrophone_audio_id):
 	"""
 
@@ -122,6 +126,7 @@ def send_flac(request, hydrophone_audio_id):
 	"""
 
 	return _hydrophone_attribute_stream(hydrophone_audio_id=hydrophone_audio_id, attribute="flac")
+
 
 def _hydrophone_attribute_stream(hydrophone_audio_id, attribute):
 	"""
