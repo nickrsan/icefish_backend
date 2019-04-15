@@ -49,11 +49,11 @@ def get_newest_image(folder):
 	:return:
 	"""
 	list_of_files = os.listdir(os.path.join(folder))  # get all the files in the folder first
-	only_jpgs = [filename for filename in list_of_files if filename.endswith("jpg")]  # doing this instead of glob because I think globbing had some performance issues on windows/networks
+	only_jpgs_and_pngs = [filename for filename in list_of_files if filename.endswith("jpg") or filename.endswith("png")]  # doing this instead of glob because I think globbing had some performance issues on windows/networks
 
 	# this step does two things - first, it adds back in the full folder path, and it filters out
 	# bad images that had date in name from 1970 after camera restarts - causes many problems and network load
-	final_candidates = [os.path.join(folder, filename) for filename in only_jpgs if not filename.startswith("int_1970")]
+	final_candidates = [os.path.join(folder, filename) for filename in only_jpgs_and_pngs if not filename.startswith("int_1970")]
 
 	# return the single image with the latest time, returning None if we have no images for any reason
 	if len(final_candidates) is 0:
