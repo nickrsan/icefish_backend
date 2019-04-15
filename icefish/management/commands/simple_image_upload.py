@@ -4,6 +4,7 @@ import time
 import platform
 import logging
 import subprocess
+import shutil
 import traceback
 
 from icefish_backend import settings
@@ -91,10 +92,12 @@ class Command(BaseCommand):
 
 	def prep_for_upload(self, image_name, name, params):
 		base_name = os.path.basename(image_name).split(".")[0]
-		image = Image.open(image_name)
 		output_image = tempfile.mktemp("_{}.jpg".format(name), "MOO_{}_".format(base_name))
 
 		if "resize_x" in params and "resize_y" in params:
+		
+			image = Image.open(image_name)
+			
 			if "resize_quality" not in params:
 				resize_quality = local_settings.WAYPOINT_DEFAULT_RESIZE_QUALITY
 			else:
@@ -102,10 +105,10 @@ class Command(BaseCommand):
 				
 			resized_image = image.resize((params["resize_x"], params["resize_y"]))
 			resized_image.save(output_image, quality=resize_quality)
-			
-			return output_image
 		else:
-			return image_name
+			shutil.copyfile(image_name, output_image)  # copy to temp anyway so that the same deletion logic works later - also moves file local to stop network traffic
+		
+		return output_image
 
 	def send_image(self, image_path, remote_folder, sftp):
 			base_remote_path = "{}/{}".format(settings.REMOTE_SERVER_IMAGE_FOLDER, remote_folder)
