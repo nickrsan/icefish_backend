@@ -110,14 +110,16 @@ WAYPOINT_IMAGE_FOLDER = r""  # base folder that has waypoint and interval images
 WAYPOINT_IMAGE_UPLOADED_FOLDER = r"uploaded"  # subfolder name to put uploaded images into within each waypoint folder
 WAYPOINT_IMAGE_USERNAME = ""  # username and password are needed because it'll map a connection to the storage array when it runs as its own user account in service-mode - works without this when run as a standalone script in current user context
 WAYPOINT_IMAGE_PASSWORD = ""
+WAYPOINT_DEFAULT_RESIZE_QUALITY = 35  # JPEG resize quality, 0-100
 WAYPOINTS = {
     "base": {  # name used internally
         "base_path": r"",  # path relative to WAYPOINT_IMAGE_FOLDER where images can be found
         "remote_path": r"base",  # folder to place images in when uploaded to REMOTE_SERVER_ADDRESS (relative to REMOTE_SERVER_IMAGE_FOLDER
         "update_interval": 300,  #seconds - how often should this folder be checked for new images?
-        "resize_quality": 50,  # 0-100 quality setting (100 is best), for resizing images for uploading to remote server
+		# resize prefixes below optional - only provide if want images resized. If not provided, inputs will be left alone
+        "resize_quality": 50,  # 0-100 quality setting (100 is best), for resizing images for uploading to remote server - optional. WAYPOINT_DEFAULT_RESIZE_QUALITY used if left out
         "resize_x": 1280,  # x dimension for resize - we resize and downsample quality to reduce bandwidth requirements of regular uploads
-        "resize_y": 720,  # y dimension for resize
+        "resize_y": 720,  # y dimension for resize - both dimensions must be provided.
     },
     #"home_northeast": {
     #    "base_path": r"Home Northeast",

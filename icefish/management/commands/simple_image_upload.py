@@ -94,10 +94,18 @@ class Command(BaseCommand):
 		image = Image.open(image_name)
 		output_image = tempfile.mktemp("_{}.jpg".format(name), "MOO_{}_".format(base_name))
 
-		resized_image = image.resize((params["resize_x"], params["resize_y"]))
-		resized_image.save(output_image, quality=params["resize_quality"])
-
-		return output_image
+		if "resize_x" in params and "resize_y" in params:
+			if "resize_quality" not in params:
+				resize_quality = local_settings.WAYPOINT_DEFAULT_RESIZE_QUALITY
+			else:
+				resize_quality = params["resize_quality"]
+				
+			resized_image = image.resize((params["resize_x"], params["resize_y"]))
+			resized_image.save(output_image, quality=resize_quality)
+			
+			return output_image
+		else:
+			return image_name
 
 	def send_image(self, image_path, remote_folder, sftp):
 			base_remote_path = "{}/{}".format(settings.REMOTE_SERVER_IMAGE_FOLDER, remote_folder)
