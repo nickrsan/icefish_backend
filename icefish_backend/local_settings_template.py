@@ -120,6 +120,7 @@ WAYPOINTS = {
         "resize_quality": 50,  # 0-100 quality setting (100 is best), for resizing images for uploading to remote server - optional. WAYPOINT_DEFAULT_RESIZE_QUALITY used if left out
         "resize_x": 1280,  # x dimension for resize - we resize and downsample quality to reduce bandwidth requirements of regular uploads
         "resize_y": 720,  # y dimension for resize - both dimensions must be provided.
+		"minimum_size": 16192,  # minimum size in *bytes* for the image - skipped if image is less than this.
     },
     #"home_northeast": {
     #    "base_path": r"Home Northeast",
