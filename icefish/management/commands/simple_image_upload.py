@@ -156,6 +156,18 @@ class Command(BaseCommand):
 				log.debug("cp \"{}/{}\" {}/current.jpg".format(remote_path, base_name, base_remote_path))
 				sftp.execute("cp \"{}/{}\" {}/current.jpg".format(remote_path, base_name, base_remote_path))  # remote copy the file to current.jpg to upload it only once
 
+	def finalize_image(self, new_image, base_folder, waypoint):
+		"""
+			Moves the image to its uploaded folder, and sets the time of last update for this waypoint. Runs *regardless*
+			of if an image is uploaded!
+		:param new_image:
+		:param base_folder:
+		:param waypoint:
+		:return:
+		"""
+		_move_image(new_image, base_folder)
+		self.waypoint_last_update[waypoint] = arrow.utcnow()  # set the last update time so we wait the right amount later on
+
 	def handle(self, *args, **options):
 
 		if options['waypoint']:
@@ -172,7 +184,7 @@ class Command(BaseCommand):
 				log.warning("Failed to connect network drive for images. This can be ignored if running interactively and drives are mapped, but should be noted if this crops up from the service. Error reported was: {}".format(str(e)))
 			
 		ImageFile.LOAD_TRUNCATED_IMAGES = True  # we have lots of "damaged" images - this lets it read through and use them
-		waypoint_last_update = {}
+		self.waypoint_last_update = {}
 
 		sleep_time = min([settings.WAYPOINTS[waypoint]["update_interval"] for waypoint in waypoints]) / 2 # check for new images at the minimum interval specified for all the waypoints - divide by two so that out of phase check times don't wait too long.
 
@@ -195,8 +207,8 @@ class Command(BaseCommand):
 				for waypoint in waypoints:
 					current_time = arrow.utcnow()
 					waypoint_info = settings.WAYPOINTS[waypoint]
-					if waypoint not in waypoint_last_update \
-						or (current_time - waypoint_last_update[waypoint]).seconds > waypoint_info["update_interval"]:
+					if waypoint not in self.waypoint_last_update \
+						or (current_time - self.waypoint_last_update[waypoint]).seconds > waypoint_info["update_interval"]:
 						# the timer runs every ten seconds - only if we've gone more than the update interval for this image since the
 						# last upload does this actually run
 
@@ -212,7 +224,7 @@ class Command(BaseCommand):
 
 						if not self.check_minimum_size(new_image, waypoint_info):
 							log.warning("Skipping upload. Image for waypoint {} doesn't meet minimum size requirements.".format(waypoint))
-							_move_image(new_image, base_folder)  # move it to the uploaded folder anyway to get it out of the way
+							self.finalize_image(new_image, base_folder, waypoint)
 							continue
 
 						try:
@@ -221,8 +233,7 @@ class Command(BaseCommand):
 							try:
 								self.send_image(image_to_upload, waypoint_info["remote_path"], sftp)
 								# now, move the image to the uploaded folder
-								_move_image(new_image, base_folder)
-								waypoint_last_update[waypoint] = current_time  # set the last update time so we wait the right amount later on
+								self.finalize_image(new_image, base_folder, waypoint)
 							finally:  # always remove the temporary file, but it won't catch a failure after it's created, but before this block is entered
 								os.remove(image_to_upload)  # remove the temporary file
 						except OSError:
