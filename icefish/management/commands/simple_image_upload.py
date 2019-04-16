@@ -62,10 +62,17 @@ def get_newest_image(folder):
 
 	return max(final_candidates, key=get_time)
 
-def _move_image(image, base_folder):
-	base_path = os.path.join(base_folder, local_settings.WAYPOINT_IMAGE_UPLOADED_FOLDER)
+def _move_image(image, base_folder, image_uploads_folder=local_settings.WAYPOINT_IMAGE_UPLOADED_FOLDER):
+	"""
+		Moves the image to its new location post-upload.
+	:param image:
+	:param base_folder:
+	:return:
+	"""
+	base_path = os.path.join(base_folder, image_uplaods_folder)
 	image_name = os.path.basename(image)
 
+	# this next section handles making sure that the path we're moving it to is unique
 	new_path = os.path.join(base_path, image_name)
 	i=2
 	while os.path.exists(new_path) and i < 100:  # if the image already exists (can happen with the reset images or the snapshots if Paul copies an image back to the main folder. But don't want to overwrite anything
@@ -91,6 +98,13 @@ class Command(BaseCommand):
 		parser.add_argument('--waypoint', nargs='+', type=str, dest="waypoint")
 
 	def prep_for_upload(self, image_name, name, params):
+		"""
+			Handles resizing the image prior to uploading
+		:param image_name:
+		:param name:
+		:param params:
+		:return:
+		"""
 		base_name = os.path.basename(image_name).split(".")[0]
 		output_image = tempfile.mktemp("_{}.jpg".format(name), "MOO_{}_".format(base_name))
 
@@ -109,6 +123,22 @@ class Command(BaseCommand):
 			shutil.copyfile(image_name, output_image)  # copy to temp anyway so that the same deletion logic works later - also moves file local to stop network traffic
 		
 		return output_image
+
+	def check_min_size(image, params):
+		"""
+			At least one "waypoint" has a minimum size it needs to be before we upload it - the CTD image - small sizes
+			mean a failed capture of the image, so we want to skip it - this method handles that check
+		:param image: full path to image
+		:param params: the waypoint parameters dict
+		:return:
+		"""
+		if not "minimum_size" in params:  # if we don't have a minimum size requirement, return True - the image meets minimum size
+			return True
+
+		if os.path.getsize(image) < params["minimum_size"]:
+			return False
+
+		return True
 
 	def send_image(self, image_path, remote_folder, sftp):
 			base_remote_path = "{}/{}".format(settings.REMOTE_SERVER_IMAGE_FOLDER, remote_folder)
@@ -179,6 +209,11 @@ class Command(BaseCommand):
 							continue
 						else:
 							log.debug("Newest image is {}".format(new_image))
+
+						if not self.check_minimum_size(new_image):
+							log.warning("Skipping upload. Image for waypoint {} doesn't meet minimum size requirements.".format(waypoint))
+							_move_image(new_image, base_folder)  # move it to the uploaded folder anyway to get it out of the way
+							continue
 
 						try:
 							image_to_upload = self.prep_for_upload(new_image, waypoint, waypoint_info)
