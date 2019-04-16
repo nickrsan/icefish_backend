@@ -69,7 +69,7 @@ def _move_image(image, base_folder, image_uploads_folder=local_settings.WAYPOINT
 	:param base_folder:
 	:return:
 	"""
-	base_path = os.path.join(base_folder, image_uplaods_folder)
+	base_path = os.path.join(base_folder, image_uploads_folder)
 	image_name = os.path.basename(image)
 
 	# this next section handles making sure that the path we're moving it to is unique
