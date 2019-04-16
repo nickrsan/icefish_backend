@@ -124,7 +124,7 @@ class Command(BaseCommand):
 		
 		return output_image
 
-	def check_minimum_size(image, params):
+	def check_minimum_size(self, image, params):
 		"""
 			At least one "waypoint" has a minimum size it needs to be before we upload it - the CTD image - small sizes
 			mean a failed capture of the image, so we want to skip it - this method handles that check
