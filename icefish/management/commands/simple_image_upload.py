@@ -132,7 +132,7 @@ class Command(BaseCommand):
 		:param params: the waypoint parameters dict
 		:return:
 		"""
-		if not "minimum_size" in params:  # if we don't have a minimum size requirement, return True - the image meets minimum size
+		if "minimum_size" not in params:  # if we don't have a minimum size requirement, return True - the image meets minimum size
 			return True
 
 		if os.path.getsize(image) < params["minimum_size"]:
@@ -210,7 +210,7 @@ class Command(BaseCommand):
 						else:
 							log.debug("Newest image is {}".format(new_image))
 
-						if not self.check_minimum_size(new_image):
+						if not self.check_minimum_size(new_image, waypoint_info):
 							log.warning("Skipping upload. Image for waypoint {} doesn't meet minimum size requirements.".format(waypoint))
 							_move_image(new_image, base_folder)  # move it to the uploaded folder anyway to get it out of the way
 							continue
