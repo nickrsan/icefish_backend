@@ -178,7 +178,7 @@ class Command(BaseCommand):
 		# if it's on the network, set it up so the service version can connect to the files
 		if settings.WAYPOINT_IMAGE_FOLDER.startswith(r"\\"):
 			try:
-				connect_command = 'NET USE {} /User:{} "{}"'.format(settings.WAYPOINT_IMAGE_FOLDER, settings.WAYPOINT_IMAGE_USERNAME, settings.WAYPOINT_IMAGE_PASSWORD)
+				connect_command = 'NET USE {}: {} /User:{} "{}"'.format(settings.WAYPOINT_IMAGE_DRIVE_LETTER, settings.WAYPOINT_IMAGE_FOLDER, settings.WAYPOINT_IMAGE_USERNAME, settings.WAYPOINT_IMAGE_PASSWORD)
 				subprocess.check_call(connect_command, stdout=subprocess.PIPE, shell=True)
 			except subprocess.CalledProcessError as e:
 				log.warning("Failed to connect network drive for images. This can be ignored if running interactively and drives are mapped, but should be noted if this crops up from the service. Error reported was: {}".format(str(e)))

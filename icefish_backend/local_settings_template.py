@@ -107,6 +107,7 @@ REMOTE_SERVER_PASSWORD = ""
 
 # IMAGE STORAGE FOLDERS for tracking and uploads
 WAYPOINT_IMAGE_FOLDER = r""  # base folder that has waypoint and interval images
+WAYPOINT_IMAGE_DRIVE_LETTER = "j"  # the drive letter to map the image folder to when running as a service.
 WAYPOINT_IMAGE_UPLOADED_FOLDER = r"uploaded"  # subfolder name to put uploaded images into within each waypoint folder
 WAYPOINT_IMAGE_USERNAME = ""  # username and password are needed because it'll map a connection to the storage array when it runs as its own user account in service-mode - works without this when run as a standalone script in current user context
 WAYPOINT_IMAGE_PASSWORD = ""
