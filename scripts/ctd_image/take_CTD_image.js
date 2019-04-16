@@ -6,24 +6,9 @@ const puppeteer = require('puppeteer');
 //v 1.0 uses 90 second delay to wait for data load (results in some 4kb blue images) 4/5/19 pc
 
 
-const { exec } = require('child_process');
-
 async function run() {
 	
-	// an attempt to get the network drive mapped for this script - I've removed the username and password
-	exec('net use \\192.168.0.42\photos', (err, stdout, stderr) => {
-		  if (err) {
-			  console.log("Failed to connect");
-			// node couldn't execute the command
-			return;
-		  }
-
-		  // the *entire* stdout and stderr (buffered)
-		  console.log(`stdout: ${stdout}`);
-		  console.log(`stderr: ${stderr}`);
-		});  // map the network connection
-
-	var output_path = 'file://192.168.0.42/photos/incoming/CTD_image/CTD_';
+	var output_path = 'j:/incoming/CTD_image/CTD_';
 	var load_wait = 8000;   // ms - time to wait for all code to load on the page before changing the sizes
 	var data_wait = 120000;  //ms - time to wait for data to load
 	
