@@ -256,7 +256,7 @@ class NCDCWeather(object):
 			record.find_weather()
 			record.save()
 
-	def load_data(self):
+	def load_data(self, update_ctd_records=True):
 		"""
 			Main point of entry - handles the rest of the code
 		:return:
@@ -269,7 +269,8 @@ class NCDCWeather(object):
 			self._convert_weather_file()
 			self._transform_and_load_corrected_weather_file()
 			self.get_valid_times()
-			self.update_ctd_records()
+			if update_ctd_records is True:
+				self.update_ctd_records()
 
 		finally:
 			if not local_settings.DEBUG:
@@ -285,16 +286,17 @@ class NCDCWeather(object):
 				os.unlink(path)
 
 
-def update_weather_data():
+def update_weather_data(year=None):
 	# check to see if weather data for last year is complete
 	# if not, download last years, and go through pipeline
 	# then do this year's
 
-	year = datetime.datetime.utcnow().year
+	if year is None:
+		year = datetime.datetime.utcnow().year
 	weather = NCDCWeather(year)
-	if not weather.last_year_complete():  # check if last year is complete - if it's not, then load it. Don't go earlier than 2017
+	if year >= 2018 and not weather.last_year_complete():  # check if last year is complete - if it's not, then load it. Don't go earlier than 2017
 		last_year = NCDCWeather(year - 1)
 		last_year.load_data()
 	weather.load_data()  # now load this year
-
+    
 
