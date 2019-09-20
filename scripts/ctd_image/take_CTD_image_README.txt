@@ -7,9 +7,13 @@ modify some CSS, take an full-screen image capture of the CTD data only and send
 Requirements: One needs NodeJS and Chrome Puppeteer installed in the local code directory (325mb). One will have to run "npn install" to 
 build the local dependencies, etc. 
 
-Once node/puppeteer is installed, one needs only call:
+Once node/puppeteer is installed, one needs only call (from within the appropriuate directory):
 
 C:\Code\icefish_backend\scripts\ctd_image>node take_CTD_image.js
+
+or, at any location: 
+
+node C:\Code\icefish_backend\scripts\ctd_image\take_CTD_image.js
 
 Breifly, the code loads the kiosk (where the video fails a priori, so doesn't load), wait 5 seconds for the page elements
  to load, hide the spectrogram data, resize the CTD panel, and get rid of the toolbar in the data viewer.
