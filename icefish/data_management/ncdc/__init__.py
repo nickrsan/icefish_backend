@@ -30,6 +30,7 @@ class NCDCWeather(object):
 		self.gzip_path = None
 		self.sanitized_path = None
 		self.converted_path = None
+        self.quiet = False  # when "quiet" is True, doesn't log errors when it hit integrity constraints - just prints the message
 
 	def last_year_complete(self):
 		"""
@@ -173,7 +174,11 @@ class NCDCWeather(object):
 			try:
 				weather_record.save()
 			except IntegrityError:  # it could fail on duplicate datetimes, or if we didn't have the check about for sea_level_pressure being defined
-				log.warning("Failed to insert record with NCDC ID {} and datetime {}".format(weather_record.ncdc_id_value, weather_record.dt))
+				message = "Failed to insert record with NCDC ID {} and datetime {}".format(weather_record.ncdc_id_value, weather_record.dt)
+                if self.quiet is True:
+                    print(message)
+                else:
+                    log.warning(message)
 
 	def _check_values(self, weather_record):
 		"""
